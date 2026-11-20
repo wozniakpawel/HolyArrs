@@ -1579,5 +1579,11 @@
 	"server.suggest.trending-shows-on-streaming": "स्ट्रीमिंग पर ट्रेंडिंग टीवी शो",
 	"server.suggest.trending-on-streaming": "स्ट्रीमिंग पर ट्रेंडिंग",
 	"server.discover.popular": "लोकप्रिय",
-	"server.metadata.creator": "क्रिएटर"
+	"server.metadata.creator": "क्रिएटर",
+	"server.migrate.already-on-the-turned-down-list": "पहले से «ठुकराई गई» सूची में है",
+	"server.migrate.its-title-did-not-come-over": "इसका टाइटल नहीं आया",
+	"server.migrate.its-title-is-not-in-the": "इसका टाइटल लाइब्रेरी में नहीं है",
+	"server.migrate.on-the-old-app-s-blocklist": "पुराने ऐप की ब्लॉकलिस्ट में",
+	"server.migrate.the-old-app-gave-no-release": "पुराने ऐप ने इसका रिलीज़ नाम या प्रोटोकॉल नहीं दिया",
+	"server.migrate.turned-down": "ठुकराई गई"
 }

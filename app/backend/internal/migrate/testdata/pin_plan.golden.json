@@ -284,6 +284,18 @@
             "smtp_from": "s",
             "smtp_user": "s",
             "staff_to": "s"
+          },
+          "turn_down": {
+            "kind": "s",
+            "id": "s",
+            "ids": {
+              "s": "s"
+            },
+            "name": "s",
+            "info_hash": "s",
+            "protocol": "s",
+            "indexer": "s",
+            "reason": "s"
           }
         }
       ]

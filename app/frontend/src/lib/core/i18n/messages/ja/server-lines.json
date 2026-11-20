@@ -1579,5 +1579,11 @@
 	"server.suggest.trending-shows-on-streaming": "配信でトレンドの番組",
 	"server.suggest.trending-on-streaming": "配信でトレンド",
 	"server.discover.popular": "人気",
-	"server.metadata.creator": "原作者"
+	"server.metadata.creator": "原作者",
+	"server.migrate.already-on-the-turned-down-list": "すでに「不採用」リストにあります",
+	"server.migrate.its-title-did-not-come-over": "タイトルが移行されていません",
+	"server.migrate.its-title-is-not-in-the": "タイトルがライブラリにありません",
+	"server.migrate.on-the-old-app-s-blocklist": "以前のアプリのブロックリストにあります",
+	"server.migrate.the-old-app-gave-no-release": "以前のアプリがリリース名やプロトコルを返しませんでした",
+	"server.migrate.turned-down": "不採用"
 }

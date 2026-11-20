@@ -1579,5 +1579,11 @@
 	"server.suggest.trending-shows-on-streaming": "Serije u trendu na streamingu",
 	"server.suggest.trending-on-streaming": "U trendu na streamingu",
 	"server.discover.popular": "Popularno",
-	"server.metadata.creator": "Autor"
+	"server.metadata.creator": "Autor",
+	"server.migrate.already-on-the-turned-down-list": "već je na popisu „Odbačeno”",
+	"server.migrate.its-title-did-not-come-over": "njegov naslov nije prenesen",
+	"server.migrate.its-title-is-not-in-the": "njegov naslov nije u biblioteci",
+	"server.migrate.on-the-old-app-s-blocklist": "na popisu blokiranih stare aplikacije",
+	"server.migrate.the-old-app-gave-no-release": "stara aplikacija nije dala naziv izdanja ni protokol",
+	"server.migrate.turned-down": "Odbačeno"
 }

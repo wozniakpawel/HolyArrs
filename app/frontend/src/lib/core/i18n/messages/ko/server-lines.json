@@ -1579,5 +1579,11 @@
 	"server.suggest.trending-shows-on-streaming": "스트리밍 인기 TV 시리즈",
 	"server.suggest.trending-on-streaming": "스트리밍 인기 급상승",
 	"server.discover.popular": "인기순",
-	"server.metadata.creator": "제작자"
+	"server.metadata.creator": "제작자",
+	"server.migrate.already-on-the-turned-down-list": "이미 '거부됨' 목록에 있음",
+	"server.migrate.its-title-did-not-come-over": "작품이 옮겨지지 않았음",
+	"server.migrate.its-title-is-not-in-the": "작품이 라이브러리에 없음",
+	"server.migrate.on-the-old-app-s-blocklist": "이전 앱의 차단 목록에 있음",
+	"server.migrate.the-old-app-gave-no-release": "이전 앱이 릴리스 이름이나 프로토콜을 주지 않았음",
+	"server.migrate.turned-down": "거부됨"
 }

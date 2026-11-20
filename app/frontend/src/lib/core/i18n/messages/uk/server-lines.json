@@ -1579,5 +1579,11 @@
 	"server.suggest.trending-shows-on-streaming": "Серіали в тренді на стрімінгу",
 	"server.suggest.trending-on-streaming": "У тренді на стрімінгу",
 	"server.discover.popular": "Популярне",
-	"server.metadata.creator": "Автор"
+	"server.metadata.creator": "Автор",
+	"server.migrate.already-on-the-turned-down-list": "вже в списку «Відкинуто»",
+	"server.migrate.its-title-did-not-come-over": "його тайтл не перенесено",
+	"server.migrate.its-title-is-not-in-the": "його тайтла немає в бібліотеці",
+	"server.migrate.on-the-old-app-s-blocklist": "у чорному списку старого застосунку",
+	"server.migrate.the-old-app-gave-no-release": "старий застосунок не вказав назву релізу чи протокол",
+	"server.migrate.turned-down": "Відкинуто"
 }

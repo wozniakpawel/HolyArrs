@@ -1579,5 +1579,11 @@
 	"server.suggest.trending-shows-on-streaming": "流媒體熱播影集",
 	"server.suggest.trending-on-streaming": "流媒體熱播",
 	"server.discover.popular": "熱門",
-	"server.metadata.creator": "創作者"
+	"server.metadata.creator": "創作者",
+	"server.migrate.already-on-the-turned-down-list": "已在「已排除」清單中",
+	"server.migrate.its-title-did-not-come-over": "它的作品沒有遷移過來",
+	"server.migrate.its-title-is-not-in-the": "它的作品不在媒體庫中",
+	"server.migrate.on-the-old-app-s-blocklist": "在舊應用的封鎖清單中",
+	"server.migrate.the-old-app-gave-no-release": "舊應用沒有給出發行名稱或協定",
+	"server.migrate.turned-down": "已排除"
 }

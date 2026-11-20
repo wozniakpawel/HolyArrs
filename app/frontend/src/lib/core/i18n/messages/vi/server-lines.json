@@ -1579,5 +1579,11 @@
 	"server.suggest.trending-shows-on-streaming": "Phim bộ đang thịnh hành trên các dịch vụ phát trực tuyến",
 	"server.suggest.trending-on-streaming": "Đang thịnh hành trên các dịch vụ phát trực tuyến",
 	"server.discover.popular": "Phổ biến",
-	"server.metadata.creator": "Người sáng tạo"
+	"server.metadata.creator": "Người sáng tạo",
+	"server.migrate.already-on-the-turned-down-list": "đã có trong danh sách “Đã loại”",
+	"server.migrate.its-title-did-not-come-over": "tựa của nó không được chuyển sang",
+	"server.migrate.its-title-is-not-in-the": "tựa của nó không có trong Thư viện",
+	"server.migrate.on-the-old-app-s-blocklist": "trong danh sách chặn của ứng dụng cũ",
+	"server.migrate.the-old-app-gave-no-release": "ứng dụng cũ không cho tên bản phát hành hay giao thức",
+	"server.migrate.turned-down": "Đã loại"
 }

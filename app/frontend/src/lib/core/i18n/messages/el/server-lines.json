@@ -1579,5 +1579,11 @@
 	"server.suggest.trending-shows-on-streaming": "Σειρές που κάνουν τάση στο streaming",
 	"server.suggest.trending-on-streaming": "Τάσεις στο streaming",
 	"server.discover.popular": "Δημοφιλή",
-	"server.metadata.creator": "Δημιουργός"
+	"server.metadata.creator": "Δημιουργός",
+	"server.migrate.already-on-the-turned-down-list": "είναι ήδη στη λίστα «Απορρίφθηκαν»",
+	"server.migrate.its-title-did-not-come-over": "ο τίτλος του δεν μεταφέρθηκε",
+	"server.migrate.its-title-is-not-in-the": "ο τίτλος του δεν είναι στη βιβλιοθήκη",
+	"server.migrate.on-the-old-app-s-blocklist": "στη λίστα αποκλεισμού της παλιάς εφαρμογής",
+	"server.migrate.the-old-app-gave-no-release": "η παλιά εφαρμογή δεν έδωσε όνομα έκδοσης ή πρωτόκολλο",
+	"server.migrate.turned-down": "Απορρίφθηκαν"
 }

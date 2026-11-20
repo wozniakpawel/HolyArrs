@@ -1579,5 +1579,11 @@
 	"server.suggest.trending-shows-on-streaming": "স্ট্রিমিংয়ে ট্রেন্ডিং শো",
 	"server.suggest.trending-on-streaming": "স্ট্রিমিংয়ে ট্রেন্ডিং",
 	"server.discover.popular": "জনপ্রিয়",
-	"server.metadata.creator": "নির্মাতা"
+	"server.metadata.creator": "নির্মাতা",
+	"server.migrate.already-on-the-turned-down-list": "ইতিমধ্যে «বাতিল করা» তালিকায় আছে",
+	"server.migrate.its-title-did-not-come-over": "এর টাইটেল আনা হয়নি",
+	"server.migrate.its-title-is-not-in-the": "এর টাইটেল লাইব্রেরিতে নেই",
+	"server.migrate.on-the-old-app-s-blocklist": "পুরোনো অ্যাপের ব্লকলিস্টে",
+	"server.migrate.the-old-app-gave-no-release": "পুরোনো অ্যাপ এর রিলিজের নাম বা প্রোটোকল দেয়নি",
+	"server.migrate.turned-down": "বাতিল করা"
 }

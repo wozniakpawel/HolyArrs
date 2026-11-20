@@ -1579,5 +1579,11 @@
 	"server.suggest.trending-shows-on-streaming": "Trending na show sa streaming",
 	"server.suggest.trending-on-streaming": "Trending sa streaming",
 	"server.discover.popular": "Sikat",
-	"server.metadata.creator": "Creator"
+	"server.metadata.creator": "Creator",
+	"server.migrate.already-on-the-turned-down-list": "nasa listahang \"Tinanggihan\" na",
+	"server.migrate.its-title-did-not-come-over": "hindi nailipat ang pamagat nito",
+	"server.migrate.its-title-is-not-in-the": "wala sa Library ang pamagat nito",
+	"server.migrate.on-the-old-app-s-blocklist": "nasa blocklist ng lumang app",
+	"server.migrate.the-old-app-gave-no-release": "walang ibinigay na pangalan ng release o protocol ang lumang app",
+	"server.migrate.turned-down": "Tinanggihan"
 }

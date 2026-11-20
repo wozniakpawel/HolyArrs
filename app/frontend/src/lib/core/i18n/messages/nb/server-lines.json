@@ -1579,5 +1579,11 @@
 	"server.suggest.trending-shows-on-streaming": "Trendy serier på strømming",
 	"server.suggest.trending-on-streaming": "Trendy på strømming",
 	"server.discover.popular": "Populært",
-	"server.metadata.creator": "Skaper"
+	"server.metadata.creator": "Skaper",
+	"server.migrate.already-on-the-turned-down-list": "står allerede på listen «Avvist»",
+	"server.migrate.its-title-did-not-come-over": "tittelen ble ikke med over",
+	"server.migrate.its-title-is-not-in-the": "tittelen er ikke i biblioteket",
+	"server.migrate.on-the-old-app-s-blocklist": "på blokkeringslisten i den gamle appen",
+	"server.migrate.the-old-app-gave-no-release": "den gamle appen ga ikke utgivelsesnavn eller protokoll",
+	"server.migrate.turned-down": "Avvist"
 }

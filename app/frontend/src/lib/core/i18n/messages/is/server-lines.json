@@ -1579,5 +1579,11 @@
 	"server.suggest.trending-shows-on-streaming": "Vinsælir þættir á streymi",
 	"server.suggest.trending-on-streaming": "Vinsælt á streymi",
 	"server.discover.popular": "Vinsælt",
-	"server.metadata.creator": "Höfundur"
+	"server.metadata.creator": "Höfundur",
+	"server.migrate.already-on-the-turned-down-list": "er þegar á listanum „Hafnað“",
+	"server.migrate.its-title-did-not-come-over": "titill hans kom ekki yfir",
+	"server.migrate.its-title-is-not-in-the": "titill hans er ekki í safninu",
+	"server.migrate.on-the-old-app-s-blocklist": "á bannlista gamla forritsins",
+	"server.migrate.the-old-app-gave-no-release": "gamla forritið gaf ekkert útgáfuheiti eða samskiptareglu",
+	"server.migrate.turned-down": "Hafnað"
 }

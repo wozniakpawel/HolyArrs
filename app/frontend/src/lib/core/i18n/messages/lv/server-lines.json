@@ -1579,5 +1579,11 @@
 	"server.suggest.trending-shows-on-streaming": "Tendencēs seriāli straumēšanā",
 	"server.suggest.trending-on-streaming": "Tendences straumēšanā",
 	"server.discover.popular": "Populārs",
-	"server.metadata.creator": "Veidotājs"
+	"server.metadata.creator": "Veidotājs",
+	"server.migrate.already-on-the-turned-down-list": "jau ir sarakstā “Noraidīts”",
+	"server.migrate.its-title-did-not-come-over": "tā nosaukums netika pārnests",
+	"server.migrate.its-title-is-not-in-the": "tā nosaukuma nav bibliotēkā",
+	"server.migrate.on-the-old-app-s-blocklist": "vecās lietotnes bloķēšanas sarakstā",
+	"server.migrate.the-old-app-gave-no-release": "vecā lietotne nedeva laidiena nosaukumu vai protokolu",
+	"server.migrate.turned-down": "Noraidīts"
 }

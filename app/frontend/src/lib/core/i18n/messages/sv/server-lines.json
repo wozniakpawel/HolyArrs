@@ -1579,5 +1579,11 @@
 	"server.suggest.trending-shows-on-streaming": "Trendande serier på streaming",
 	"server.suggest.trending-on-streaming": "Trendar på streaming",
 	"server.discover.popular": "Populärt",
-	"server.metadata.creator": "Skapare"
+	"server.metadata.creator": "Skapare",
+	"server.migrate.already-on-the-turned-down-list": "står redan på listan ”Nekade”",
+	"server.migrate.its-title-did-not-come-over": "dess titel kom inte med",
+	"server.migrate.its-title-is-not-in-the": "dess titel finns inte i biblioteket",
+	"server.migrate.on-the-old-app-s-blocklist": "på den gamla appens spärrlista",
+	"server.migrate.the-old-app-gave-no-release": "den gamla appen gav inget releasenamn eller protokoll",
+	"server.migrate.turned-down": "Nekade"
 }

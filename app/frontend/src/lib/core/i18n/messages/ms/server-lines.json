@@ -1579,5 +1579,11 @@
 	"server.suggest.trending-shows-on-streaming": "Siri sedang tren di strim",
 	"server.suggest.trending-on-streaming": "Sedang tren di strim",
 	"server.discover.popular": "Popular",
-	"server.metadata.creator": "Pencipta"
+	"server.metadata.creator": "Pencipta",
+	"server.migrate.already-on-the-turned-down-list": "sudah dalam senarai \"Ditolak\"",
+	"server.migrate.its-title-did-not-come-over": "tajuknya tidak dibawa",
+	"server.migrate.its-title-is-not-in-the": "tajuknya tiada dalam Pustaka",
+	"server.migrate.on-the-old-app-s-blocklist": "dalam senarai sekatan aplikasi lama",
+	"server.migrate.the-old-app-gave-no-release": "aplikasi lama tidak memberi nama keluaran atau protokol",
+	"server.migrate.turned-down": "Ditolak"
 }

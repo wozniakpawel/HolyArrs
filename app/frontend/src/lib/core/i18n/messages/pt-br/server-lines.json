@@ -1579,5 +1579,11 @@
 	"server.suggest.trending-shows-on-streaming": "Séries em alta no streaming",
 	"server.suggest.trending-on-streaming": "Em alta no streaming",
 	"server.discover.popular": "Popular",
-	"server.metadata.creator": "Criador"
+	"server.metadata.creator": "Criador",
+	"server.migrate.already-on-the-turned-down-list": "já está na lista “Descartados”",
+	"server.migrate.its-title-did-not-come-over": "o título não veio junto",
+	"server.migrate.its-title-is-not-in-the": "o título não está na Biblioteca",
+	"server.migrate.on-the-old-app-s-blocklist": "na lista de bloqueio do app antigo",
+	"server.migrate.the-old-app-gave-no-release": "o app antigo não deu nome de lançamento nem protocolo",
+	"server.migrate.turned-down": "Descartados"
 }

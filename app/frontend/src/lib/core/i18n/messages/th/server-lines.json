@@ -1579,5 +1579,11 @@
 	"server.suggest.trending-shows-on-streaming": "ซีรีส์ที่กำลังมาแรงบนสตรีมมิง",
 	"server.suggest.trending-on-streaming": "กำลังมาแรงบนสตรีมมิง",
 	"server.discover.popular": "ยอดนิยม",
-	"server.metadata.creator": "ผู้สร้าง"
+	"server.metadata.creator": "ผู้สร้าง",
+	"server.migrate.already-on-the-turned-down-list": "อยู่ในรายการ \"ปฏิเสธแล้ว\" แล้ว",
+	"server.migrate.its-title-did-not-come-over": "ไม่ได้ย้ายเรื่องนี้มา",
+	"server.migrate.its-title-is-not-in-the": "เรื่องนี้ไม่อยู่ในคลัง",
+	"server.migrate.on-the-old-app-s-blocklist": "อยู่ในรายการบล็อกของแอปเก่า",
+	"server.migrate.the-old-app-gave-no-release": "แอปเก่าไม่ได้ให้ชื่อรีลีสหรือโปรโตคอล",
+	"server.migrate.turned-down": "ปฏิเสธแล้ว"
 }

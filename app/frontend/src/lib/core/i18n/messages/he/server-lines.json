@@ -1579,5 +1579,11 @@
 	"server.suggest.trending-shows-on-streaming": "סדרות בטרנד בסטרימינג",
 	"server.suggest.trending-on-streaming": "בטרנד בסטרימינג",
 	"server.discover.popular": "פופולרי",
-	"server.metadata.creator": "יוצר"
+	"server.metadata.creator": "יוצר",
+	"server.migrate.already-on-the-turned-down-list": "כבר ברשימה „נפסל”",
+	"server.migrate.its-title-did-not-come-over": "הכותר שלו לא הועבר",
+	"server.migrate.its-title-is-not-in-the": "הכותר שלו לא בספרייה",
+	"server.migrate.on-the-old-app-s-blocklist": "ברשימת החסימה של האפליקציה הישנה",
+	"server.migrate.the-old-app-gave-no-release": "האפליקציה הישנה לא נתנה שם הוצאה או פרוטוקול",
+	"server.migrate.turned-down": "נפסל"
 }

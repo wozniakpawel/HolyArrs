@@ -1579,5 +1579,11 @@
 	"server.suggest.trending-shows-on-streaming": "Seriale în trend pe streaming",
 	"server.suggest.trending-on-streaming": "În trend pe streaming",
 	"server.discover.popular": "Populare",
-	"server.metadata.creator": "Creator"
+	"server.metadata.creator": "Creator",
+	"server.migrate.already-on-the-turned-down-list": "este deja pe lista „Respins”",
+	"server.migrate.its-title-did-not-come-over": "titlul său nu a fost adus",
+	"server.migrate.its-title-is-not-in-the": "titlul său nu este în bibliotecă",
+	"server.migrate.on-the-old-app-s-blocklist": "pe lista de blocare a aplicației vechi",
+	"server.migrate.the-old-app-gave-no-release": "aplicația veche nu a dat numele lansării sau protocolul",
+	"server.migrate.turned-down": "Respins"
 }

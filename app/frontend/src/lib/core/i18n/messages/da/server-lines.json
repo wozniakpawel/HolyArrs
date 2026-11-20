@@ -1579,5 +1579,11 @@
 	"server.suggest.trending-shows-on-streaming": "Serier, der trender på streaming",
 	"server.suggest.trending-on-streaming": "Trender på streaming",
 	"server.discover.popular": "Populære",
-	"server.metadata.creator": "Skaber"
+	"server.metadata.creator": "Skaber",
+	"server.migrate.already-on-the-turned-down-list": "er allerede på listen “Afvist”",
+	"server.migrate.its-title-did-not-come-over": "dens titel kom ikke med",
+	"server.migrate.its-title-is-not-in-the": "dens titel er ikke i biblioteket",
+	"server.migrate.on-the-old-app-s-blocklist": "på den gamle apps blokeringsliste",
+	"server.migrate.the-old-app-gave-no-release": "den gamle app gav intet udgivelsesnavn eller protokol",
+	"server.migrate.turned-down": "Afvist"
 }

@@ -1579,5 +1579,11 @@
 	"server.suggest.trending-shows-on-streaming": "Sèries en tendència en streaming",
 	"server.suggest.trending-on-streaming": "Tendència en streaming",
 	"server.discover.popular": "Populars",
-	"server.metadata.creator": "Creador"
+	"server.metadata.creator": "Creador",
+	"server.migrate.already-on-the-turned-down-list": "ja és a la llista «Descartats»",
+	"server.migrate.its-title-did-not-come-over": "el seu títol no s'ha portat",
+	"server.migrate.its-title-is-not-in-the": "el seu títol no és a la biblioteca",
+	"server.migrate.on-the-old-app-s-blocklist": "a la llista de bloqueig de l'app antiga",
+	"server.migrate.the-old-app-gave-no-release": "l'app antiga no en va donar el nom de la versió ni el protocol",
+	"server.migrate.turned-down": "Descartats"
 }
