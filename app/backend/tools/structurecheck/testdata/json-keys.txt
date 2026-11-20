@@ -316,6 +316,7 @@ change
 changed
 changelog_url
 changes
+channel
 channel_id
 channel_name
 channels
@@ -977,6 +978,7 @@ listen_count
 listeners
 listeners_change_today
 live_key
+live_status
 local
 local_network_allowed
 local_networks
@@ -1351,6 +1353,7 @@ plans
 play_count
 playabilityStatus
 playerStoryboardSpecRenderer
+playlist_count
 plays
 plex
 plex_friends
@@ -1504,6 +1507,7 @@ release_names
 release_profiles
 release_statuses
 release_tests
+release_timestamp
 released
 released_at
 releases
@@ -1849,6 +1853,7 @@ time_zone
 timed
 timeleft
 timeout_ms
+timestamp
 timezone
 title
 titleSlug
@@ -2003,6 +2008,7 @@ upgrade_allowed
 upgrade_min_points
 uploadLength
 uploadSpeed
+upload_date
 upload_payload_rate
 uploaded
 uploaded_at
