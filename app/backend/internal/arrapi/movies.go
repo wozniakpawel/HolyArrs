@@ -286,7 +286,7 @@ func (h *handler) loadMovies(ctx context.Context, lookup bool, where string, arg
 		m := movie{ID: t.ID, Title: t.Name, SortTitle: t.SortName, Status: movieStatus(t.CinemaDate, t.DigitalDate, t.PhysicalDate, now),
 			InCinemas: utcPtr(t.CinemaDate), PhysicalRelease: utcPtr(t.PhysicalDate), DigitalRelease: utcPtr(t.DigitalDate),
 			QualityProfileID: v.PickRulesID, Monitored: t.KeepUpToDate, MinimumAvailability: availability(t.ReleaseGate),
-			IsAvailable: t.GateOpensAt != nil && !t.GateOpensAt.After(now), Runtime: t.RuntimeMinutes, TmdbID: sourceID(t.SourceIDs, "tmdb"),
+			IsAvailable: library.GateOpen(t.GateDriver, t.GateOpensAt, now), Runtime: t.RuntimeMinutes, TmdbID: sourceID(t.SourceIDs, "tmdb"),
 			ImdbID: t.SourceIDs["imdb"], TitleSlug: t.SourceIDs["tmdb"], Genres: nonNil(t.Genres), Tags: []int64{}, Added: utc(t.CreatedAt),
 			Images: h.libraryImages(ctx, t), AlternateTitles: ptr(alternateTitles(h.side, t.ID, t.Aliases)), OriginalLanguage: ptr(originalLanguage(h.side, t.OriginalLanguage))}
 		if l := tags[t.ID]; l != nil {
