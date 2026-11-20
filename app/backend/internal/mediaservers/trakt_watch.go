@@ -3,6 +3,7 @@ package mediaservers
 import (
 	"context"
 	"errors"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -31,9 +32,35 @@ type traktWatched struct {
 
 // traktIDs are a Trakt title's ids; Trakt sends numbers for TMDB and TVDB.
 type traktIDs struct {
-	TMDB int64  `json:"tmdb"`
-	TVDB int64  `json:"tvdb"`
-	IMDB string `json:"imdb"`
+	Trakt int64  `json:"trakt"`
+	TMDB  int64  `json:"tmdb"`
+	TVDB  int64  `json:"tvdb"`
+	IMDB  string `json:"imdb"`
+}
+
+// traktProgress is a show's watched progress: Trakt's watched shows list
+// no longer carries the seasons, so each Library show's episodes come from
+// here.
+type traktProgress struct {
+	Seasons []struct {
+		Number   int `json:"number"`
+		Episodes []struct {
+			Number        int    `json:"number"`
+			Completed     bool   `json:"completed"`
+			LastWatchedAt string `json:"last_watched_at"`
+			Stats         struct {
+				PlayCount int `json:"play_count"`
+			} `json:"stats"`
+		} `json:"episodes"`
+	} `json:"seasons"`
+}
+
+// ref is how Trakt's show routes name the show: its Trakt id, else IMDb.
+func (ids traktIDs) ref() string {
+	if ids.Trakt > 0 {
+		return strconv.FormatInt(ids.Trakt, 10)
+	}
+	return url.PathEscape(ids.IMDB)
 }
 
 // title finds the Library title of kind with one of the ids.
@@ -100,11 +127,34 @@ func (l *Linker) readTraktHistory(ctx context.Context, person int64, keys map[st
 		if id == 0 {
 			continue
 		}
-		for _, s := range w.Seasons {
-			for _, e := range s.Episodes {
-				if e.Number > 0 {
-					p.add("", id, s.Number, e.Number, e.Plays, traktTime(e.LastWatchedAt))
+		if len(w.Seasons) > 0 {
+			for _, s := range w.Seasons {
+				for _, e := range s.Episodes {
+					if e.Number > 0 {
+						p.add("", id, s.Number, e.Number, e.Plays, traktTime(e.LastWatchedAt))
+					}
 				}
+			}
+			continue
+		}
+		ref := w.Show.IDs.ref()
+		if ref == "" {
+			continue
+		}
+		var pr traktProgress
+		err := l.Trakt.Read(ctx, "/shows/"+ref+"/progress/watched?specials=true", &pr)
+		if errors.Is(err, metadata.ErrNotFound) {
+			continue
+		}
+		if err != nil {
+			return err
+		}
+		for _, s := range pr.Seasons {
+			for _, e := range s.Episodes {
+				if e.Number <= 0 || !e.Completed {
+					continue
+				}
+				p.add("", id, s.Number, e.Number, max(e.Stats.PlayCount, 1), traktTime(e.LastWatchedAt))
 			}
 		}
 	}

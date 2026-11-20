@@ -17,7 +17,8 @@ import (
 
 // fakeTraktHistory plays Trakt: the device sign-in, and the signed-in
 // person's watched movies (The Matrix twice, one movie not in the Library)
-// and shows (Severance 1x1 and 1x2). good says whether Trakt still takes
+// and shows (Severance 1x1 and 1x2, read from its progress as Trakt
+// answers now; a show not in the Library is never asked about). good says whether Trakt still takes
 // the token.
 func fakeTraktHistory(t *testing.T, good *atomic.Bool) *httptest.Server {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -40,8 +41,14 @@ func fakeTraktHistory(t *testing.T, good *atomic.Bool) *httptest.Server {
 			_, _ = w.Write([]byte(`[{"plays":2,"last_watched_at":"2026-11-01T20:00:00.000Z","movie":{"title":"The Matrix","ids":{"trakt":481,"imdb":"tt0133093","tmdb":603}}},
 				{"plays":1,"movie":{"title":"Elsewhere","ids":{"tmdb":999999}}}]`))
 		case "/sync/watched/shows":
-			_, _ = w.Write([]byte(`[{"plays":2,"show":{"title":"Severance","ids":{"tvdb":100,"tmdb":95396}},
-				"seasons":[{"number":1,"episodes":[{"number":1,"plays":1,"last_watched_at":"2026-11-02T20:00:00.000Z"},{"number":2,"plays":1}]}]}]`))
+			// As Trakt answers now: no seasons, so the episodes come from
+			// the show's progress.
+			_, _ = w.Write([]byte(`[{"plays":2,"show":{"title":"Severance","ids":{"trakt":143,"tvdb":100,"tmdb":95396}}},
+				{"plays":5,"show":{"title":"Elsewhere","ids":{"trakt":555,"tvdb":999999}}}]`))
+		case "/shows/143/progress/watched":
+			_, _ = w.Write([]byte(`{"seasons":[{"number":0,"episodes":[{"number":1,"completed":false,"stats":{"play_count":0}}]},
+				{"number":1,"episodes":[{"number":1,"completed":true,"last_watched_at":"2026-11-02T20:00:00.000Z","stats":{"play_count":1}},
+				{"number":2,"completed":true,"stats":{"play_count":1}},{"number":3,"completed":false,"stats":{"play_count":0}}]}]}`))
 		default:
 			w.WriteHeader(http.StatusNotFound)
 		}
