@@ -1579,5 +1579,9 @@
 	"server.suggest.trending-shows-on-streaming": "Сериалы в тренде на стримингах",
 	"server.suggest.trending-on-streaming": "В тренде на стримингах",
 	"server.discover.popular": "Популярные",
-	"server.metadata.creator": "Создатель"
+	"server.metadata.creator": "Создатель",
+	"server.migrate.its-seasons": "{name}: его сезоны",
+	"server.migrate.holyarrs-cannot-keep-only-the-first": "HolyArrs не может оставить только первую серию; список оставляет первый сезон",
+	"server.migrate.holyarrs-reads-tmdb-lists-and-public-3": "HolyArrs читает только списки TMDB и публичные списки Trakt; этот список остаётся в Sonarr",
+	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs читает списки и списки к просмотру Trakt; список просмотренного или коллекции остаётся в Sonarr"
 }

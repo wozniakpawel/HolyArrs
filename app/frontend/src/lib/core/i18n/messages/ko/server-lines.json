@@ -1579,5 +1579,9 @@
 	"server.suggest.trending-shows-on-streaming": "스트리밍 인기 TV 시리즈",
 	"server.suggest.trending-on-streaming": "스트리밍 인기 급상승",
 	"server.discover.popular": "인기순",
-	"server.metadata.creator": "제작자"
+	"server.metadata.creator": "제작자",
+	"server.migrate.its-seasons": "{name}: 시즌",
+	"server.migrate.holyarrs-cannot-keep-only-the-first": "HolyArrs는 첫 화만 남길 수 없습니다. 목록은 첫 시즌을 남깁니다",
+	"server.migrate.holyarrs-reads-tmdb-lists-and-public-3": "HolyArrs는 TMDB 목록과 공개 Trakt 목록만 읽습니다. 이 목록은 Sonarr에 남습니다",
+	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs는 Trakt 목록과 관심 목록을 읽습니다. 시청 기록이나 컬렉션 목록은 Sonarr에 남습니다"
 }

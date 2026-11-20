@@ -1579,5 +1579,9 @@
 	"server.suggest.trending-shows-on-streaming": "Σειρές που κάνουν τάση στο streaming",
 	"server.suggest.trending-on-streaming": "Τάσεις στο streaming",
 	"server.discover.popular": "Δημοφιλή",
-	"server.metadata.creator": "Δημιουργός"
+	"server.metadata.creator": "Δημιουργός",
+	"server.migrate.its-seasons": "{name}: οι σεζόν του",
+	"server.migrate.holyarrs-cannot-keep-only-the-first": "Το HolyArrs δεν μπορεί να κρατήσει μόνο το πρώτο επεισόδιο· η λίστα κρατά την πρώτη σεζόν",
+	"server.migrate.holyarrs-reads-tmdb-lists-and-public-3": "Το HolyArrs διαβάζει μόνο λίστες TMDB και δημόσιες λίστες Trakt· αυτή η λίστα μένει στο Sonarr",
+	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "Το HolyArrs διαβάζει λίστες και watchlists του Trakt· μια λίστα watched ή collection μένει στο Sonarr"
 }

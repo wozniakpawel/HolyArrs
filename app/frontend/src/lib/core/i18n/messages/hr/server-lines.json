@@ -1579,5 +1579,9 @@
 	"server.suggest.trending-shows-on-streaming": "Serije u trendu na streamingu",
 	"server.suggest.trending-on-streaming": "U trendu na streamingu",
 	"server.discover.popular": "Popularno",
-	"server.metadata.creator": "Autor"
+	"server.metadata.creator": "Autor",
+	"server.migrate.its-seasons": "{name}: njegove sezone",
+	"server.migrate.holyarrs-cannot-keep-only-the-first": "HolyArrs ne može zadržati samo prvu epizodu; popis zadržava prvu sezonu",
+	"server.migrate.holyarrs-reads-tmdb-lists-and-public-3": "HolyArrs čita samo TMDB popise i javne Trakt popise; ovaj popis ostaje u Sonarru",
+	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs čita Trakt popise i popise za gledanje; popis pogledanog ili zbirke ostaje u Sonarru"
 }

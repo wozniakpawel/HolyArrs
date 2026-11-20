@@ -1579,5 +1579,9 @@
 	"server.suggest.trending-shows-on-streaming": "ஸ்ட்ரீமிங்கில் டிரெண்டிங் தொடர்கள்",
 	"server.suggest.trending-on-streaming": "ஸ்ட்ரீமிங்கில் டிரெண்டிங்",
 	"server.discover.popular": "பிரபலமானவை",
-	"server.metadata.creator": "படைப்பாளர்"
+	"server.metadata.creator": "படைப்பாளர்",
+	"server.migrate.its-seasons": "{name}: அதன் சீசன்கள்",
+	"server.migrate.holyarrs-cannot-keep-only-the-first": "HolyArrs முதல் எபிசோடை மட்டும் வைத்திருக்க முடியாது; பட்டியல் முதல் சீசனை வைத்திருக்கும்",
+	"server.migrate.holyarrs-reads-tmdb-lists-and-public-3": "HolyArrs TMDB பட்டியல்களையும் பொது Trakt பட்டியல்களையும் மட்டுமே படிக்கும்; இந்தப் பட்டியல் Sonarr இலேயே இருக்கும்",
+	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs Trakt பட்டியல்களையும் பார்வைப்பட்டியல்களையும் படிக்கும்; பார்த்த அல்லது சேகரிப்புப் பட்டியல் Sonarr இலேயே இருக்கும்"
 }

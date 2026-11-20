@@ -1579,5 +1579,9 @@
 	"server.suggest.trending-shows-on-streaming": "流媒體熱播影集",
 	"server.suggest.trending-on-streaming": "流媒體熱播",
 	"server.discover.popular": "熱門",
-	"server.metadata.creator": "創作者"
+	"server.metadata.creator": "創作者",
+	"server.migrate.its-seasons": "{name}：它的季",
+	"server.migrate.holyarrs-cannot-keep-only-the-first": "HolyArrs 無法只保留第一集；清單會保留第一季",
+	"server.migrate.holyarrs-reads-tmdb-lists-and-public-3": "HolyArrs 只讀取 TMDB 清單和公開的 Trakt 清單；這個清單仍留在 Sonarr",
+	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs 讀取 Trakt 清單和待看清單；已觀看或收藏的清單仍留在 Sonarr"
 }

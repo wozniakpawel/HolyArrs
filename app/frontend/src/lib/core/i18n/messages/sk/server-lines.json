@@ -1579,5 +1579,9 @@
 	"server.suggest.trending-shows-on-streaming": "Seriály v trende na streamingu",
 	"server.suggest.trending-on-streaming": "V trende na streamingu",
 	"server.discover.popular": "Populárne",
-	"server.metadata.creator": "Tvorca"
+	"server.metadata.creator": "Tvorca",
+	"server.migrate.its-seasons": "{name}: jeho série",
+	"server.migrate.holyarrs-cannot-keep-only-the-first": "HolyArrs nedokáže ponechať len prvú epizódu; zoznam ponechá prvú sériu",
+	"server.migrate.holyarrs-reads-tmdb-lists-and-public-3": "HolyArrs číta iba zoznamy TMDB a verejné zoznamy Trakt; tento zoznam zostáva v Sonarr",
+	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs číta zoznamy a zoznamy na pozeranie z Trakt; zoznam pozretých alebo zbierky zostáva v Sonarr"
 }
