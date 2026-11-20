@@ -33,7 +33,7 @@ The free key allows 1,000 requests a day. HolyArrs asks about 20 titles every 30
 
 Trakt needs a Trakt app of your own. It is free.
 
-1. On trakt.tv, open your API apps ([trakt.tv/oauth/applications](https://trakt.tv/oauth/applications)) and make a new app. Any name works. For the redirect address use `urn:ietf:wg:oauth:2.0:oob`. A new app has only a **Client ID**; that is all HolyArrs needs.
+1. On trakt.tv, open your API apps ([trakt.tv/oauth/applications](https://trakt.tv/oauth/applications)) and make a new app. Any name works. For the redirect address use `urn:ietf:wg:oauth:2.0:oob`. Trakt asks for one but sign-in does not use it. A new app has only a **Client ID**; that is all HolyArrs needs.
 2. In HolyArrs, open **Settings > Outside lists** and paste the Client ID under **Trakt key**, then save.
 
 With the key alone, HolyArrs reads public Trakt lists and watchlists, and each Library title's Trakt rating.
@@ -42,11 +42,11 @@ With the key alone, HolyArrs reads public Trakt lists and watchlists, and each L
 
 Signing in lets HolyArrs read your private lists and watchlist, the way Sonarr and Radarr do, and adds what you watched on Trakt to the watch history. Only the owner can sign in.
 
-1. Under **Trakt sign-in**, select **Sign in with Trakt**. Trakt opens in a new tab.
-2. Approve HolyArrs. Trakt shows a code.
-3. Paste the code back into HolyArrs and select **Finish sign-in**.
+1. Under **Trakt sign-in**, select **Sign in with Trakt**. HolyArrs shows a code.
+2. On any device, open [trakt.tv/activate](https://trakt.tv/activate), type the code and approve HolyArrs.
+3. Keep the HolyArrs page open. It sees the approval by itself and shows the Trakt username you signed in with.
 
-On a device where pasting is hard, select **Use a device code instead**: open the address it shows on any device and type the code. The page waits until you approve.
+The code lasts about 10 minutes. If it runs out or you turn it down, select **Sign in with Trakt** again for a new one.
 
 HolyArrs renews the sign-in by itself. If Trakt ends it (you removed the app on trakt.tv, for example), HolyArrs says so on the page and on each Trakt list it could not read; sign in again. Until then only public lists are read. **Sign out of Trakt** ends it here and at Trakt.
 

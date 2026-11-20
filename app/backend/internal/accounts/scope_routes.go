@@ -116,8 +116,6 @@ var RouteScopes = map[string]string{
 	"GET /api/v1/settings/trakt-signin":               webserver.ScopeAdmin, // the Trakt sign-in
 	"POST /api/v1/settings/trakt-signin":              webserver.ScopeAdmin, // the Trakt sign-in
 	"POST /api/v1/settings/trakt-signin/check":        webserver.ScopeAdmin, // the Trakt sign-in
-	"POST /api/v1/settings/trakt-signin/link":         webserver.ScopeAdmin, // the Trakt sign-in
-	"POST /api/v1/settings/trakt-signin/code":         webserver.ScopeAdmin, // the Trakt sign-in
 	"DELETE /api/v1/settings/trakt-signin":            webserver.ScopeAdmin, // the Trakt sign-in
 	"GET /api/v1/users":                               webserver.ScopeAdmin,
 	"GET /api/v1/users/media-accounts":                webserver.ScopeAdmin,

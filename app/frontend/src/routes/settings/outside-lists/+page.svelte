@@ -6,6 +6,7 @@
 	import SettingsCard from '#lib/ui/SettingsCard.svelte';
 	import PageHeader from '#lib/ui/PageHeader.svelte';
 	import Button from '#lib/ui/Button.svelte';
+	import Words from '#lib/ui/Words.svelte';
 	import Icon from '#lib/ui/Icon.svelte';
 	import EmptyState from '#lib/ui/EmptyState.svelte';
 	import LoadError from '#lib/ui/LoadError.svelte';
@@ -58,8 +59,6 @@
 	type TraktStatus = { client_id: boolean; client_secret: boolean; signed_in: boolean; username?: string; waiting: boolean; problem?: string };
 	let trakt = $state<TraktStatus | null>(null);
 	let traktSecret = $state('');
-	let traktLink = $state('');
-	let traktCode = $state('');
 	let traktDevice = $state<{ user_code: string; verification_url: string; interval: number } | null>(null);
 	let traktBusy = $state(false);
 	let traktSignError = $state('');
@@ -230,45 +229,10 @@
 		traktSignError = err instanceof ApiError && err.status === 403 ? t('settings.outsideLists.signInToChange') : message(err);
 	}
 
-	/** Starts the PKCE sign-in: opens Trakt's approve page; Trakt then shows a code to paste here. */
-	async function startTraktLink() {
-		stopTraktPoll();
-		traktSignError = '';
-		traktDevice = null;
-		traktBusy = true;
-		try {
-			traktLink = (await api.post<{ url: string }>('/settings/trakt-signin/link', {})).url;
-			traktCode = '';
-			window.open(traktLink, '_blank', 'noopener');
-		} catch (err) {
-			traktFailed(err);
-		} finally {
-			traktBusy = false;
-		}
-	}
-
-	async function finishTraktLink(e: SubmitEvent) {
-		e.preventDefault();
-		if (!traktCode.trim()) return;
-		traktSignError = '';
-		traktBusy = true;
-		try {
-			trakt = await api.post<TraktStatus>('/settings/trakt-signin/code', { code: traktCode.trim() });
-			traktLink = '';
-			traktCode = '';
-			toasts.push(t('settings.outsideLists.traktSignedIn'), 'ok');
-		} catch (err) {
-			traktFailed(err);
-		} finally {
-			traktBusy = false;
-		}
-	}
-
 	/** The device sign-in: shows a code to enter at Trakt and asks the server at Trakt's pace until it is approved. */
 	async function startTraktDevice() {
 		stopTraktPoll();
 		traktSignError = '';
-		traktLink = '';
 		traktBusy = true;
 		try {
 			traktDevice = await api.post<{ user_code: string; verification_url: string; interval: number }>('/settings/trakt-signin', {});
@@ -278,6 +242,16 @@
 		} finally {
 			traktBusy = false;
 		}
+	}
+
+	/** Where to type the code: Trakt's own address when it sends one, else trakt.tv/activate. */
+	function activateURL(url: string): string {
+		return /^https:\/\/([a-z0-9-]+\.)*trakt\.tv(\/|$)/i.test(url) ? url : 'https://trakt.tv/activate';
+	}
+
+	/** The address as people read it, without https://. */
+	function activateLabel(url: string): string {
+		return activateURL(url).replace(/^https:\/\//, '');
 	}
 
 	function pollTrakt() {
@@ -304,7 +278,6 @@
 		traktBusy = true;
 		try {
 			trakt = await api.del<TraktStatus>('/settings/trakt-signin');
-			traktLink = '';
 			traktDevice = null;
 			toasts.push(t('settings.outsideLists.traktSignedOut'), 'ok');
 		} catch (err) {
@@ -517,21 +490,19 @@
 						<div class="row"><Button type="button" disabled={traktBusy} onclick={signOutTrakt}>{t('settings.outsideLists.traktSignOut')}</Button></div>
 					{:else}
 						<div class="row">
-							<Button type="button" variant="primary" disabled={traktBusy} aria-busy={traktBusy} onclick={startTraktLink}>{t('settings.outsideLists.traktSignIn')}</Button>
-							<Button type="button" variant="plain" disabled={traktBusy} onclick={startTraktDevice}>{t('settings.outsideLists.traktDeviceInstead')}</Button>
+							<Button type="button" variant="primary" disabled={traktBusy || !!traktDevice} aria-busy={traktBusy || !!traktDevice} onclick={startTraktDevice}
+								>{t('settings.outsideLists.traktSignIn')}</Button
+							>
 						</div>
-						{#if traktLink}
-							<form onsubmit={finishTraktLink}>
-								<p class="small">{t('settings.outsideLists.traktPasteCode')} <a href={traktLink} target="_blank" rel="noopener noreferrer">trakt.tv</a></p>
-								<Field id="trakt-code" label={t('settings.outsideLists.traktCode')}>
-									<input id="trakt-code" class="input mono" bind:value={traktCode} autocomplete="off" spellcheck="false" />
-								</Field>
-								<div class="row"><Button type="submit" disabled={traktBusy || !traktCode.trim()} aria-busy={traktBusy}>{t('settings.outsideLists.traktFinish')}</Button></div>
-							</form>
-						{/if}
 						{#if traktDevice}
-							<p class="small" data-testid="trakt-device">
-								{t('settings.outsideLists.traktDeviceSteps', { url: traktDevice.verification_url, code: traktDevice.user_code })}
+							<p class="small" data-testid="trakt-device" role="status">
+								<Words
+									key="settings.outsideLists.traktDeviceSteps"
+									vars={{ url: activateLabel(traktDevice.verification_url), code: traktDevice.user_code }}
+									links={{ a: activateURL(traktDevice.verification_url) }}
+									codeClass="trakt-code"
+									external
+								/>
 							</p>
 						{/if}
 					{/if}
@@ -641,5 +612,12 @@
 	/* Buttons keep their full label; the row wraps instead. */
 	.acts :global(.ui-btn) {
 		flex: none;
+	}
+	/* The code to type at Trakt: big enough to read across the room. */
+	.trakt-signin :global(.trakt-code) {
+		font-size: 1.4em;
+		font-weight: 700;
+		letter-spacing: 0.12em;
+		user-select: all;
 	}
 </style>

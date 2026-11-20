@@ -486,8 +486,6 @@ POST /api/v1/settings/plex-labels/run auth=owner scope=admin assurance=false par
 POST /api/v1/settings/subtitles/translator/test auth=settings scope=write assurance=false part=subtitles
 POST /api/v1/settings/trakt-signin auth=owner scope=admin assurance=false part=core
 POST /api/v1/settings/trakt-signin/check auth=owner scope=admin assurance=false part=core
-POST /api/v1/settings/trakt-signin/code auth=owner scope=admin assurance=false part=core
-POST /api/v1/settings/trakt-signin/link auth=owner scope=admin assurance=false part=core
 POST /api/v1/shows auth=manage_library scope=write assurance=false part=shows
 POST /api/v1/sources auth=settings scope=write assurance=false part=core
 POST /api/v1/sources/check auth=settings scope=write assurance=false part=core
