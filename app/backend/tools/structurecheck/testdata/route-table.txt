@@ -272,6 +272,7 @@ GET /api/v1/users/{id}/sessions auth=users scope=admin assurance=false part=core
 GET /api/v1/watch-services auth=signed_in scope=read assurance=false part=media
 GET /api/v1/wiki/{kind}/{id} auth=signed_in scope=read assurance=false part=movies
 GET /calendar auth=unlisted scope=admin assurance=false part=-
+GET /command auth=unlisted scope=admin assurance=false part=-
 GET /command/{id} auth=unlisted scope=admin assurance=false part=-
 GET /config/mediamanagement auth=unlisted scope=admin assurance=false part=-
 GET /config/mediamanagement/{id} auth=unlisted scope=admin assurance=false part=-

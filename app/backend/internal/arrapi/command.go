@@ -309,6 +309,21 @@ func jobRecord(j domain.Job, name string, body map[string]any) commandRecord {
 }
 
 // getCommand polls a command by id. doneID always reads completed.
+// listCommands answers the old apps' list of commands with the Jobs a
+// command would have queued that are running now. Helmarr asks for it to
+// show what the server is busy with.
+func (h *handler) listCommands(w http.ResponseWriter, _ *http.Request) {
+	out := []any{}
+	if h.Queue != nil {
+		for _, j := range h.Queue.Running() {
+			if name := jobCommandName(j.Kind, h.side); name != "" {
+				out = append(out, jobRecord(j, name, map[string]any{"name": name}))
+			}
+		}
+	}
+	writeJSON(w, http.StatusOK, out)
+}
+
 func (h *handler) getCommand(w http.ResponseWriter, r *http.Request) {
 	id, ok := pathID(w, r)
 	if !ok {
