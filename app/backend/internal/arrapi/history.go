@@ -216,7 +216,7 @@ func (h *handler) historyRows(ctx context.Context) ([]historyRow, error) {
 			name = e.Summary
 		}
 		row.SourceTitle = name
-		row.Quality = qualityOfRelease(name)
+		row.Quality = qualityOfRelease(h.side, name)
 		if e.DownloadID != nil {
 			row.DownloadID = downloads[*e.DownloadID]
 		}
@@ -232,14 +232,9 @@ func (h *handler) historyRows(ctx context.Context) ([]historyRow, error) {
 
 // qualityOfRelease names a release's quality the way mediaFileOf names a
 // file's, from what the release name says.
-func qualityOfRelease(name string) map[string]any {
+func qualityOfRelease(side, name string) map[string]any {
 	p := releasename.Parse(name, releasename.Hints{})
-	q := qualityName(p.Source.Value, p.Resolution.Value)
-	if q == "" {
-		q = "Unknown"
-	}
-	return map[string]any{"quality": map[string]any{"name": q, "resolution": p.Resolution.Value},
-		"revision": map[string]any{"version": 1, "real": 0, "isRepack": false}}
+	return fullQuality(side, qualityName(p.Source.Value, p.Resolution.Value), p.Resolution.Value)
 }
 
 // historyInclude fills the episode, series or movie of each row when the

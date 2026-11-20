@@ -128,7 +128,7 @@ var sourceNames = map[string]string{"web_dl": "WEBDL", "web_rip": "WEBRip", "tv"
 // to the Library folder root, while relativePath in the answer is
 // relative to the title folder. The quality name is source-resolution,
 // such as WEBDL-1080p, because Bazarr splits it on the dash.
-func mediaFileOf(f mediafiles.File, root, folder string) *mediaFile {
+func mediaFileOf(side string, f mediafiles.File, root, folder string) *mediaFile {
 	mf := &mediaFile{ID: f.ID, RelativePath: strings.TrimPrefix(f.RelativePath, folder+"/"),
 		Path: filepath.Join(root, filepath.FromSlash(f.RelativePath)), Size: f.Size, DateAdded: utc(f.AddedAt), Languages: languagesOf(f.Languages)}
 	if f.ReleaseName != nil {
@@ -155,7 +155,7 @@ func mediaFileOf(f mediafiles.File, root, folder string) *mediaFile {
 	if len(info) > 0 {
 		mf.MediaInfo = info
 	}
-	mf.Quality = map[string]any{"quality": map[string]any{"name": name, "resolution": f.Quality.Resolution}}
+	mf.Quality = fullQuality(side, name, f.Quality.Resolution)
 	return mf
 }
 
@@ -237,7 +237,7 @@ func (h *handler) loadMovies(ctx context.Context, lookup bool, where string, arg
 		}
 		st := movieStats{ReleaseGroups: []string{}}
 		if f, ok := fileOf[v.ID]; ok {
-			m.MovieFileID, m.MovieFile = f.ID, mediaFileOf(f, lf.Path, v.FolderName)
+			m.MovieFileID, m.MovieFile = f.ID, mediaFileOf(h.side, f, lf.Path, v.FolderName)
 			m.MovieFile.MovieID = t.ID
 			st.MovieFileCount, st.SizeOnDisk = 1, f.Size
 			if f.Group != nil {

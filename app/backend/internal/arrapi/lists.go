@@ -72,7 +72,7 @@ func (h *handler) withFiles(ctx context.Context, eps []episode) error {
 	files := map[int64]*mediaFile{}
 	for _, f := range fs {
 		v := versions[f.VersionID]
-		files[f.ID] = mediaFileOf(f, folders[v.LibraryFolderID].Path, v.FolderName)
+		files[f.ID] = mediaFileOf(h.side, f, folders[v.LibraryFolderID].Path, v.FolderName)
 	}
 	for i := range eps {
 		if mf := files[eps[i].EpisodeFileID]; mf != nil {

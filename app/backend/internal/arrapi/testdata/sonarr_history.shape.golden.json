@@ -13,8 +13,10 @@
       "languages": [],
       "quality": {
         "quality": {
+          "id": "number",
           "name": "string",
-          "resolution": "number"
+          "resolution": "number",
+          "source": "string"
         },
         "revision": {
           "isRepack": "bool",
