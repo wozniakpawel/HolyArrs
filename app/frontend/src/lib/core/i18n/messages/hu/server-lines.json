@@ -1604,5 +1604,8 @@
 	"server.migrate.no-holyarrs-quality-step-matches-it": "egy HolyArrs minőségi lépcső sem felel meg neki",
 	"server.migrate.no-quality-profile-came-over-to-2": "nem jött át minőségi profil, amely hordozhatná",
 	"server.migrate.you-left-size-limits-behind-titles": "a méretkorlátokat hátrahagyta; a címek a Kiválasztási szabályaik méreteit kapják",
-	"server.migrate.the-same-as-a-source-that": "ugyanaz, mint {name}, egy Forrás, ami már itt van"
+	"server.migrate.the-same-as-a-source-that": "ugyanaz, mint {name}, egy Forrás, ami már itt van",
+	"server.youtube.follow-must-be-a-follow-id": "a follow egy követés azonosítója kell legyen",
+	"server.youtube.limit-and-offset-must-be-numbers": "a limit és az offset 0 vagy nagyobb szám kell legyen",
+	"server.youtube.say-files-keep-or-files-delete": "adja meg: files=keep vagy files=delete"
 }

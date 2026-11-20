@@ -142,3 +142,173 @@ func jsonString(s string) string {
 	b, _ := json.Marshal(s)
 	return string(b)
 }
+
+type ytVideo struct {
+	ID       int64  `json:"id"`
+	VideoID  string `json:"video_id"`
+	Title    string `json:"title"`
+	State    string `json:"state"`
+	FollowID *int64 `json:"follow_id"`
+}
+
+type ytFollow struct {
+	ID        int64  `json:"id"`
+	Kind      string `json:"kind"`
+	YTID      string `json:"yt_id"`
+	Title     string `json:"title"`
+	Backfill  *int   `json:"backfill"`
+	KeepLast  *int   `json:"keep_last"`
+	MaxHeight int    `json:"quality_max_height"`
+	Enabled   bool   `json:"enabled"`
+}
+
+// ytRig is an askRig with the fake yt-dlp, a YouTube folder and ana ticked
+// for youtube.
+func ytRig(t *testing.T) *askRig {
+	t.Helper()
+	fake := youtubetest.NewFake(t, "ok")
+	t.Setenv("HOLYARRS_YTDLP", fake.Bin)
+	t.Setenv("HOLYARRS_FFMPEG", fake.Bin)
+	r := newAskRig(t)
+	r.owner.call("PUT", "/api/v1/settings/youtube", `{"folder":`+jsonString(t.TempDir())+`,"min_free_gb":1}`, 200)
+	r.owner.call("PUT", "/api/v1/users/"+itoa(r.ana.id), `{"perms":["ask","youtube"]}`, 200)
+	return r
+}
+
+// route: POST /api/v1/youtube/probe
+// route: POST /api/v1/youtube/videos
+// route: GET /api/v1/youtube/videos
+// route: GET /api/v1/youtube/videos/{id}
+// route: DELETE /api/v1/youtube/videos/{id}
+// route: GET /api/v1/youtube/follows
+// route: POST /api/v1/youtube/follows
+// route: PUT /api/v1/youtube/follows/{id}
+// route: DELETE /api/v1/youtube/follows/{id}
+func TestYouTubeAddRoutes(t *testing.T) {
+	r := ytRig(t)
+	var p struct {
+		Kind    string `json:"kind"`
+		Title   string `json:"title"`
+		Count   int    `json:"count"`
+		Entries []struct {
+			ID string `json:"id"`
+		} `json:"entries"`
+	}
+	decodeJSON(t, r.ana.call("POST", "/api/v1/youtube/probe", `{"url":"https://www.youtube.com/@veritasium"}`, 200), &p)
+	if p.Kind != "channel" || p.Title != "Veritasium" || p.Count != 0 || len(p.Entries) != 2 {
+		t.Fatalf("probe %+v", p)
+	}
+	body := r.ana.call("POST", "/api/v1/youtube/probe", `{"url":"https://evil.example/watch?v=dQw4w9WgXcQ"}`, 400)
+	if !strings.Contains(string(body), "paste a link to a YouTube video, playlist or channel") {
+		t.Fatalf("bad link: %s", body)
+	}
+
+	var v ytVideo
+	decodeJSON(t, r.ana.call("POST", "/api/v1/youtube/videos", `{"url":"https://youtu.be/dQw4w9WgXcQ"}`, 201), &v)
+	if v.VideoID != "dQw4w9WgXcQ" || v.State != "queued" || v.Title != "Never Gonna Give You Up" {
+		t.Fatalf("video %+v", v)
+	}
+	r.ana.call("POST", "/api/v1/youtube/videos", `{"url":"https://www.youtube.com/@veritasium"}`, 400)
+
+	var f ytFollow
+	decodeJSON(t, r.ana.call("POST", "/api/v1/youtube/follows", `{"url":"https://www.youtube.com/@veritasium","keep_last":5}`, 201), &f)
+	if f.Kind != "channel" || f.YTID != "UCHnyfMqiRRG1u-2MsSQLbXA" || f.Backfill == nil || *f.Backfill != 5 || f.MaxHeight != 1080 || !f.Enabled {
+		t.Fatalf("follow %+v", f)
+	}
+	var dup struct {
+		Error      string `json:"error"`
+		ExistingID int64  `json:"existing_id"`
+	}
+	decodeJSON(t, r.ana.call("POST", "/api/v1/youtube/follows", `{"url":"https://www.youtube.com/channel/UCHnyfMqiRRG1u-2MsSQLbXA"}`, 409), &dup)
+	if dup.Error != "you already follow this" || dup.ExistingID != f.ID {
+		t.Fatalf("duplicate %+v", dup)
+	}
+
+	var follows []ytFollow
+	decodeJSON(t, r.ana.call("GET", "/api/v1/youtube/follows", "", 200), &follows)
+	if len(follows) != 1 || follows[0].ID != f.ID {
+		t.Fatalf("follows %+v", follows)
+	}
+	decodeJSON(t, r.ana.call("PUT", "/api/v1/youtube/follows/"+itoa(f.ID), `{"enabled":false,"keep_last":null,"quality_max_height":720}`, 200), &f)
+	if f.Enabled || f.KeepLast != nil || f.MaxHeight != 720 {
+		t.Fatalf("updated %+v", f)
+	}
+	r.ana.call("PUT", "/api/v1/youtube/follows/"+itoa(f.ID), `{"keep_last":0}`, 400)
+
+	var list []ytVideo
+	decodeJSON(t, r.ana.call("GET", "/api/v1/youtube/videos?unwatched=1&limit=10&offset=0", "", 200), &list)
+	if len(list) != 1 || list[0].ID != v.ID {
+		t.Fatalf("list %+v", list)
+	}
+	decodeJSON(t, r.ana.call("GET", "/api/v1/youtube/videos?follow="+itoa(f.ID), "", 200), &list)
+	if len(list) != 0 {
+		t.Fatalf("follow filter %+v", list)
+	}
+	r.ana.call("GET", "/api/v1/youtube/videos?limit=x", "", 400)
+	decodeJSON(t, r.ana.call("GET", "/api/v1/youtube/videos/"+itoa(v.ID), "", 200), &v)
+
+	r.ana.call("DELETE", "/api/v1/youtube/follows/"+itoa(f.ID), "", 400)
+	r.ana.call("DELETE", "/api/v1/youtube/follows/"+itoa(f.ID)+"?files=keep", "", 204)
+	r.ana.call("DELETE", "/api/v1/youtube/follows/"+itoa(f.ID)+"?files=keep", "", 404)
+	r.ana.call("DELETE", "/api/v1/youtube/videos/"+itoa(v.ID), "", 204)
+	decodeJSON(t, r.ana.call("GET", "/api/v1/youtube/videos", "", 200), &list)
+	if len(list) != 0 {
+		t.Fatalf("removed video still listed %+v", list)
+	}
+
+	// Without the programs nothing can be looked up.
+	t.Setenv("HOLYARRS_FFMPEG", filepath.Join(t.TempDir(), "nowhere"))
+	body = r.ana.call("POST", "/api/v1/youtube/probe", `{"url":"https://youtu.be/dQw4w9WgXcQ"}`, 503)
+	if !strings.Contains(string(body), "needs yt-dlp and ffmpeg") {
+		t.Fatalf("no tools: %s", body)
+	}
+	// A member without the permission gets nothing.
+	r.bo.call("GET", "/api/v1/youtube/videos", "", 403)
+}
+
+func TestOtherPersonsRowsAre404(t *testing.T) {
+	r := ytRig(t)
+	var own, mine ytVideo
+	decodeJSON(t, r.owner.call("POST", "/api/v1/youtube/videos", `{"url":"https://youtu.be/dQw4w9WgXcQ"}`, 201), &own)
+	decodeJSON(t, r.ana.call("POST", "/api/v1/youtube/videos", `{"url":"https://www.youtube.com/watch?v=xxxxxxxxxx1"}`, 201), &mine)
+	var follow ytFollow
+	decodeJSON(t, r.owner.call("POST", "/api/v1/youtube/follows", `{"url":"https://www.youtube.com/@veritasium"}`, 201), &follow)
+
+	for _, c := range []struct{ method, path string }{
+		{"GET", "/api/v1/youtube/videos/" + itoa(own.ID)},
+		{"DELETE", "/api/v1/youtube/videos/" + itoa(own.ID)},
+		{"PUT", "/api/v1/youtube/follows/" + itoa(follow.ID)},
+		{"DELETE", "/api/v1/youtube/follows/" + itoa(follow.ID) + "?files=delete"},
+		{"DELETE", "/api/v1/youtube/follows/" + itoa(follow.ID) + "?files=keep"},
+	} {
+		body := r.ana.call(c.method, c.path, `{"enabled":false}`, 404)
+		for _, secret := range []string{"Never Gonna", "Rick Astley", "dQw4w9WgXcQ", "Veritasium", "UCHnyfMqiRRG1u"} {
+			if strings.Contains(string(body), secret) {
+				t.Fatalf("%s %s leaks %q: %s", c.method, c.path, secret, body)
+			}
+		}
+	}
+	r.owner.call("GET", "/api/v1/youtube/videos/"+itoa(mine.ID), "", 404)
+	r.owner.call("DELETE", "/api/v1/youtube/videos/"+itoa(mine.ID), "", 404)
+
+	// Nothing changed for the owner.
+	var v ytVideo
+	decodeJSON(t, r.owner.call("GET", "/api/v1/youtube/videos/"+itoa(own.ID), "", 200), &v)
+	var follows []ytFollow
+	decodeJSON(t, r.owner.call("GET", "/api/v1/youtube/follows", "", 200), &follows)
+	if v.State != "queued" || len(follows) != 1 || !follows[0].Enabled {
+		t.Fatalf("owner rows changed: %+v %+v", v, follows)
+	}
+
+	var list []ytVideo
+	decodeJSON(t, r.ana.call("GET", "/api/v1/youtube/videos", "", 200), &list)
+	if len(list) != 1 || list[0].ID != mine.ID {
+		t.Fatalf("ana sees %+v", list)
+	}
+	decodeJSON(t, r.ana.call("GET", "/api/v1/youtube/follows", "", 200), &follows)
+	if len(follows) != 0 {
+		t.Fatalf("ana sees follows %+v", follows)
+	}
+	// Following the same channel is her own follow, not a duplicate.
+	r.ana.call("POST", "/api/v1/youtube/follows", `{"url":"https://www.youtube.com/@veritasium"}`, 201)
+}

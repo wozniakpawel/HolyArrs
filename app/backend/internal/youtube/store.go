@@ -113,3 +113,12 @@ func oneRow(res sql.Result, err error) error {
 	}
 	return nil
 }
+
+// FollowOfYTID reads a person's follow of one playlist or channel;
+// sql.ErrNoRows when they do not follow it.
+func FollowOfYTID(ctx context.Context, q database.Querier, userID int64, kind, ytID string) (Follow, error) {
+	var f Follow
+	err := q.QueryRowContext(ctx, "SELECT "+database.SelectList(&f)+" FROM youtube_follows WHERE user_id = ? AND kind = ? AND yt_id = ?", userID, kind, ytID).
+		Scan(database.ScanInto(&f)...)
+	return f, err
+}

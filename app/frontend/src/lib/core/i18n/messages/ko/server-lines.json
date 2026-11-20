@@ -1604,5 +1604,8 @@
 	"server.migrate.no-holyarrs-quality-step-matches-it": "일치하는 HolyArrs 품질 단계가 없습니다",
 	"server.migrate.no-quality-profile-came-over-to-2": "이를 담을 품질 프로필을 가져오지 않았습니다",
 	"server.migrate.you-left-size-limits-behind-titles": "크기 제한을 두고 왔습니다. 타이틀은 선택 규칙의 크기를 사용합니다",
-	"server.migrate.the-same-as-a-source-that": "{name}와 같으며, 이미 있는 소스입니다"
+	"server.migrate.the-same-as-a-source-that": "{name}와 같으며, 이미 있는 소스입니다",
+	"server.youtube.follow-must-be-a-follow-id": "follow는 팔로우 ID여야 합니다",
+	"server.youtube.limit-and-offset-must-be-numbers": "limit과 offset은 0 이상의 숫자여야 합니다",
+	"server.youtube.say-files-keep-or-files-delete": "files=keep 또는 files=delete를 지정하세요"
 }

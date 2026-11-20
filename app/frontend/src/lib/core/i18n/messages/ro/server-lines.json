@@ -1604,5 +1604,8 @@
 	"server.migrate.no-holyarrs-quality-step-matches-it": "nicio treaptă de calitate HolyArrs nu i se potrivește",
 	"server.migrate.no-quality-profile-came-over-to-2": "niciun profil de calitate nu a venit să-l poarte",
 	"server.migrate.you-left-size-limits-behind-titles": "ai lăsat în urmă limitele de mărime; titlurile iau mărimile din Regulile lor de alegere",
-	"server.migrate.the-same-as-a-source-that": "la fel ca {name}, o Sursă care e aici"
+	"server.migrate.the-same-as-a-source-that": "la fel ca {name}, o Sursă care e aici",
+	"server.youtube.follow-must-be-a-follow-id": "follow trebuie să fie id-ul unei urmăriri",
+	"server.youtube.limit-and-offset-must-be-numbers": "limit și offset trebuie să fie numere de la 0 în sus",
+	"server.youtube.say-files-keep-or-files-delete": "spune files=keep sau files=delete"
 }

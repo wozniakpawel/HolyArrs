@@ -1604,5 +1604,8 @@
 	"server.migrate.no-holyarrs-quality-step-matches-it": "没有与之对应的 HolyArrs 画质档位",
 	"server.migrate.no-quality-profile-came-over-to-2": "没有迁入可以承载它的画质配置",
 	"server.migrate.you-left-size-limits-behind-titles": "你没有带上大小限制；标题使用其挑选规则的大小",
-	"server.migrate.the-same-as-a-source-that": "与 {name} 相同，这里已有此来源"
+	"server.migrate.the-same-as-a-source-that": "与 {name} 相同，这里已有此来源",
+	"server.youtube.follow-must-be-a-follow-id": "follow 必须是关注的 ID",
+	"server.youtube.limit-and-offset-must-be-numbers": "limit 和 offset 必须是 0 或更大的数字",
+	"server.youtube.say-files-keep-or-files-delete": "请指定 files=keep 或 files=delete"
 }

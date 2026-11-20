@@ -38,6 +38,8 @@ DELETE /api/v1/users/invites/{id} admin
 DELETE /api/v1/users/{id} admin
 DELETE /api/v1/users/{id}/media-link/{kind} admin
 DELETE /api/v1/users/{id}/sessions/{sid} admin
+DELETE /api/v1/youtube/follows/{id} delete
+DELETE /api/v1/youtube/videos/{id} delete
 DELETE /customformat/{id} delete
 DELETE /delayprofile/{id} delete
 DELETE /indexer/{id} delete
@@ -272,7 +274,10 @@ GET /api/v1/users/{id}/avatar admin
 GET /api/v1/users/{id}/sessions admin
 GET /api/v1/watch-services see
 GET /api/v1/wiki/{kind}/{id} see
+GET /api/v1/youtube/follows see
 GET /api/v1/youtube/status see
+GET /api/v1/youtube/videos see
+GET /api/v1/youtube/videos/{id} see
 GET /calendar see
 GET /command see
 GET /command/{id} see
@@ -525,6 +530,9 @@ POST /api/v1/users/{id}/password admin
 POST /api/v1/users/{id}/sessions/end-all admin
 POST /api/v1/users/{id}/sso/unlink admin
 POST /api/v1/users/{id}/two-factor/reset admin
+POST /api/v1/youtube/follows add
+POST /api/v1/youtube/probe add
+POST /api/v1/youtube/videos add
 POST /command control
 POST /customformat settings
 POST /delayprofile settings
@@ -612,6 +620,7 @@ PUT /api/v1/titles/{id}/subtitle-wish add
 PUT /api/v1/titles/{id}/versions/{vid} add
 PUT /api/v1/users/{id} admin
 PUT /api/v1/users/{id}/media-link admin
+PUT /api/v1/youtube/follows/{id} add
 PUT /config/mediamanagement settings
 PUT /config/mediamanagement/{id} settings
 PUT /config/naming settings

@@ -221,6 +221,7 @@ func init() {
 		"GET /api/v1/titles/{id}/rename", "GET /api/v1/titles/{id}/leftovers", "GET /api/v1/titles/{id}/episode-groups", "GET /api/v1/titles/{id}/seasons", "GET /api/v1/titles/{id}/subtitles", "GET /api/v1/titles/{id}/search-outcome",
 		"GET /api/v1/turned-down", "GET /api/v1/users/{id}/avatar", "GET /api/v1/schedules", "GET /api/v1/app/update",
 		"GET /api/v1/youtube/status", "GET /api/v1/settings/youtube",
+		"GET /api/v1/youtube/videos", "GET /api/v1/youtube/videos/{id}", "GET /api/v1/youtube/follows",
 	} {
 		ReadRoutes[r] = true
 	}

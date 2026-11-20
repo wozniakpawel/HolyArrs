@@ -1604,5 +1604,8 @@
 	"server.migrate.no-holyarrs-quality-step-matches-it": "tiada langkah kualiti HolyArrs yang sepadan",
 	"server.migrate.no-quality-profile-came-over-to-2": "tiada profil kualiti dibawa masuk untuk membawanya",
 	"server.migrate.you-left-size-limits-behind-titles": "anda meninggalkan had saiz; tajuk mengambil saiz daripada Peraturan pilihannya",
-	"server.migrate.the-same-as-a-source-that": "sama seperti {name}, Sumber yang ada di sini"
+	"server.migrate.the-same-as-a-source-that": "sama seperti {name}, Sumber yang ada di sini",
+	"server.youtube.follow-must-be-a-follow-id": "follow mesti id ikutan",
+	"server.youtube.limit-and-offset-must-be-numbers": "limit dan offset mesti nombor 0 atau lebih",
+	"server.youtube.say-files-keep-or-files-delete": "nyatakan files=keep atau files=delete"
 }

@@ -1604,5 +1604,8 @@
 	"server.migrate.no-holyarrs-quality-step-matches-it": "HolyArrs का कोई क्वालिटी स्टेप इससे मेल नहीं खाता",
 	"server.migrate.no-quality-profile-came-over-to-2": "इसे ले जाने के लिए कोई क्वालिटी प्रोफ़ाइल नहीं आई",
 	"server.migrate.you-left-size-limits-behind-titles": "आपने आकार की सीमाएं पीछे छोड़ दीं; टाइटल अपने चुनाव के नियमों के आकार लेते हैं",
-	"server.migrate.the-same-as-a-source-that": "{name} जैसा ही, एक सोर्स जो यहां है"
+	"server.migrate.the-same-as-a-source-that": "{name} जैसा ही, एक सोर्स जो यहां है",
+	"server.youtube.follow-must-be-a-follow-id": "follow एक फ़ॉलो आईडी होना चाहिए",
+	"server.youtube.limit-and-offset-must-be-numbers": "limit और offset 0 या उससे बड़ी संख्याएँ होनी चाहिए",
+	"server.youtube.say-files-keep-or-files-delete": "files=keep या files=delete बताएँ"
 }

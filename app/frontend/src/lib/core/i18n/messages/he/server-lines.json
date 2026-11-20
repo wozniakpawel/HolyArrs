@@ -1604,5 +1604,8 @@
 	"server.migrate.no-holyarrs-quality-step-matches-it": "אין שלב איכות ב-HolyArrs שמתאים לו",
 	"server.migrate.no-quality-profile-came-over-to-2": "לא הגיע פרופיל איכות שייקח אותו",
 	"server.migrate.you-left-size-limits-behind-titles": "השארת את מגבלות הגודל מאחור; הכותרים לוקחים את הגדלים של כללי הבחירה שלהם",
-	"server.migrate.the-same-as-a-source-that": "זהה ל-{name}, מקור שכבר כאן"
+	"server.migrate.the-same-as-a-source-that": "זהה ל-{name}, מקור שכבר כאן",
+	"server.youtube.follow-must-be-a-follow-id": "follow חייב להיות מזהה של מעקב",
+	"server.youtube.limit-and-offset-must-be-numbers": "limit ו-offset חייבים להיות מספרים מ-0 ומעלה",
+	"server.youtube.say-files-keep-or-files-delete": "ציינו files=keep או files=delete"
 }

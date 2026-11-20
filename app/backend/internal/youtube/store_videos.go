@@ -168,3 +168,26 @@ func ReadTotals(ctx context.Context, q database.Querier) (Totals, error) {
 		Scan(&t.Videos, &t.Bytes, &t.People)
 	return t, err
 }
+
+// VideoOfYouTubeID reads a person's row for one YouTube video;
+// sql.ErrNoRows when they have none.
+func VideoOfYouTubeID(ctx context.Context, q database.Querier, userID int64, videoID string) (Video, error) {
+	return videoWhere(ctx, q, "user_id = ? AND video_id = ?", userID, videoID)
+}
+
+// RequeueVideo puts one of a person's videos back in the queue at a new
+// quality cap, forgetting any old file and error. sql.ErrNoRows when it is
+// not theirs.
+func RequeueVideo(tx *sql.Tx, userID, id int64, height int) error {
+	res, err := tx.Exec("UPDATE youtube_videos SET state = 'queued', error = '', relative_path = '', size_bytes = 0, quality_max_height = ? WHERE id = ? AND user_id = ?",
+		maxHeight(height), id, userID)
+	return oneRow(res, err)
+}
+
+// MarkRemoved records that one of a person's videos was removed and its
+// file deleted. The row stays so a check never downloads it again.
+// sql.ErrNoRows when it is not theirs.
+func MarkRemoved(tx *sql.Tx, userID, id int64) error {
+	res, err := tx.Exec("UPDATE youtube_videos SET state = 'removed', error = '', relative_path = '', size_bytes = 0 WHERE id = ? AND user_id = ?", id, userID)
+	return oneRow(res, err)
+}

@@ -1604,5 +1604,8 @@
 	"server.migrate.no-holyarrs-quality-step-matches-it": "no HolyArrs quality step matches it",
 	"server.migrate.no-quality-profile-came-over-to-2": "no quality profile came over to carry it",
 	"server.migrate.you-left-size-limits-behind-titles": "you left size limits behind; titles take the sizes of their Pick rules",
-	"server.migrate.the-same-as-a-source-that": "the same as {name}, a Source that is here"
+	"server.migrate.the-same-as-a-source-that": "the same as {name}, a Source that is here",
+	"server.youtube.follow-must-be-a-follow-id": "follow must be a follow id",
+	"server.youtube.limit-and-offset-must-be-numbers": "limit and offset must be numbers of 0 or more",
+	"server.youtube.say-files-keep-or-files-delete": "say files=keep or files=delete"
 }

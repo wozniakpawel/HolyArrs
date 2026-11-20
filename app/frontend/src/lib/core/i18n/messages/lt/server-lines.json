@@ -1604,5 +1604,8 @@
 	"server.migrate.no-holyarrs-quality-step-matches-it": "neatitinka jokia HolyArrs kokybės pakopa",
 	"server.migrate.no-quality-profile-came-over-to-2": "neatkeliavo joks kokybės profilis, kuris jį nešiotų",
 	"server.migrate.you-left-size-limits-behind-titles": "dydžio ribas palikote; pavadinimai ima savo Pasirinkimo taisyklių dydžius",
-	"server.migrate.the-same-as-a-source-that": "tas pats kaip {name}, Šaltinis, kuris jau yra"
+	"server.migrate.the-same-as-a-source-that": "tas pats kaip {name}, Šaltinis, kuris jau yra",
+	"server.youtube.follow-must-be-a-follow-id": "follow turi būti sekimo ID",
+	"server.youtube.limit-and-offset-must-be-numbers": "limit ir offset turi būti skaičiai nuo 0",
+	"server.youtube.say-files-keep-or-files-delete": "nurodykite files=keep arba files=delete"
 }

@@ -1604,5 +1604,8 @@
 	"server.migrate.no-holyarrs-quality-step-matches-it": "walang quality step ng HolyArrs na tugma rito",
 	"server.migrate.no-quality-profile-came-over-to-2": "walang quality profile na dumating para dalhin ito",
 	"server.migrate.you-left-size-limits-behind-titles": "iniwan mo ang mga limit sa laki; ginagamit ng mga title ang mga laki ng kanilang Mga panuntunan sa pagpili",
-	"server.migrate.the-same-as-a-source-that": "kapareho ng {name}, isang Source na nandito na"
+	"server.migrate.the-same-as-a-source-that": "kapareho ng {name}, isang Source na nandito na",
+	"server.youtube.follow-must-be-a-follow-id": "ang follow ay dapat isang follow id",
+	"server.youtube.limit-and-offset-must-be-numbers": "ang limit at offset ay dapat mga numerong 0 o higit pa",
+	"server.youtube.say-files-keep-or-files-delete": "sabihin ang files=keep o files=delete"
 }

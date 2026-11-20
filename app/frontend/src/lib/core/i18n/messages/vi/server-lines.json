@@ -1604,5 +1604,8 @@
 	"server.migrate.no-holyarrs-quality-step-matches-it": "không có bậc chất lượng nào của HolyArrs khớp với nó",
 	"server.migrate.no-quality-profile-came-over-to-2": "không có hồ sơ chất lượng nào được chuyển sang để mang nó",
 	"server.migrate.you-left-size-limits-behind-titles": "bạn đã để lại giới hạn dung lượng; các tựa dùng dung lượng theo Quy tắc chọn của chúng",
-	"server.migrate.the-same-as-a-source-that": "giống {name}, một Nguồn đã có ở đây"
+	"server.migrate.the-same-as-a-source-that": "giống {name}, một Nguồn đã có ở đây",
+	"server.youtube.follow-must-be-a-follow-id": "follow phải là id của một mục theo dõi",
+	"server.youtube.limit-and-offset-must-be-numbers": "limit và offset phải là số từ 0 trở lên",
+	"server.youtube.say-files-keep-or-files-delete": "hãy chọn files=keep hoặc files=delete"
 }

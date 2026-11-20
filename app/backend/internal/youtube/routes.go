@@ -17,6 +17,15 @@ func (h *Handlers) Routes(m *webserver.Router) {
 	m.Handle("GET /api/v1/youtube/status", webserver.PermYouTube, http.HandlerFunc(h.getStatus))
 	m.Handle("GET /api/v1/settings/youtube", webserver.NeedUsers, http.HandlerFunc(h.getSettings))
 	m.Handle("PUT /api/v1/settings/youtube", webserver.NeedOwner, http.HandlerFunc(h.putSettings))
+	m.Handle("POST /api/v1/youtube/probe", webserver.PermYouTube, http.HandlerFunc(h.probe))
+	m.Handle("GET /api/v1/youtube/videos", webserver.PermYouTube, http.HandlerFunc(h.listVideos))
+	m.Handle("POST /api/v1/youtube/videos", webserver.PermYouTube, http.HandlerFunc(h.addVideo))
+	m.Handle("GET /api/v1/youtube/videos/{id}", webserver.PermYouTube, http.HandlerFunc(h.getVideo))
+	m.Handle("DELETE /api/v1/youtube/videos/{id}", webserver.PermYouTube, http.HandlerFunc(h.removeVideo))
+	m.Handle("GET /api/v1/youtube/follows", webserver.PermYouTube, http.HandlerFunc(h.listFollows))
+	m.Handle("POST /api/v1/youtube/follows", webserver.PermYouTube, http.HandlerFunc(h.addFollow))
+	m.Handle("PUT /api/v1/youtube/follows/{id}", webserver.PermYouTube, http.HandlerFunc(h.updateFollow))
+	m.Handle("DELETE /api/v1/youtube/follows/{id}", webserver.PermYouTube, http.HandlerFunc(h.unfollow))
 }
 
 // caller is the signed-in person. A kid gets 404 on every YouTube route,

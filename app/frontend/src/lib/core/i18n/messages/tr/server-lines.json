@@ -1604,5 +1604,8 @@
 	"server.migrate.no-holyarrs-quality-step-matches-it": "HolyArrs'ta buna uyan bir kalite adımı yok",
 	"server.migrate.no-quality-profile-came-over-to-2": "bunu taşıyacak bir kalite profili gelmedi",
 	"server.migrate.you-left-size-limits-behind-titles": "boyut sınırlarını geride bıraktın; başlıklar kendi Seçim kurallarının boyutlarını alır",
-	"server.migrate.the-same-as-a-source-that": "{name} ile aynı, burada zaten olan bir Kaynak"
+	"server.migrate.the-same-as-a-source-that": "{name} ile aynı, burada zaten olan bir Kaynak",
+	"server.youtube.follow-must-be-a-follow-id": "follow bir takip kimliği olmalı",
+	"server.youtube.limit-and-offset-must-be-numbers": "limit ve offset 0 veya daha büyük sayılar olmalı",
+	"server.youtube.say-files-keep-or-files-delete": "files=keep ya da files=delete belirtin"
 }

@@ -1604,5 +1604,8 @@
 	"server.migrate.no-holyarrs-quality-step-matches-it": "mikään HolyArrsin laatuporras ei vastaa sitä",
 	"server.migrate.no-quality-profile-came-over-to-2": "laatuprofiilia sen kantamiseksi ei tullut mukaan",
 	"server.migrate.you-left-size-limits-behind-titles": "jätit kokorajat pois; nimikkeet käyttävät Valintasääntöjensä kokoja",
-	"server.migrate.the-same-as-a-source-that": "sama kuin {name}, lähde joka on jo täällä"
+	"server.migrate.the-same-as-a-source-that": "sama kuin {name}, lähde joka on jo täällä",
+	"server.youtube.follow-must-be-a-follow-id": "follow on oltava seurannan tunnus",
+	"server.youtube.limit-and-offset-must-be-numbers": "limit ja offset on oltava lukuja 0 tai enemmän",
+	"server.youtube.say-files-keep-or-files-delete": "anna files=keep tai files=delete"
 }

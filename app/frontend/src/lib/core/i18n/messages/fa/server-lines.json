@@ -1604,5 +1604,8 @@
 	"server.migrate.no-holyarrs-quality-step-matches-it": "هیچ پلهٔ کیفیتی در HolyArrs با آن جور نیست",
 	"server.migrate.no-quality-profile-came-over-to-2": "هیچ پروفایل کیفیتی برای حمل آن نیامد",
 	"server.migrate.you-left-size-limits-behind-titles": "محدودیت‌های اندازه را جا گذاشتی؛ عنوان‌ها اندازه‌های قوانین انتخاب خودشان را می‌گیرند",
-	"server.migrate.the-same-as-a-source-that": "همان {name} است، منبعی که اینجا هست"
+	"server.migrate.the-same-as-a-source-that": "همان {name} است، منبعی که اینجا هست",
+	"server.youtube.follow-must-be-a-follow-id": "follow باید شناسه یک دنبال‌کردن باشد",
+	"server.youtube.limit-and-offset-must-be-numbers": "limit و offset باید عددهایی از 0 به بالا باشند",
+	"server.youtube.say-files-keep-or-files-delete": "files=keep یا files=delete را بگویید"
 }

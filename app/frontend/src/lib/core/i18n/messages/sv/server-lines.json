@@ -1604,5 +1604,8 @@
 	"server.migrate.no-holyarrs-quality-step-matches-it": "inget kvalitetssteg i HolyArrs passar den",
 	"server.migrate.no-quality-profile-came-over-to-2": "ingen kvalitetsprofil kom över för att bära den",
 	"server.migrate.you-left-size-limits-behind-titles": "du lämnade storleksgränserna; titlar tar storlekarna från sina Valregler",
-	"server.migrate.the-same-as-a-source-that": "samma som {name}, en källa som finns här"
+	"server.migrate.the-same-as-a-source-that": "samma som {name}, en källa som finns här",
+	"server.youtube.follow-must-be-a-follow-id": "follow måste vara ett följ-id",
+	"server.youtube.limit-and-offset-must-be-numbers": "limit och offset måste vara tal från 0 och uppåt",
+	"server.youtube.say-files-keep-or-files-delete": "ange files=keep eller files=delete"
 }
