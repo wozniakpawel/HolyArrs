@@ -2,13 +2,10 @@ package metadata
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"strings"
 	"sync"
 	"testing"
@@ -27,8 +24,7 @@ type fakeTrakt struct {
 	gen        int    // tokens handed out
 	valid      string // the access token Trakt still takes
 	revoked    []string
-	challenge  string // the PKCE challenge of the link the person opened
-	sawSecret  bool   // a request carried a client secret
+	sawSecret  bool // a request carried a client secret
 	calls      map[string]int
 	srv        *httptest.Server
 }
@@ -69,17 +65,6 @@ func newFakeTrakt(t *testing.T) *fakeTrakt {
 				tokens()
 			}
 		case "/oauth/token":
-			if body["grant_type"] == "authorization_code" {
-				sum := sha256.Sum256([]byte(body["code_verifier"]))
-				if body["code"] != "the-code" || f.challenge == "" || base64.RawURLEncoding.EncodeToString(sum[:]) != f.challenge ||
-					body["redirect_uri"] != "urn:ietf:wg:oauth:2.0:oob" || body["client_id"] != "cid" {
-					w.WriteHeader(http.StatusBadRequest)
-					_, _ = w.Write([]byte(`{"error":"invalid_grant","error_description":"invalid code"}`))
-					return
-				}
-				tokens()
-				return
-			}
 			if f.refreshBad || body["grant_type"] != "refresh_token" || !strings.HasPrefix(body["refresh_token"], "refresh-") {
 				w.WriteHeader(http.StatusUnauthorized)
 				return
@@ -179,12 +164,21 @@ func TestTraktDeviceSignIn(t *testing.T) {
 	if s, _ := a.CheckSignIn(ctx); s != TraktDenied {
 		t.Fatalf("denied %q", s)
 	}
+	if a.Status(ctx).Waiting {
+		t.Fatal("still waiting after a denied code")
+	}
 	if _, err := a.StartSignIn(ctx, 1, by); err != nil {
 		t.Fatal(err)
 	}
 	now = now.Add(11 * time.Minute)
+	if a.Status(ctx).Waiting {
+		t.Fatal("still waiting after the code ran out")
+	}
 	if s, _ := a.CheckSignIn(ctx); s != TraktExpired {
 		t.Fatalf("expired %q", s)
+	}
+	if a.Status(ctx).Waiting {
+		t.Fatal("still waiting after an expired code")
 	}
 }
 
@@ -272,79 +266,9 @@ func TestTraktRevokedAndSignOut(t *testing.T) {
 	}
 }
 
-// TestTraktPKCESignIn: an app with only a client id signs in with a PKCE
-// link: the link carries an S256 challenge and the out-of-band address,
-// the pasted code is traded with the verifier and no client secret, a
-// wrong code or an old link is refused, and refreshes send no secret.
-func TestTraktPKCESignIn(t *testing.T) {
-	ctx := context.Background()
-	f := newFakeTrakt(t)
-	now := time.Date(2026, 11, 20, 12, 0, 0, 0, time.UTC)
-	a := traktAuthRig(t, f, &now)
-	a.AuthBase = "https://auth.example"
-	by := database.Actor{Kind: "user", ID: 1}
-	if _, err := a.StartLink(ctx, 1, by); !errors.Is(err, ErrTraktNoApp) {
-		t.Fatalf("no client id: %v", err)
-	}
-	if err := a.FinishLink(ctx, "the-code"); !errors.Is(err, ErrTraktNoSignIn) {
-		t.Fatalf("code with no link: %v", err)
-	}
-	if err := a.Secrets.SetSetting(ctx, TraktKeyGroup, TraktKeyName, "cid", by); err != nil {
-		t.Fatal(err)
-	}
-	link, err := a.StartLink(ctx, 1, by)
-	if err != nil {
-		t.Fatal(err)
-	}
-	u, err := url.Parse(link.URL)
-	if err != nil || u.Host != "auth.example" || u.Path != "/oauth/authorize" {
-		t.Fatalf("link %q %v", link.URL, err)
-	}
-	q := u.Query()
-	if q.Get("response_type") != "code" || q.Get("client_id") != "cid" || q.Get("redirect_uri") != "urn:ietf:wg:oauth:2.0:oob" ||
-		q.Get("code_challenge_method") != "S256" || len(q.Get("code_challenge")) != 43 || q.Get("state") == "" {
-		t.Fatalf("link query %v", q)
-	}
-	if again, _ := a.StartLink(ctx, 1, by); again.URL == link.URL {
-		t.Fatal("two links share a verifier")
-	}
-	// The newest link counts; its challenge is the one Trakt saw.
-	link, _ = a.StartLink(ctx, 1, by)
-	u, _ = url.Parse(link.URL)
-	f.challenge = u.Query().Get("code_challenge")
-	if !a.Status(ctx).Waiting {
-		t.Fatal("not waiting for the code")
-	}
-	if err := a.FinishLink(ctx, "wrong"); !errors.Is(err, ErrTraktBadCode) {
-		t.Fatalf("wrong code: %v", err)
-	}
-	if err := a.FinishLink(ctx, "  the-code \n"); err != nil {
-		t.Fatalf("good code: %v", err)
-	}
-	st := a.Status(ctx)
-	if !st.SignedIn || st.Username != "pawel" || st.ClientSecret || st.Waiting {
-		t.Fatalf("status %+v", st)
-	}
-	if err := a.FinishLink(ctx, "the-code"); !errors.Is(err, ErrTraktNoSignIn) {
-		t.Fatalf("a link used twice: %v", err)
-	}
-	now = now.Add(24 * time.Hour)
-	if _, tok, err := a.Access(ctx); tok != "access-2" || err != nil {
-		t.Fatalf("refresh without a secret: %q %v", tok, err)
-	}
-	if f.sawSecret {
-		t.Fatal("a client secret was sent though none is saved")
-	}
-	// A link is good for a while only.
-	_, _ = a.StartLink(ctx, 1, by)
-	now = now.Add(16 * time.Minute)
-	if err := a.FinishLink(ctx, "the-code"); !errors.Is(err, ErrTraktNoSignIn) {
-		t.Fatalf("old link: %v", err)
-	}
-}
-
 // TestTraktDeviceSignInWithoutSecret: the device sign-in works for an app
-// with only a client id, and sends no secret.
+// with only a client id, the status stops waiting once signed in, and
+// neither the sign-in nor a refresh sends a secret.
 func TestTraktDeviceSignInWithoutSecret(t *testing.T) {
 	ctx := context.Background()
 	f := newFakeTrakt(t)
@@ -359,6 +283,13 @@ func TestTraktDeviceSignInWithoutSecret(t *testing.T) {
 	}
 	if s, err := a.CheckSignIn(ctx); s != TraktSignedIn || err != nil || f.sawSecret {
 		t.Fatalf("device sign-in %q %v (secret sent %v)", s, err, f.sawSecret)
+	}
+	if st := a.Status(ctx); !st.SignedIn || st.Waiting || st.ClientSecret || st.Username != "pawel" {
+		t.Fatalf("status after sign-in %+v", st)
+	}
+	now = now.Add(24 * time.Hour)
+	if _, tok, err := a.Access(ctx); tok != "access-2" || err != nil || f.sawSecret {
+		t.Fatalf("refresh without a secret: %q %v (secret sent %v)", tok, err, f.sawSecret)
 	}
 }
 

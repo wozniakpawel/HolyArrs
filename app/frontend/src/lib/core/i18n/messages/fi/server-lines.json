@@ -1585,7 +1585,6 @@
 	"server.migrate.holyarrs-reads-tmdb-lists-and-public-3": "HolyArrs lukee vain TMDB-listoja ja julkisia Trakt-listoja; tämä lista jää Sonarriin",
 	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs lukee Trakt-listoja ja katselulistoja; katsottu- tai kokoelmalista jää Sonarriin",
 	"server.migrate.add-your-trakt-key-under-settings-2": "Lisää Trakt-avaimesi kohdassa Asetukset > Ulkoiset listat ennen kuin otat Trakt-listan käyttöön; yksityiselle listalle tarvitaan siellä myös Kirjaudu Traktilla.",
-	"server.requests.send-code-the-code-trakt-showed": "lähetä {\"code\": \"<the code Trakt showed>\"}",
 	"server.requests.send-secret-trakt-app-client-secret-line": "lähetä {\"secret\": \"<Trakt app client secret>\"}, tai {\"secret\": \"\"} poistaaksesi sen",
 	"server.library.keep-up-to-date-off-its": "{name} {labels}: ”Pidä ajan tasalla” pois, tiedosto poistettiin levyltä",
 	"server.library.keep-up-to-date-off-its-2": "{name}: ”Pidä ajan tasalla” pois, tiedosto poistettiin levyltä",

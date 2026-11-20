@@ -1585,7 +1585,6 @@
 	"server.migrate.holyarrs-reads-tmdb-lists-and-public-3": "HolyArrs skaito tik TMDB sąrašus ir viešus Trakt sąrašus; šis sąrašas lieka Sonarr",
 	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs skaito Trakt sąrašus ir stebėjimo sąrašus; žiūrėtų ar kolekcijos sąrašas lieka Sonarr",
 	"server.migrate.add-your-trakt-key-under-settings-2": "Prieš įjungdami Trakt sąrašą, skiltyje Nustatymai > Išoriniai sąrašai pridėkite savo Trakt raktą; privačiam sąrašui ten dar reikia Prisijungti su Trakt.",
-	"server.requests.send-code-the-code-trakt-showed": "siųskite {\"code\": \"<the code Trakt showed>\"}",
 	"server.requests.send-secret-trakt-app-client-secret-line": "siųskite {\"secret\": \"<Trakt app client secret>\"}, arba {\"secret\": \"\"}, kad jį pašalintumėte",
 	"server.library.keep-up-to-date-off-its": "{name} {labels}: „Laikyti naujausią“ išjungta, failas ištrintas iš disko",
 	"server.library.keep-up-to-date-off-its-2": "{name}: „Laikyti naujausią“ išjungta, failas ištrintas iš disko",

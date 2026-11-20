@@ -1585,7 +1585,6 @@
 	"server.migrate.holyarrs-reads-tmdb-lists-and-public-3": "HolyArrs зчитує лише списки TMDB і публічні списки Trakt; цей список лишається в Sonarr",
 	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs зчитує списки й списки перегляду Trakt; список переглянутого або колекції лишається в Sonarr",
 	"server.migrate.add-your-trakt-key-under-settings-2": "Додай свій ключ Trakt у Налаштування > Зовнішні списки, перш ніж вмикати список Trakt; для приватного списку там також потрібно «Увійти через Trakt».",
-	"server.requests.send-code-the-code-trakt-showed": "надішли {\"code\": \"<the code Trakt showed>\"}",
 	"server.requests.send-secret-trakt-app-client-secret-line": "надішли {\"secret\": \"<Trakt app client secret>\"} або {\"secret\": \"\"}, щоб прибрати його",
 	"server.library.keep-up-to-date-off-its": "{name} {labels}: «Стежити за оновленнями» вимкнено, файл видалено з диска",
 	"server.library.keep-up-to-date-off-its-2": "{name}: «Стежити за оновленнями» вимкнено, файл видалено з диска",

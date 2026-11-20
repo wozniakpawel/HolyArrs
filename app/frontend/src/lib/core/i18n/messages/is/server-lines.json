@@ -1585,7 +1585,6 @@
 	"server.migrate.holyarrs-reads-tmdb-lists-and-public-3": "HolyArrs les aðeins TMDB-lista og opinbera Trakt-lista; þessi listi verður eftir í Sonarr",
 	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs les Trakt-lista og áhorfslista; lista yfir séð eða safn verður eftir í Sonarr",
 	"server.migrate.add-your-trakt-key-under-settings-2": "Bættu við Trakt-lyklinum þínum undir Stillingar > Ytri listar áður en þú kveikir á Trakt-lista; einkalisti þarf líka Skrá inn með Trakt þar.",
-	"server.requests.send-code-the-code-trakt-showed": "sendu {\"code\": \"<the code Trakt showed>\"}",
 	"server.requests.send-secret-trakt-app-client-secret-line": "sendu {\"secret\": \"<Trakt app client secret>\"}, eða {\"secret\": \"\"} til að fjarlægja hann",
 	"server.library.keep-up-to-date-off-its": "{name} {labels}: „Halda uppfærðu“ af, skránni var eytt af disknum",
 	"server.library.keep-up-to-date-off-its-2": "{name}: „Halda uppfærðu“ af, skránni var eytt af disknum",

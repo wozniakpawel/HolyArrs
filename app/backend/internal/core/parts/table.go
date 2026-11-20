@@ -277,8 +277,6 @@ var routeOwners = map[string]Owner{
 	"GET /api/v1/settings/trakt-signin":        Core,
 	"POST /api/v1/settings/trakt-signin":       Core,
 	"POST /api/v1/settings/trakt-signin/check": Core,
-	"POST /api/v1/settings/trakt-signin/link":  Core,
-	"POST /api/v1/settings/trakt-signin/code":  Core,
 	"DELETE /api/v1/settings/trakt-signin":     Core,
 	"GET /api/v1/settings/mdblist-key":         Core,
 	"PUT /api/v1/settings/mdblist-key":         Core,

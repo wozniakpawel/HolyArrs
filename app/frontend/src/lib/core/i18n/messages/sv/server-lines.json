@@ -1585,7 +1585,6 @@
 	"server.migrate.holyarrs-reads-tmdb-lists-and-public-3": "HolyArrs läser bara TMDB-listor och offentliga Trakt-listor; den här listan blir kvar i Sonarr",
 	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs läser Trakt-listor och bevakningslistor; en tittad- eller samlingslista blir kvar i Sonarr",
 	"server.migrate.add-your-trakt-key-under-settings-2": "Lägg till din Trakt-nyckel under Inställningar > Externa listor innan du slår på en Trakt-lista; en privat lista behöver också Logga in med Trakt där.",
-	"server.requests.send-code-the-code-trakt-showed": "skicka {\"code\": \"<the code Trakt showed>\"}",
 	"server.requests.send-secret-trakt-app-client-secret-line": "skicka {\"secret\": \"<Trakt app client secret>\"}, eller {\"secret\": \"\"} för att ta bort den",
 	"server.library.keep-up-to-date-off-its": "{name} {labels}: ”Håll uppdaterad” av, filen raderades från disken",
 	"server.library.keep-up-to-date-off-its-2": "{name}: ”Håll uppdaterad” av, filen raderades från disken",

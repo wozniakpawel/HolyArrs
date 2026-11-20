@@ -1585,7 +1585,6 @@
 	"server.migrate.holyarrs-reads-tmdb-lists-and-public-3": "HolyArrs が読み取るのは TMDB のリストと公開の Trakt リストだけです。このリストは Sonarr に残ります",
 	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs は Trakt のリストとウォッチリストを読み取ります。視聴済みやコレクションのリストは Sonarr に残ります",
 	"server.migrate.add-your-trakt-key-under-settings-2": "Trakt のリストをオンにする前に、設定 > 外部リスト で Trakt のキーを追加してください。非公開リストには、そこで「Trakt でサインイン」も必要です。",
-	"server.requests.send-code-the-code-trakt-showed": "{\"code\": \"<the code Trakt showed>\"} を送信してください",
 	"server.requests.send-secret-trakt-app-client-secret-line": "{\"secret\": \"<Trakt app client secret>\"} を送信してください。削除するには {\"secret\": \"\"} を送信してください",
 	"server.library.keep-up-to-date-off-its": "{name} {labels}: 「最新に保つ」をオフ、ファイルがディスクから削除されました",
 	"server.library.keep-up-to-date-off-its-2": "{name}: 「最新に保つ」をオフ、ファイルがディスクから削除されました",

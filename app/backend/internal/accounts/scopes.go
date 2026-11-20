@@ -465,8 +465,6 @@ var RoutePerms = map[string]webserver.Perm{
 	"GET /api/v1/settings/trakt-signin":        webserver.PermSettings,
 	"POST /api/v1/settings/trakt-signin":       webserver.NeedOwner,
 	"POST /api/v1/settings/trakt-signin/check": webserver.NeedOwner,
-	"POST /api/v1/settings/trakt-signin/link":  webserver.NeedOwner,
-	"POST /api/v1/settings/trakt-signin/code":  webserver.NeedOwner,
 	"DELETE /api/v1/settings/trakt-signin":     webserver.NeedOwner,
 	"GET /api/v1/settings/mdblist-key":         webserver.PermSettings,
 	"PUT /api/v1/settings/mdblist-key":         webserver.PermSettings,

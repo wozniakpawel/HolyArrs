@@ -136,7 +136,8 @@ func TestSync_PrivateTraktListWithSignIn(t *testing.T) {
 }
 
 // TestTraktSignInRoutes: the sign-in routes answer the status without any
-// secret, hand out a PKCE link, and refuse a code with no link or no body.
+// secret, need a client id, hand out a device code to type at
+// trakt.tv/activate, and stop waiting once the code is approved.
 func TestTraktSignInRoutes(t *testing.T) {
 	e := setup(t)
 	ctx := context.Background()
@@ -144,7 +145,10 @@ func TestTraktSignInRoutes(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	h := &OutsideListHandlers{Store: e.s, Queue: e.q, Secrets: v, TraktAuth: &metadata.TraktAuth{Secrets: v, AuthBase: "https://auth.example"},
+	var good atomic.Bool
+	var auths []string
+	srv := fakePrivateTrakt(t, &good, &auths)
+	h := &OutsideListHandlers{Store: e.s, Queue: e.q, Secrets: v, TraktAuth: &metadata.TraktAuth{Secrets: v, Base: srv.URL},
 		Actor: func(*http.Request) domain.Actor { return domain.Actor{Kind: "user", ID: 1} }}
 	m := http.NewServeMux()
 	h.TraktKeyRoutes(m)
@@ -155,8 +159,11 @@ func TestTraktSignInRoutes(t *testing.T) {
 		m.ServeHTTP(w, r)
 		return w.Code, w.Body.String()
 	}
-	if code, body := call("POST", "/api/v1/settings/trakt-signin/link", ""); code != http.StatusConflict || !strings.Contains(body, "client id") {
-		t.Fatalf("link with no client id: %d %s", code, body)
+	if code, body := call("POST", "/api/v1/settings/trakt-signin", ""); code != http.StatusConflict || !strings.Contains(body, "client id") {
+		t.Fatalf("sign-in with no client id: %d %s", code, body)
+	}
+	if code, body := call("POST", "/api/v1/settings/trakt-signin/check", ""); code != http.StatusConflict {
+		t.Fatalf("check with no sign-in: %d %s", code, body)
 	}
 	if code, _ := call("PUT", "/api/v1/settings/trakt-key", `{"key":"cid-123456789"}`); code != http.StatusOK {
 		t.Fatalf("key %d", code)
@@ -167,19 +174,24 @@ func TestTraktSignInRoutes(t *testing.T) {
 	if code, body := call("PUT", "/api/v1/settings/trakt-secret", `{"secret":""}`); code != http.StatusOK || !strings.Contains(body, `"client_secret":false`) {
 		t.Fatalf("secret removed %d %s", code, body)
 	}
-	if code, body := call("POST", "/api/v1/settings/trakt-signin/code", `{"code":"abc"}`); code != http.StatusConflict {
-		t.Fatalf("code with no link: %d %s", code, body)
-	}
-	code, body := call("POST", "/api/v1/settings/trakt-signin/link", "")
-	if code != http.StatusOK || !strings.Contains(body, "https://auth.example/oauth/authorize?") || !strings.Contains(body, "code_challenge_method=S256") {
-		t.Fatalf("link %d %s", code, body)
-	}
-	if code, _ := call("POST", "/api/v1/settings/trakt-signin/code", `{}`); code != http.StatusBadRequest {
-		t.Fatalf("empty code %d", code)
+	code, body := call("POST", "/api/v1/settings/trakt-signin", "")
+	if code != http.StatusOK || !strings.Contains(body, `"user_code":"CODE"`) || !strings.Contains(body, `"verification_url":"https://trakt.tv/activate"`) {
+		t.Fatalf("start %d %s", code, body)
 	}
 	code, body = call("GET", "/api/v1/settings/trakt-signin", "")
 	if code != http.StatusOK || !strings.Contains(body, `"waiting":true`) || !strings.Contains(body, `"signed_in":false`) || strings.Contains(body, "cid-123456789") {
 		t.Fatalf("status %d %s", code, body)
+	}
+	code, body = call("POST", "/api/v1/settings/trakt-signin/check", "")
+	if code != http.StatusOK || !strings.Contains(body, `"state":"signed_in"`) || !strings.Contains(body, `"waiting":false`) || !strings.Contains(body, `"username":"kim"`) {
+		t.Fatalf("check %d %s", code, body)
+	}
+	if strings.Contains(body, "tok-ok") || strings.Contains(body, "ref-ok") {
+		t.Fatalf("check shows a token: %s", body)
+	}
+	code, body = call("GET", "/api/v1/settings/trakt-signin", "")
+	if code != http.StatusOK || !strings.Contains(body, `"waiting":false`) || !strings.Contains(body, `"signed_in":true`) {
+		t.Fatalf("status after sign-in %d %s", code, body)
 	}
 	if code, _ := call("DELETE", "/api/v1/settings/trakt-signin", ""); code != http.StatusOK {
 		t.Fatalf("sign out %d", code)

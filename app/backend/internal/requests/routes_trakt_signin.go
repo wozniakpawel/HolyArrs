@@ -17,13 +17,11 @@ func (h *OutsideListHandlers) TraktSignInRoutes(m *http.ServeMux) {
 	m.HandleFunc("GET /api/v1/settings/trakt-signin", h.getTraktSignIn)
 	m.HandleFunc("POST /api/v1/settings/trakt-signin", h.startTraktSignIn)
 	m.HandleFunc("POST /api/v1/settings/trakt-signin/check", h.checkTraktSignIn)
-	m.HandleFunc("POST /api/v1/settings/trakt-signin/link", h.startTraktLink)
-	m.HandleFunc("POST /api/v1/settings/trakt-signin/code", h.finishTraktLink)
 	m.HandleFunc("DELETE /api/v1/settings/trakt-signin", h.endTraktSignIn)
 }
 
-// putTraktSecret saves an older Trakt app's client secret. New apps sign
-// in with PKCE and have none; an empty secret removes it.
+// putTraktSecret saves an older Trakt app's client secret. New apps have
+// none and need none; an empty secret removes it.
 func (h *OutsideListHandlers) putTraktSecret(w http.ResponseWriter, r *http.Request) {
 	if !webserver.RequireStrong(w, r) {
 		return
@@ -47,7 +45,8 @@ func (h *OutsideListHandlers) getTraktSignIn(w http.ResponseWriter, r *http.Requ
 	webserver.WriteJSON(w, http.StatusOK, h.TraktAuth.Status(r.Context()))
 }
 
-// startTraktSignIn asks Trakt for a code the person types at Trakt.
+// startTraktSignIn asks Trakt for a code the person types at
+// trakt.tv/activate.
 func (h *OutsideListHandlers) startTraktSignIn(w http.ResponseWriter, r *http.Request) {
 	if !webserver.RequireStrong(w, r) {
 		return
@@ -75,40 +74,6 @@ func (h *OutsideListHandlers) checkTraktSignIn(w http.ResponseWriter, r *http.Re
 	webserver.WriteJSON(w, http.StatusOK, map[string]any{"state": state, "status": h.TraktAuth.Status(r.Context())})
 }
 
-// startTraktLink makes a sign-in link (PKCE); Trakt then shows a code to
-// paste back with finishTraktLink.
-func (h *OutsideListHandlers) startTraktLink(w http.ResponseWriter, r *http.Request) {
-	if !webserver.RequireStrong(w, r) {
-		return
-	}
-	by := h.Actor(r)
-	link, err := h.TraktAuth.StartLink(r.Context(), by.ID, by)
-	if err != nil {
-		h.traktFail(w, err)
-		return
-	}
-	webserver.WriteJSON(w, http.StatusOK, link)
-}
-
-// finishTraktLink trades the code Trakt showed for the sign-in.
-func (h *OutsideListHandlers) finishTraktLink(w http.ResponseWriter, r *http.Request) {
-	if !webserver.RequireStrong(w, r) {
-		return
-	}
-	var body struct {
-		Code string `json:"code"`
-	}
-	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 4<<10)).Decode(&body); err != nil || strings.TrimSpace(body.Code) == "" {
-		webserver.Fail(w, http.StatusBadRequest, `send {"code": "<the code Trakt showed>"}`)
-		return
-	}
-	if err := h.TraktAuth.FinishLink(r.Context(), body.Code); err != nil {
-		h.traktFail(w, err)
-		return
-	}
-	webserver.WriteJSON(w, http.StatusOK, h.TraktAuth.Status(r.Context()))
-}
-
 // endTraktSignIn signs out of Trakt here; public lists still read.
 func (h *OutsideListHandlers) endTraktSignIn(w http.ResponseWriter, r *http.Request) {
 	if !webserver.RequireStrong(w, r) {
@@ -125,8 +90,6 @@ func (h *OutsideListHandlers) traktFail(w http.ResponseWriter, err error) {
 	switch {
 	case errors.Is(err, metadata.ErrTraktNoApp), errors.Is(err, metadata.ErrTraktNoSignIn):
 		webserver.Fail(w, http.StatusConflict, err.Error())
-	case errors.Is(err, metadata.ErrTraktBadCode):
-		webserver.Fail(w, http.StatusBadRequest, err.Error())
 	default:
 		webserver.Fail(w, http.StatusBadGateway, err.Error())
 	}

@@ -1585,7 +1585,6 @@
 	"server.migrate.holyarrs-reads-tmdb-lists-and-public-3": "HolyArrs lasa tikai TMDB sarakstus un publiskus Trakt sarakstus; šis saraksts paliek Sonarr",
 	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs lasa Trakt sarakstus un vēlmju sarakstus; noskatīto vai kolekcijas sarakstu paliek Sonarr",
 	"server.migrate.add-your-trakt-key-under-settings-2": "Pirms ieslēdz Trakt sarakstu, sadaļā Iestatījumi > Ārējie saraksti pievieno savu Trakt atslēgu; privātam sarakstam tur vajag arī Pieteikties ar Trakt.",
-	"server.requests.send-code-the-code-trakt-showed": "sūti {\"code\": \"<the code Trakt showed>\"}",
 	"server.requests.send-secret-trakt-app-client-secret-line": "sūti {\"secret\": \"<Trakt app client secret>\"}, vai {\"secret\": \"\"}, lai to noņemtu",
 	"server.library.keep-up-to-date-off-its": "{name} {labels}: “Uzturēt aktuālu” izslēgts, fails izdzēsts no diska",
 	"server.library.keep-up-to-date-off-its-2": "{name}: “Uzturēt aktuālu” izslēgts, fails izdzēsts no diska",

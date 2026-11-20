@@ -1585,7 +1585,6 @@
 	"server.migrate.holyarrs-reads-tmdb-lists-and-public-3": "HolyArrs קורא רק רשימות TMDB ורשימות Trakt ציבוריות; הרשימה הזו נשארת ב־Sonarr",
 	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs קורא רשימות ורשימות צפייה של Trakt; רשימת נצפה או קולקציה נשארת ב־Sonarr",
 	"server.migrate.add-your-trakt-key-under-settings-2": "הוסף את מפתח ה־Trakt שלך תחת הגדרות > רשימות חיצוניות לפני שתפעיל רשימת Trakt; רשימה פרטית צריכה שם גם התחברות עם Trakt.",
-	"server.requests.send-code-the-code-trakt-showed": "שלח {\"code\": \"<the code Trakt showed>\"}",
 	"server.requests.send-secret-trakt-app-client-secret-line": "שלח {\"secret\": \"<Trakt app client secret>\"}, או {\"secret\": \"\"} כדי להסיר אותו",
 	"server.library.keep-up-to-date-off-its": "{name} {labels}: „שמור מעודכן” כבוי, הקובץ נמחק מהדיסק",
 	"server.library.keep-up-to-date-off-its-2": "{name}: „שמור מעודכן” כבוי, הקובץ נמחק מהדיסק",

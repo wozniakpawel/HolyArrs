@@ -3,16 +3,12 @@ package metadata
 import (
 	"bytes"
 	"context"
-	"crypto/rand"
-	"crypto/sha256"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"net/url"
 	"strconv"
 	"strings"
 	"sync"
@@ -23,14 +19,13 @@ import (
 	"github.com/HolyArrs/holyarrs/app/backend/internal/core/secrets"
 )
 
-// Trakt sign-in with the owner's own Trakt app. New Trakt apps get only a
-// client id and sign people in with PKCE: HolyArrs makes a sign-in link,
-// Trakt shows a code (the out-of-band address), and the person pastes it
-// back. Trakt's device sign-in (a code typed at trakt.tv/activate) works
-// too. An older app's client secret is sent when one is saved, never
-// otherwise. The tokens are kept encrypted beside the client id; a sign-in
-// lets Outside lists read private lists and watchlists, and watch history
-// read what the person watched on Trakt.
+// Trakt sign-in with the owner's own Trakt app, by Trakt's device sign-in:
+// HolyArrs asks Trakt for a code, the person types it at trakt.tv/activate,
+// and HolyArrs asks Trakt until it is approved. A new Trakt app has only a
+// client id, and that is enough. An older app's client secret is sent when
+// one is saved, never otherwise. The tokens are kept encrypted beside the
+// client id; a sign-in lets Outside lists read private lists and
+// watchlists, and watch history read what the person watched on Trakt.
 const (
 	traktSecretName  = "trakt_client_secret"
 	traktAccessName  = "trakt_oauth_access"
@@ -41,13 +36,12 @@ const (
 	traktProblemName = "trakt_oauth_problem" // why the sign-in ended, until the next one
 )
 
-// traktRedirect is the redirect address Trakt apps use for device sign-in.
+// traktRedirect is the redirect address Trakt wants on a token refresh.
 const traktRedirect = "urn:ietf:wg:oauth:2.0:oob"
 
 // Errors of the Trakt sign-in.
 var (
 	ErrTraktNoApp     = errors.New("add your Trakt app's client id first")
-	ErrTraktBadCode   = errors.New("Trakt did not take that code; start the sign-in again")
 	ErrTraktNoSignIn  = errors.New("start the Trakt sign-in first")
 	ErrTraktSignedOut = errors.New("Trakt ended the sign-in; sign in with Trakt again under Settings > Outside lists")
 )
@@ -64,23 +58,11 @@ const (
 type TraktAuth struct {
 	Secrets *secrets.Vault
 	Base    string // default https://api.trakt.tv
-	// AuthBase is where people approve a sign-in link; default
-	// https://auth.trakt.tv.
-	AuthBase string
-	HTTP     *http.Client
-	Now      func() time.Time
+	HTTP    *http.Client
+	Now     func() time.Time
 
 	mu      sync.Mutex
 	pending *traktDevice
-	link    *traktLink
-}
-
-// traktLink is a PKCE sign-in link waiting for its code.
-type traktLink struct {
-	verifier, state string
-	until           time.Time
-	person          int64
-	by              database.Actor
 }
 
 // traktDevice is a device sign-in waiting for the person to approve it.
@@ -171,7 +153,7 @@ func (a *TraktAuth) Status(ctx context.Context) TraktStatus {
 		}
 	}
 	a.mu.Lock()
-	st.Waiting = a.pending != nil && a.now().Before(a.pending.until) || a.link != nil && a.now().Before(a.link.until)
+	st.Waiting = a.pending != nil && a.now().Before(a.pending.until)
 	a.mu.Unlock()
 	return st
 }
@@ -283,13 +265,15 @@ func (a *TraktAuth) CheckSignIn(ctx context.Context) (string, error) {
 	default:
 		return "", fmt.Errorf("Trakt answered %d", status)
 	}
+	// The code is used up whatever happens next.
+	end("")
 	if tok.AccessToken == "" || tok.RefreshToken == "" {
 		return "", errors.New("Trakt sent a sign-in without tokens")
 	}
 	if err := a.signedIn(ctx, id, tok, d.person, d.by); err != nil {
 		return "", err
 	}
-	return end(TraktSignedIn)
+	return TraktSignedIn, nil
 }
 
 // signedIn keeps a new sign-in's tokens, its Trakt username and who here
@@ -303,102 +287,12 @@ func (a *TraktAuth) signedIn(ctx context.Context, id string, tok traktTokens, pe
 }
 
 // withSecret adds the app's client secret to a token request when one is
-// saved: older Trakt apps need it, PKCE apps have none.
+// saved: older Trakt apps need it, new apps have none.
 func withSecret(body map[string]string, secret string) map[string]string {
 	if secret != "" {
 		body["client_secret"] = secret
 	}
 	return body
-}
-
-// TraktLink is the address where the person approves a PKCE sign-in.
-type TraktLink struct {
-	URL       string `json:"url"`
-	ExpiresIn int    `json:"expires_in"`
-}
-
-// linkFor is how long a sign-in link waits for its code.
-const linkFor = 15 * time.Minute
-
-// StartLink makes a PKCE sign-in link: a fresh code verifier, its S256
-// challenge and a state, kept here until the code comes back. Trakt
-// shows the code to paste, since the app uses the out-of-band address.
-func (a *TraktAuth) StartLink(ctx context.Context, person int64, by database.Actor) (TraktLink, error) {
-	id, _ := a.app(ctx)
-	if id == "" {
-		return TraktLink{}, ErrTraktNoApp
-	}
-	verifier, err := randomURLSafe(48)
-	if err != nil {
-		return TraktLink{}, err
-	}
-	state, err := randomURLSafe(16)
-	if err != nil {
-		return TraktLink{}, err
-	}
-	sum := sha256.Sum256([]byte(verifier))
-	q := url.Values{"response_type": {"code"}, "client_id": {id}, "redirect_uri": {traktRedirect}, "state": {state},
-		"code_challenge": {base64.RawURLEncoding.EncodeToString(sum[:])}, "code_challenge_method": {"S256"}}
-	base := strings.TrimRight(a.AuthBase, "/")
-	if base == "" {
-		base = "https://auth.trakt.tv"
-	}
-	a.mu.Lock()
-	a.link = &traktLink{verifier: verifier, state: state, until: a.now().Add(linkFor), person: person, by: by}
-	a.mu.Unlock()
-	return TraktLink{URL: base + "/oauth/authorize?" + q.Encode(), ExpiresIn: int(linkFor / time.Second)}, nil
-}
-
-// FinishLink trades the code Trakt showed for tokens, with the link's
-// code verifier. A pasted address with code= in it works too.
-func (a *TraktAuth) FinishLink(ctx context.Context, code string) error {
-	code = strings.TrimSpace(code)
-	if u, err := url.Parse(code); err == nil && u.Query().Get("code") != "" {
-		code = u.Query().Get("code")
-	}
-	a.mu.Lock()
-	l := a.link
-	if l != nil && !a.now().Before(l.until) {
-		a.link, l = nil, nil
-	}
-	a.mu.Unlock()
-	if l == nil {
-		return ErrTraktNoSignIn
-	}
-	if code == "" || len(code) > 512 {
-		return ErrTraktBadCode
-	}
-	id, secret := a.app(ctx)
-	if id == "" {
-		return ErrTraktNoApp
-	}
-	var tok traktTokens
-	status, err := a.post(ctx, "/oauth/token", withSecret(map[string]string{"code": code, "client_id": id, "redirect_uri": traktRedirect,
-		"grant_type": "authorization_code", "code_verifier": l.verifier}, secret), &tok)
-	switch {
-	case err != nil:
-		return err
-	case status == http.StatusBadRequest || status == http.StatusUnauthorized || status == http.StatusForbidden:
-		return ErrTraktBadCode
-	case status != http.StatusOK || tok.AccessToken == "":
-		return fmt.Errorf("Trakt answered %d", status)
-	}
-	a.mu.Lock()
-	if a.link == l {
-		a.link = nil // a code is good once
-	}
-	a.mu.Unlock()
-	return a.signedIn(ctx, id, tok, l.person, l.by)
-}
-
-// randomURLSafe is n random bytes as unpadded base64url (PKCE's
-// characters).
-func randomURLSafe(n int) (string, error) {
-	b := make([]byte, n)
-	if _, err := rand.Read(b); err != nil {
-		return "", err
-	}
-	return base64.RawURLEncoding.EncodeToString(b), nil
 }
 
 // traktTokens is Trakt's token answer.
@@ -440,7 +334,7 @@ func (a *TraktAuth) username(ctx context.Context, id, token string) string {
 func (a *TraktAuth) SignOut(ctx context.Context, by database.Actor) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
-	a.pending, a.link = nil, nil
+	a.pending = nil
 	id, secret := a.app(ctx)
 	if tok := a.setting(ctx, traktAccessName); tok != "" && id != "" {
 		if _, err := a.post(ctx, "/oauth/revoke", withSecret(map[string]string{"token": tok, "client_id": id}, secret), nil); err != nil {

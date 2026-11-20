@@ -486,8 +486,6 @@ POST /api/v1/settings/plex-labels/run settings
 POST /api/v1/settings/subtitles/translator/test settings
 POST /api/v1/settings/trakt-signin settings
 POST /api/v1/settings/trakt-signin/check settings
-POST /api/v1/settings/trakt-signin/code settings
-POST /api/v1/settings/trakt-signin/link settings
 POST /api/v1/shows add
 POST /api/v1/sources settings
 POST /api/v1/sources/check settings
