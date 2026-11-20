@@ -8,26 +8,31 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/HolyArrs/holyarrs/app/backend/internal/core/jobs"
 )
 
+// forgetWait is how long ForgetPerson waits for a person's running jobs to
+// stop before it removes their folder anyway; forgetPoll is how often it
+// looks.
+var (
+	forgetWait = 30 * time.Second
+	forgetPoll = 50 * time.Millisecond
+)
+
 // ForgetPerson removes everything the YouTube library keeps for a deleted
-// person: their waiting and running jobs are stopped, their follow and
-// video rows go, and so does their "<id>-<name>" folder in the YouTube
-// folder. Only entries directly inside the YouTube folder are removed; a
+// person: their waiting and running jobs are stopped, and once they have
+// stopped (or forgetWait has passed) their follow and video rows go, and
+// so does their "<id>-<name>" folder in the YouTube folder. Waiting first
+// keeps a download that was mid-way from making the folder again after it
+// went. Only entries directly inside the YouTube folder are removed; a
 // link there is removed as a link, never followed. It carries on past a
 // failed step and returns every failure.
 func (s *Service) ForgetPerson(ctx context.Context, userID int64) error {
 	var errs []error
-	ids, err := jobs.LiveIDsWithKeyPrefix(ctx, s.Store.Read(), fmt.Sprintf("youtube:%d:", userID))
-	if err != nil {
-		errs = append(errs, fmt.Errorf("youtube: jobs of user %d: %w", userID, err))
-	}
-	for _, id := range ids {
-		if err := s.Queue.Cancel(ctx, id); err != nil {
-			errs = append(errs, fmt.Errorf("youtube: cancel job %d: %w", id, err))
-		}
+	if err := s.stopPersonJobs(ctx, userID); err != nil {
+		errs = append(errs, err)
 	}
 	if err := s.Store.Write(ctx, func(tx *sql.Tx) error { return DeletePersonRows(tx, userID) }); err != nil {
 		errs = append(errs, fmt.Errorf("youtube: rows of user %d: %w", userID, err))
@@ -36,6 +41,37 @@ func (s *Service) ForgetPerson(ctx context.Context, userID int64) error {
 		errs = append(errs, fmt.Errorf("youtube: folder of user %d: %w", userID, err))
 	}
 	return errors.Join(errs...)
+}
+
+// stopPersonJobs cancels every queued and running job of a person and
+// waits until none is left, up to forgetWait. It cancels again on each
+// look, so a job a stopping check queued at the last moment goes too.
+func (s *Service) stopPersonJobs(ctx context.Context, userID int64) error {
+	prefix := fmt.Sprintf("youtube:%d:", userID)
+	deadline := time.Now().Add(forgetWait)
+	for {
+		ids, err := jobs.LiveIDsWithKeyPrefix(ctx, s.Store.Read(), prefix)
+		if err != nil {
+			return fmt.Errorf("youtube: jobs of user %d: %w", userID, err)
+		}
+		if len(ids) == 0 {
+			return nil
+		}
+		var cancelErr error
+		for _, id := range ids {
+			if err := s.Queue.Cancel(ctx, id); err != nil {
+				cancelErr = fmt.Errorf("youtube: cancel job %d: %w", id, err)
+			}
+		}
+		if time.Now().After(deadline) {
+			return errors.Join(fmt.Errorf("youtube: %d jobs of user %d still running", len(ids), userID), cancelErr)
+		}
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(forgetPoll):
+		}
+	}
 }
 
 // removePersonFolder removes every "<id>-" folder or link directly inside

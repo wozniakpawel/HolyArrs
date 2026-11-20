@@ -149,3 +149,47 @@ func TestForgetPersonKeepsTitlesOutOfErrors(t *testing.T) {
 		t.Fatalf("error %v", err)
 	}
 }
+
+// A download running when the person is deleted is stopped first, so it
+// cannot make their folder again or leave part files behind.
+func TestForgetPersonStopsARunningDownloadFirst(t *testing.T) {
+	t.Parallel()
+	r := newRig(t, "hang")
+	r.putJSON("info-abcdefghijk.json", info("abcdefghijk", "Title", "Veritasium", 1709650800))
+	f := r.follow(anna, veritasium())
+	id := addVideo(t, r.s, Video{UserID: anna, FollowID: &f.ID, VideoID: "abcdefghijk"})
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	if err := r.q.Start(ctx); err != nil {
+		t.Fatal(err)
+	}
+	defer r.q.Stop()
+	r.svc.queueDownload(ctx, anna, id)
+	part := filepath.Join(r.root, "7-Anna", "Veritasium", "2024-03-05 Title [abcdefghijk].f137.mp4.part")
+	for deadline := time.Now().Add(10 * time.Second); ; time.Sleep(10 * time.Millisecond) {
+		if _, err := os.Stat(part); err == nil {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("the download never started")
+		}
+	}
+
+	if err := r.svc.ForgetPerson(ctx, anna); err != nil {
+		t.Fatal(err)
+	}
+	if left, _ := os.ReadDir(r.root); len(left) != 0 {
+		t.Fatalf("left in the YouTube folder: %v", left)
+	}
+	if js := r.jobs(KindDownload); len(js) != 1 || js[0].State != "cancelled" {
+		t.Fatalf("download job %+v", js)
+	}
+	if vs := r.videos(anna); len(vs) != 0 {
+		t.Fatalf("rows left %v", vs)
+	}
+	// Nothing comes back once the stopped job has finished unwinding.
+	time.Sleep(300 * time.Millisecond)
+	if left, _ := os.ReadDir(r.root); len(left) != 0 {
+		t.Fatalf("came back in the YouTube folder: %v", left)
+	}
+}
