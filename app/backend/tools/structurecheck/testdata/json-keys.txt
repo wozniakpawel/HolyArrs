@@ -619,6 +619,7 @@ file_ids
 file_name
 file_path
 file_pattern
+file_rules
 filename
 files
 files_stay
@@ -1915,6 +1916,9 @@ undo_state
 undone_at
 unfollow
 unique_user_key
+unkeep_deleted
+unkeep_deleted_episodes
+unkeep_deleted_movies
 unknown
 unreachable
 unresolved
