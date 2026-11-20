@@ -34,6 +34,8 @@ type Site struct {
 	GapMS     int `json:"gap_ms"`
 	PerHour   int `json:"per_hour"`
 	TimeoutMS int `json:"timeout_ms"`
+	// NoFeed: the site has no newest list HolyArrs reads, so it only searches.
+	NoFeed bool `json:"-"`
 }
 
 // Sites lists the built-in sites, in the order the add form shows them.
@@ -42,6 +44,11 @@ var Sites = []Site{
 	{ID: "torrentscsv", Name: "TorrentsCSV", URL: "https://torrents-csv.com", Kinds: []string{"movie", "tv", "music"}, GapMS: 2000, PerHour: 100, TimeoutMS: 20000},
 	{ID: "subsplease", Name: "SubsPlease", URL: "https://subsplease.org", Kinds: []string{"tv"}, GapMS: 2000, PerHour: 100, TimeoutMS: 20000},
 	{ID: "iptorrents", Name: "IPTorrents", URL: "https://iptorrents.com", Private: true, Kinds: []string{"movie", "tv", "music"}, GapMS: 3000, PerHour: 60, TimeoutMS: 30000},
+	{ID: "thepiratebay", Name: "The Pirate Bay", URL: "https://apibay.org", Kinds: []string{"movie", "tv", "music"}, GapMS: 2000, PerHour: 100, TimeoutMS: 20000},
+	{ID: "yts", Name: "YTS", URL: "https://movies-api.accel.li", Kinds: []string{"movie"}, GapMS: 2000, PerHour: 100, TimeoutMS: 20000},
+	{ID: "nyaasi", Name: "Nyaa", URL: "https://nyaa.si", Kinds: []string{"movie", "tv"}, GapMS: 2000, PerHour: 100, TimeoutMS: 20000},
+	{ID: "tokyotosho", Name: "Tokyo Toshokan", URL: "https://www.tokyotosho.info", Kinds: []string{"movie", "tv"}, GapMS: 2000, PerHour: 100, TimeoutMS: 20000},
+	{ID: "bangumimoe", Name: "Bangumi Moe", URL: "https://bangumi.moe", Kinds: []string{"movie", "tv"}, GapMS: 2000, PerHour: 100, TimeoutMS: 20000},
 }
 
 // SiteByID finds a built-in site.
@@ -193,6 +200,12 @@ func (c *Client) siteCall(ctx context.Context, base, text string, q Query) ([]It
 			return nil, err
 		}
 		return parseIPTorrents(raw, base, k.passkey)
+	}
+	if f := moreSites[c.cfg.Site]; f != nil {
+		if s, _ := SiteByID(c.cfg.Site); s.NoFeed && text == "" {
+			return nil, nil
+		}
+		return f(c, ctx, base, text, q)
 	}
 	return nil, &Error{Kind: KindBroken, Msg: "unknown built-in site"}
 }
@@ -492,10 +505,10 @@ func parseIPTorrents(raw []byte, base, passkey string) ([]Item, error) {
 	return out, nil
 }
 
-// siteTest reads the site's newest list; TorrentsCSV has none, so it runs one small search.
+// siteTest reads the site's newest list; a site with none runs one small search.
 func (c *Client) siteTest(ctx context.Context) (int, error) {
 	q := Query{feed: true}
-	if c.cfg.Site == "torrentscsv" {
+	if s, _ := SiteByID(c.cfg.Site); s.NoFeed || s.ID == "torrentscsv" {
 		q = Query{Title: "linux"}
 	}
 	items, err := c.siteSearch(ctx, q, c.cfg.Observe)
