@@ -176,6 +176,14 @@ func (a *TraktAuth) Status(ctx context.Context) TraktStatus {
 	return st
 }
 
+// ClientID is the Trakt key (the app's client id); "" when none is saved.
+func (a *TraktAuth) ClientID(ctx context.Context) string {
+	if a == nil || a.Secrets == nil {
+		return ""
+	}
+	return a.setting(ctx, TraktKeyName)
+}
+
 // Person is the id of the person here who signed in to Trakt; 0 when
 // nobody is signed in.
 func (a *TraktAuth) Person(ctx context.Context) int64 {

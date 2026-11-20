@@ -110,7 +110,7 @@ func (s *OutsideLists) Sync(ctx context.Context, id int64, by domain.Actor) (Out
 	case ListTMDB:
 		es, err = s.fetchTMDB(ctx, l.Ref, l.TitleKind)
 	case ListTrakt:
-		es, err = s.fetchTrakt(ctx, l.Ref, l.TitleKind)
+		es, err = s.fetchTrakt(ctx, l)
 	case ListMDBList:
 		es, err = s.fetchMDBList(ctx, l.Ref, l.TitleKind)
 	default:
@@ -459,13 +459,20 @@ func (s *OutsideLists) fetchTMDB(ctx context.Context, ref, titleKind string) ([]
 var errSignInRefused = errors.New("the sign-in was refused")
 
 // fetchTrakt reads a Trakt list or watchlist: its movies, or its shows for a
-// show list. Trakt gives the page count in a response header. With a Trakt
-// sign-in it sends the access token, so private lists can be read too; a
-// token Trakt refuses ends the sign-in, and the read fails saying so.
-func (s *OutsideLists) fetchTrakt(ctx context.Context, ref, titleKind string) ([]entry, error) {
-	key, token, err := s.TraktAuth.Access(ctx)
-	if err != nil {
-		return nil, err
+// show list. Trakt gives the page count in a response header. A list the
+// person signed in with Trakt last saved is read with their access token,
+// so their private lists can be read too; a token Trakt refuses ends the
+// sign-in, and the read fails saying so. Any other list is read with the
+// key alone, so nobody can point a list at the signed-in person's private
+// lists and have them read with that sign-in.
+func (s *OutsideLists) fetchTrakt(ctx context.Context, l domain.OutsideList) ([]entry, error) {
+	ref, titleKind := l.Ref, l.TitleKind
+	key, token := s.TraktAuth.ClientID(ctx), ""
+	if p := s.TraktAuth.Person(ctx); p != 0 && l.UpdatedBy.Kind == "user" && l.UpdatedBy.ID == p {
+		var err error
+		if key, token, err = s.TraktAuth.Access(ctx); err != nil {
+			return nil, err
+		}
 	}
 	if key == "" && s.TraktClient != nil {
 		key, _ = s.TraktClient(ctx)

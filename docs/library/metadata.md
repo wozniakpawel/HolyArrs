@@ -50,6 +50,8 @@ On a device where pasting is hard, select **Use a device code instead**: open th
 
 HolyArrs renews the sign-in by itself. If Trakt ends it (you removed the app on trakt.tv, for example), HolyArrs says so on the page and on each Trakt list it could not read; sign in again. Until then only public lists are read. **Sign out of Trakt** ends it here and at Trakt.
 
+Only the lists you saved last are read with your sign-in, including the ones an import you ran brought over. A list someone else adds, or changes after you, is read without it, so it sees only public lists; open it and save it yourself to use your sign-in.
+
 An older Trakt app that has a client secret still works: paste the secret in **Client secret**. New apps have none; leave it empty.
 
 ### Watch history from Trakt
