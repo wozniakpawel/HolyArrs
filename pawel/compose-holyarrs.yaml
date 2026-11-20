@@ -11,6 +11,7 @@
     environment:
       - PUID=1034
       - PGID=100
+      - UMASK=002
       - TZ=Europe/London
       - HOLYARRS_ALLOWED_HOSTS=primary,primary.bee-eagle.ts.net,100.111.0.1
       - HOLYARRS_TRUSTED_PROXIES=172.22.2.1

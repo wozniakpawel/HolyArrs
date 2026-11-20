@@ -15,7 +15,7 @@ if [ "${1:-}" != "--no-build" ]; then
   GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -X main.version=$VER" \
     -o bin/holyarrs-nas ./app/backend/cmd/holyarrs
 fi
-scp -q bin/holyarrs-nas "$NAS:/tmp/holyarrs.new"
+ssh "$NAS" "cat > /tmp/holyarrs.new" < bin/holyarrs-nas
 ssh "$NAS" "sudo install -o 1034 -g 100 -m 755 /tmp/holyarrs.new $DIR/bin/holyarrs && rm /tmp/holyarrs.new \
   && cd /volume2/docker/media && sudo /usr/local/bin/docker compose up -d holyarrs >/dev/null && sudo /usr/local/bin/docker restart holyarrs >/dev/null"
 for i in $(seq 1 60); do
