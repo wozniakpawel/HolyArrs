@@ -3,17 +3,17 @@ package arrapi
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"net/http"
 	"slices"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/HolyArrs/holyarrs/app/backend/internal/core/database"
 	"github.com/HolyArrs/holyarrs/app/backend/internal/core/releasename"
+	"github.com/HolyArrs/holyarrs/app/backend/internal/downloads"
 	"github.com/HolyArrs/holyarrs/app/backend/internal/importer"
 	"github.com/HolyArrs/holyarrs/app/backend/internal/mediafiles"
+	"github.com/HolyArrs/holyarrs/app/backend/internal/sources"
 )
 
 // The calls below are the ones phone apps such as Helmarr make for their
@@ -122,39 +122,15 @@ func historyNumber(side, t string) string {
 func (h *handler) historyRows(ctx context.Context) ([]historyRow, error) {
 	kind := map[string]string{"sonarr": "show", "radarr": "movie"}[h.side]
 	db := h.Store.Read()
-	kinds := map[int64]string{}
-	if err := eachRow(ctx, db, "SELECT id, kind FROM titles WHERE state != 'removed'", func(rs *sql.Rows) error {
-		var id int64
-		var k string
-		if err := rs.Scan(&id, &k); err != nil {
-			return err
-		}
-		kinds[id] = k
-		return nil
-	}); err != nil {
+	kinds, err := mediafiles.TitleKinds(ctx, db)
+	if err != nil {
 		return nil, err
 	}
 	keys := make([]string, 0, len(historyKinds))
-	args := []any{}
 	for k := range historyKinds {
-		keys = append(keys, "?")
-		args = append(args, k)
+		keys = append(keys, k)
 	}
-	args = append(args, historyMax)
-	var evs []database.Event
-	err := eachRow(ctx, h.Store.ReadEvents(),
-		"SELECT id, at, kind, title_id, slot_id, download_id, summary, data FROM events WHERE title_id IS NOT NULL AND kind IN ("+
-			strings.Join(keys, ",")+") ORDER BY at DESC, id DESC LIMIT ?", func(rs *sql.Rows) error {
-			var e database.Event
-			var at, data string
-			if err := rs.Scan(&e.ID, &at, &e.Kind, &e.TitleID, &e.SlotID, &e.DownloadID, &e.Summary, &data); err != nil {
-				return err
-			}
-			e.At, _ = time.Parse(time.RFC3339Nano, at)
-			_ = json.Unmarshal([]byte(data), &e.Data)
-			evs = append(evs, e)
-			return nil
-		}, args...)
+	evs, err := h.Store.TitleEventsOfKinds(ctx, keys, historyMax)
 	if err != nil {
 		return nil, err
 	}
@@ -165,57 +141,30 @@ func (h *handler) historyRows(ctx context.Context) ([]historyRow, error) {
 			slots = append(slots, *e.SlotID)
 		}
 	}
-	items := map[int64]int64{}
-	if len(slots) > 0 {
-		if err := eachRow(ctx, db, "SELECT id, item_id FROM slots WHERE id IN "+idList(slots), func(rs *sql.Rows) error {
-			var id, item int64
-			if err := rs.Scan(&id, &item); err != nil {
-				return err
-			}
-			items[id] = item
-			return nil
-		}); err != nil {
-			return nil, err
-		}
+	items, err := mediafiles.SlotItems(ctx, db, slots)
+	if err != nil {
+		return nil, err
 	}
-	downloads := map[int64]string{}
 	var dls []int64
 	for _, e := range evs {
 		if e.DownloadID != nil {
 			dls = append(dls, *e.DownloadID)
 		}
 	}
-	if len(dls) > 0 {
-		_ = eachRow(ctx, db, "SELECT id, COALESCE(external_id, '') FROM downloads WHERE id IN "+idList(dls), func(rs *sql.Rows) error {
-			var id int64
-			var ext string
-			if err := rs.Scan(&id, &ext); err != nil {
-				return err
-			}
-			downloads[id] = strings.ToUpper(ext)
-			return nil
-		})
-	}
+	// What was read before a failure still shows; the rest goes without.
+	downloadIDs, _ := downloads.ExternalIDs(ctx, db, dls)
 	// The release each send came from, for the details Sonarr keeps.
-	rels := map[int64]historyRelease{}
 	var relIDs []int64
 	for _, e := range evs {
 		if id := int64Of(e.Data["release_id"]); id > 0 {
 			relIDs = append(relIDs, id)
 		}
 	}
-	if len(relIDs) > 0 {
-		_ = eachRow(ctx, db, `SELECT r.id, r.size, r.protocol, COALESCE(r.published_at, ''), COALESCE(r.info_hash, ''), COALESCE(s.name, '')
-			FROM releases r LEFT JOIN sources s ON s.id = r.source_id WHERE r.id IN `+idList(relIDs), func(rs *sql.Rows) error {
-			var id, size int64
-			var ri historyRelease
-			if err := rs.Scan(&id, &size, &ri.protocol, &ri.published, &ri.hash, &ri.indexer); err != nil {
-				return err
-			}
-			ri.size = strconv.FormatInt(size, 10)
-			rels[id] = ri
-			return nil
-		})
+	facts, _ := sources.ReleaseFactsOf(ctx, db, relIDs)
+	rels := map[int64]historyRelease{}
+	for id, f := range facts {
+		rels[id] = historyRelease{size: strconv.FormatInt(f.Size, 10), protocol: f.Protocol, published: f.PublishedAt, hash: f.InfoHash,
+			indexer: f.SourceName}
 	}
 	out := []historyRow{}
 	for _, e := range evs {
@@ -239,7 +188,7 @@ func (h *handler) historyRows(ctx context.Context) ([]historyRow, error) {
 		row.SourceTitle = name
 		row.Quality = qualityOfRelease(h.side, name)
 		if e.DownloadID != nil {
-			row.DownloadID = downloads[*e.DownloadID]
+			row.DownloadID = strings.ToUpper(downloadIDs[*e.DownloadID])
 		}
 		historyData(row.Data, e, name, rels[int64Of(e.Data["release_id"])])
 		out = append(out, row)

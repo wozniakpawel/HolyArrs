@@ -12,7 +12,9 @@ import (
 	"github.com/HolyArrs/holyarrs/app/backend/internal/core/database"
 	domain "github.com/HolyArrs/holyarrs/app/backend/internal/core/model"
 	"github.com/HolyArrs/holyarrs/app/backend/internal/core/releasename"
+	"github.com/HolyArrs/holyarrs/app/backend/internal/downloads"
 	"github.com/HolyArrs/holyarrs/app/backend/internal/mediafiles"
+	"github.com/HolyArrs/holyarrs/app/backend/internal/sources"
 )
 
 // The events other than imports. Each goes only to the hooks whose own
@@ -157,17 +159,12 @@ func (s *hookSender) otherBody(ctx context.Context, e domain.Event, t mediafiles
 		if side != "sonarr" || len(slots) == 0 {
 			return nil, nil
 		}
-		var items []int64
-		rows, err := db.QueryContext(ctx, "SELECT item_id FROM slots WHERE id IN "+idList(slots))
+		of, err := mediafiles.SlotItems(ctx, db, slots)
 		if err != nil {
 			return nil, err
 		}
-		defer rows.Close()
-		for rows.Next() {
-			var id int64
-			if err := rows.Scan(&id); err != nil {
-				return nil, err
-			}
+		var items []int64
+		for _, id := range of {
 			items = append(items, id)
 		}
 		return episodesOfItems(ctx, db, t.ID, items)
@@ -194,18 +191,16 @@ func (s *hookSender) otherBody(ctx context.Context, e domain.Event, t mediafiles
 		rel := map[string]any{"quality": q.Name, "qualityVersion": 1, "releaseTitle": name, "releaseGroup": releaseGroupOf(name), "indexer": "", "size": 0,
 			"customFormats": []string{}, "customFormatScore": 0, "indexerFlags": []string{}}
 		if id := int64Of(e.Data["release_id"]); id > 0 {
-			var size int64
-			var indexer string
-			if db.QueryRowContext(ctx, "SELECT r.size, s.name FROM releases r JOIN sources s ON s.id = r.source_id WHERE r.id = ?", id).Scan(&size, &indexer) == nil {
-				rel["size"], rel["indexer"] = size, indexer
+			facts, _ := sources.ReleaseFactsOf(ctx, db, []int64{id})
+			if f, ok := facts[id]; ok && f.FromSource {
+				rel["size"], rel["indexer"] = f.Size, f.SourceName
 			}
 		}
 		ev["release"] = rel
 		ev["downloadClient"], _ = e.Data["downloader"].(string)
 		ev["downloadClientType"], ev["downloadId"] = "", ""
 		if e.DownloadID != nil {
-			var ext, kind string
-			if db.QueryRowContext(ctx, "SELECT d.external_id, w.kind FROM downloads d JOIN downloaders w ON w.id = d.downloader_id WHERE d.id = ?", *e.DownloadID).Scan(&ext, &kind) == nil {
+			if ext, kind, err := downloads.DownloadClient(ctx, db, *e.DownloadID); err == nil {
 				ev["downloadId"], ev["downloadClientType"] = ext, kind
 			}
 		}

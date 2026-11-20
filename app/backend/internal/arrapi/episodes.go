@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/HolyArrs/holyarrs/app/backend/internal/library"
+	"github.com/HolyArrs/holyarrs/app/backend/internal/mediafiles"
 	"github.com/HolyArrs/holyarrs/app/backend/internal/shows"
 )
 
@@ -55,23 +56,13 @@ func (h *handler) episodesOf(ctx context.Context, f library.EpisodeFilter) ([]ep
 	if err != nil {
 		return nil, err
 	}
-	ended := map[int64]bool{}
-	{
-		var shows []int64
-		for _, it := range its {
-			shows = append(shows, it.TitleID)
-		}
-		rows, err := h.Store.Read().QueryContext(ctx, "SELECT id FROM titles WHERE status = 'ended' AND id IN "+idList(shows))
-		if err != nil {
-			return nil, err
-		}
-		for rows.Next() {
-			var id int64
-			if rows.Scan(&id) == nil {
-				ended[id] = true
-			}
-		}
-		rows.Close()
+	var shows []int64
+	for _, it := range its {
+		shows = append(shows, it.TitleID)
+	}
+	ended, err := mediafiles.EndedTitles(ctx, h.Store.Read(), shows)
+	if err != nil {
+		return nil, err
 	}
 	out := make([]episode, 0, len(its))
 	for _, it := range its {
