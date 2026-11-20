@@ -1598,5 +1598,10 @@
 	"server.migrate.on-the-old-app-s-blocklist": "в черния списък на старото приложение",
 	"server.migrate.the-old-app-gave-no-release": "старото приложение не даде име на издание или протокол",
 	"server.migrate.turned-down": "Отхвърлени",
-	"server.migrate.built-in-site-read-directly-with": "вграден сайт {name}, чете се директно без Prowlarr; добавен на пауза: проверете го и го пуснете сами"
+	"server.migrate.built-in-site-read-directly-with": "вграден сайт {name}, чете се директно без Prowlarr; добавен на пауза: проверете го и го пуснете сами",
+	"server.migrate.sizes-from-the-old-app": "{why}; размери от старото приложение: {body}",
+	"server.migrate.becomes-pick-rules-a-copy-of": "става Правила за избор {name}, копие на {preset} с размерите на старото приложение",
+	"server.migrate.no-holyarrs-quality-step-matches-it": "никоя стъпка за качество в HolyArrs не му съответства",
+	"server.migrate.no-quality-profile-came-over-to-2": "не дойде профил за качество, който да го носи",
+	"server.migrate.you-left-size-limits-behind-titles": "оставихте ограниченията за размер; заглавията вземат размерите на своите Правила за избор"
 }

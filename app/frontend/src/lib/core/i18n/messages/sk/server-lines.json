@@ -1598,5 +1598,10 @@
 	"server.migrate.on-the-old-app-s-blocklist": "na blokovacom zozname starej aplikácie",
 	"server.migrate.the-old-app-gave-no-release": "stará aplikácia neuviedla názov vydania ani protokol",
 	"server.migrate.turned-down": "Zamietnuté",
-	"server.migrate.built-in-site-read-directly-with": "vstavaná stránka {name}, číta sa priamo bez Prowlarru; pridaná pozastavená: skontrolujte ju a obnovte sami"
+	"server.migrate.built-in-site-read-directly-with": "vstavaná stránka {name}, číta sa priamo bez Prowlarru; pridaná pozastavená: skontrolujte ju a obnovte sami",
+	"server.migrate.sizes-from-the-old-app": "{why}; veľkosti zo starej aplikácie: {body}",
+	"server.migrate.becomes-pick-rules-a-copy-of": "stane sa Pravidlami výberu {name}, kópiou {preset} s veľkosťami starej aplikácie",
+	"server.migrate.no-holyarrs-quality-step-matches-it": "nezodpovedá mu žiadny stupeň kvality HolyArrs",
+	"server.migrate.no-quality-profile-came-over-to-2": "neprenesený žiadny profil kvality, ktorý by ho niesol",
+	"server.migrate.you-left-size-limits-behind-titles": "limity veľkosti ste nechali tak; tituly berú veľkosti zo svojich Pravidiel výberu"
 }

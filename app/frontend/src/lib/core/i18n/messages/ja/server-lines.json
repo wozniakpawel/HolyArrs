@@ -1598,5 +1598,10 @@
 	"server.migrate.on-the-old-app-s-blocklist": "以前のアプリのブロックリストにあります",
 	"server.migrate.the-old-app-gave-no-release": "以前のアプリがリリース名やプロトコルを返しませんでした",
 	"server.migrate.turned-down": "不採用",
-	"server.migrate.built-in-site-read-directly-with": "組み込みサイト {name}。Prowlarr を通さず直接読み込みます。一時停止で追加しました: 確認してから自分で再開してください"
+	"server.migrate.built-in-site-read-directly-with": "組み込みサイト {name}。Prowlarr を通さず直接読み込みます。一時停止で追加しました: 確認してから自分で再開してください",
+	"server.migrate.sizes-from-the-old-app": "{why}。旧アプリのサイズ: {body}",
+	"server.migrate.becomes-pick-rules-a-copy-of": "選定ルール {name} になります（旧アプリのサイズを持つ {preset} のコピー）",
+	"server.migrate.no-holyarrs-quality-step-matches-it": "一致する HolyArrs の画質ステップがありません",
+	"server.migrate.no-quality-profile-came-over-to-2": "引き継ぐ画質プロファイルがありませんでした",
+	"server.migrate.you-left-size-limits-behind-titles": "サイズ制限は持ってきませんでした。タイトルは選定ルールのサイズを使います"
 }
