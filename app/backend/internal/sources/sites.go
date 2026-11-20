@@ -36,6 +36,9 @@ type Site struct {
 	TimeoutMS int `json:"timeout_ms"`
 	// NoFeed: the site has no newest list HolyArrs reads, so it only searches.
 	NoFeed bool `json:"-"`
+	// Details: result links are the site's page for the torrent, whose
+	// magnet is read when the Release is grabbed (see sites_details.go).
+	Details bool `json:"-"`
 }
 
 // Sites lists the built-in sites, in the order the add form shows them.
@@ -49,6 +52,11 @@ var Sites = []Site{
 	{ID: "nyaasi", Name: "Nyaa", URL: "https://nyaa.si", Kinds: []string{"movie", "tv"}, GapMS: 2000, PerHour: 100, TimeoutMS: 20000},
 	{ID: "tokyotosho", Name: "Tokyo Toshokan", URL: "https://www.tokyotosho.info", Kinds: []string{"movie", "tv"}, GapMS: 2000, PerHour: 100, TimeoutMS: 20000},
 	{ID: "bangumimoe", Name: "Bangumi Moe", URL: "https://bangumi.moe", Kinds: []string{"movie", "tv"}, GapMS: 2000, PerHour: 100, TimeoutMS: 20000},
+	{ID: "1337x", Name: "1337x", URL: "https://1337x.to", Kinds: []string{"movie", "tv", "music"}, GapMS: 3000, PerHour: 60, TimeoutMS: 30000, NoFeed: true, Details: true},
+	{ID: "torrent9", Name: "Torrent9", URL: "https://www7.torrent9.to", Kinds: []string{"movie", "tv", "music"}, GapMS: 3000, PerHour: 60, TimeoutMS: 30000, NoFeed: true, Details: true},
+	{ID: "torrentdownload", Name: "TorrentDownload", URL: "https://www.torrentdownload.info", Kinds: []string{"movie", "tv", "music"}, GapMS: 3000, PerHour: 60, TimeoutMS: 30000, NoFeed: true},
+	{ID: "limetorrents", Name: "LimeTorrents", URL: "https://www.limetorrents.fun", Kinds: []string{"movie", "tv", "music"}, GapMS: 3000, PerHour: 60, TimeoutMS: 30000, NoFeed: true},
+	{ID: "bigfangroup", Name: "BigFANGroup", URL: "https://bigfangroup.org", Kinds: []string{"movie", "tv", "music"}, GapMS: 3000, PerHour: 60, TimeoutMS: 30000},
 }
 
 // SiteByID finds a built-in site.

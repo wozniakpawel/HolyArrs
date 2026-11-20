@@ -30,7 +30,7 @@ var (
 	ErrName     = errors.New("give the Source a name of 1 to 80 characters")
 	ErrNameUsed = errors.New("another Source has that name")
 	ErrFormat   = errors.New("format must be torznab, newznab, rss or site")
-	ErrSite     = errors.New("site must be one of the built-in sites: knaben, torrentscsv, subsplease, iptorrents, thepiratebay, yts, nyaasi, tokyotosho or bangumimoe")
+	ErrSite     = errors.New("site must be one of the built-in sites: knaben, torrentscsv, subsplease, iptorrents, thepiratebay, yts, nyaasi, tokyotosho, bangumimoe, 1337x, torrent9, torrentdownload, limetorrents or bigfangroup")
 	ErrProtocol = errors.New("protocol must be torrent or usenet")
 	ErrURL      = errors.New("the address must start with http:// or https:// and name a host")
 	// ErrQuery matches ErrURL under errors.Is, so callers that check ErrURL treat it the same.

@@ -18,17 +18,22 @@ import (
 
 // Built-in sites that have an API or a feed of their own: The Pirate Bay
 // (apibay JSON), YTS (JSON), Bangumi Moe (JSON), Nyaa and Tokyo Toshokan
-// (RSS).
+// (RSS). The sites in sites_pages.go are read from their search pages.
 
 // siteFunc searches one built-in site; text is "" for its newest list.
 type siteFunc func(c *Client, ctx context.Context, base, text string, q Query) ([]Item, error)
 
 var moreSites = map[string]siteFunc{
-	"thepiratebay": tpbSearch,
-	"yts":          ytsSearch,
-	"bangumimoe":   bangumiSearch,
-	"nyaasi":       nyaaSearch,
-	"tokyotosho":   tokyoSearch,
+	"thepiratebay":    tpbSearch,
+	"yts":             ytsSearch,
+	"bangumimoe":      bangumiSearch,
+	"nyaasi":          nyaaSearch,
+	"tokyotosho":      tokyoSearch,
+	"1337x":           x1337Search,
+	"torrent9":        torrent9Search,
+	"torrentdownload": torrentDownloadSearch,
+	"limetorrents":    limeSearch,
+	"bigfangroup":     bfgSearch,
 }
 
 // publicTrackers go on magnets HolyArrs builds from a bare info hash, as
