@@ -123,6 +123,7 @@ A better subtitle must score higher than the one it replaces.
 | subdl | movies and shows | API key | Searches by TMDB id, IMDb id or name. The download count resets at midnight UTC. |
 | Gestdown | shows | none | Show subtitles from Addic7ed. |
 | Podnapisi | movies and shows | none | Starts turned off because the site does not answer now. Turn it on when it does. |
+| TVsubtitles | shows | none | Reads the site's home page first, for its cookie and its current search page. Always uses https. |
 | Addic7ed (direct) | shows | user name and password | At least 3 s between calls and 100 calls a day by default. Unfinished subtitles are left out. HolyArrs never tries to get past a captcha. |
 
 The account sites have only been tested against stand-in servers. Run **Test** before your first real search.
