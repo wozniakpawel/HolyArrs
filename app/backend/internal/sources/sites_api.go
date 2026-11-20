@@ -118,17 +118,35 @@ func tpbSearch(c *Client, ctx context.Context, base, text string, q Query) ([]It
 	return ask(text, false)
 }
 
+// tpbText is one apibay field: the search writes numbers as strings, the
+// recent list as plain numbers.
+type tpbText string
+
+func (t *tpbText) UnmarshalJSON(b []byte) error {
+	var s string
+	if err := json.Unmarshal(b, &s); err == nil {
+		*t = tpbText(s)
+		return nil
+	}
+	var n json.Number
+	if err := json.Unmarshal(b, &n); err != nil {
+		return err
+	}
+	*t = tpbText(n.String())
+	return nil
+}
+
 func parseTPB(raw []byte) ([]Item, error) {
 	var rows []struct {
-		ID       string `json:"id"`
-		Name     string `json:"name"`
-		Hash     string `json:"info_hash"`
-		Leechers string `json:"leechers"`
-		Seeders  string `json:"seeders"`
-		Size     string `json:"size"`
-		Files    string `json:"num_files"`
-		Added    string `json:"added"`
-		IMDb     string `json:"imdb"`
+		ID       tpbText `json:"id"`
+		Name     string  `json:"name"`
+		Hash     string  `json:"info_hash"`
+		Leechers tpbText `json:"leechers"`
+		Seeders  tpbText `json:"seeders"`
+		Size     tpbText `json:"size"`
+		Files    tpbText `json:"num_files"`
+		Added    tpbText `json:"added"`
+		IMDb     string  `json:"imdb"`
 	}
 	if err := json.Unmarshal(raw, &rows); err != nil {
 		return nil, &Error{Kind: KindBroken, Msg: "The Pirate Bay answered with something that is not its search list"}
@@ -141,13 +159,13 @@ func parseTPB(raw []byte) ([]Item, error) {
 		if r.ID == "0" || !releasename.ValidInfoHash(hash) || strings.Trim(hash, "0") == "" || name == "" {
 			continue
 		}
-		seeders, _ := strconv.Atoi(r.Seeders)
-		leechers, _ := strconv.Atoi(r.Leechers)
-		it := Item{Title: name, GUID: "https://thepiratebay.org/description.php?id=" + r.ID, Link: magnetFor(hash, name), InfoHash: hash,
+		seeders, _ := strconv.Atoi(string(r.Seeders))
+		leechers, _ := strconv.Atoi(string(r.Leechers))
+		it := Item{Title: name, GUID: "https://thepiratebay.org/description.php?id=" + string(r.ID), Link: magnetFor(hash, name), InfoHash: hash,
 			Protocol: "torrent", Seeders: intPtr(seeders), Peers: intPtr(seeders + leechers), IMDb: imdbDigits(r.IMDb)}
-		it.Size, _ = strconv.ParseInt(r.Size, 10, 64)
-		it.Files, _ = strconv.Atoi(r.Files)
-		if n, err := strconv.ParseInt(r.Added, 10, 64); err == nil && n > 0 {
+		it.Size, _ = strconv.ParseInt(string(r.Size), 10, 64)
+		it.Files, _ = strconv.Atoi(string(r.Files))
+		if n, err := strconv.ParseInt(string(r.Added), 10, 64); err == nil && n > 0 {
 			it.Published = time.Unix(n, 0).UTC()
 		}
 		out = append(out, it)
