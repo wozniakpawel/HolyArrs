@@ -235,6 +235,7 @@ back
 backdrop
 backdrop_path
 backdrops
+backfill
 backgrounds
 bad
 badge
@@ -315,6 +316,8 @@ change
 changed
 changelog_url
 changes
+channel_id
+channel_name
 channels
 character
 characters
@@ -529,6 +532,7 @@ dry
 dry_run
 duplicates
 duration
+duration_seconds
 each_limit
 early_release_grace_hours
 echoed
@@ -636,8 +640,8 @@ file_ids
 file_name
 file_path
 file_pattern
-filelist
 file_rules
+filelist
 filename
 files
 files_stay
@@ -671,6 +675,7 @@ folder_path
 folder_pattern
 folders
 follow
+follow_id
 followedBy
 followed_at
 followers
@@ -828,6 +833,7 @@ in_use
 inactive_minutes
 inactive_seeding_time_limit
 include
+include_shorts
 included
 incomplete
 index
@@ -873,6 +879,7 @@ k
 kbpersec
 kdf
 keep
+keep_last
 keep_specials
 keep_up_to_date
 kept
@@ -905,6 +912,7 @@ last_activity
 last_air
 last_air_date
 last_check
+last_checked_at
 last_error
 last_failure
 last_good
@@ -1355,6 +1363,7 @@ pop
 popularity
 port
 position
+position_seconds
 posted_at
 poster
 poster_path
@@ -1419,6 +1428,7 @@ quality
 qualityCutoffNotMet
 qualityProfileId
 qualityVersion
+quality_max_height
 quality_name
 quality_profiles
 quality_sizes
@@ -1995,6 +2005,7 @@ uploadLength
 uploadSpeed
 upload_payload_rate
 uploaded
+uploaded_at
 uploader
 upsert
 upspeed
@@ -2012,8 +2023,8 @@ used_at
 used_by
 usenet_delay
 user
-user_code
 userAgent
+user_code
 user_fingerprint
 user_id
 user_key
@@ -2037,8 +2048,9 @@ version_label
 versions
 via
 videoDetails
-videoname
 video_codec
+video_id
+videoname
 videos
 view
 vip
@@ -2058,6 +2070,7 @@ warnings
 was_admin
 was_owner
 wasted
+watched_at
 watched_edition
 watching
 watchlist
@@ -2092,3 +2105,4 @@ year_from
 year_to
 youTubeTrailerId
 youtube_id
+yt_id
