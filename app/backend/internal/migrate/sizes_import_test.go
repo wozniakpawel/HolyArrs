@@ -208,8 +208,9 @@ func TestPlanCopyNeverTakesPresetName(t *testing.T) {
 }
 
 // TestMoveBringsSizes: the move makes one copy of the ready-made Pick
-// rules per profile, with that app's sizes and kind; the title uses it;
-// it judges as the ready-made ones do; a second move makes no more.
+// rules per profile a title uses, with that app's sizes and kind; the
+// title uses it; it judges as the ready-made ones do; a profile nothing
+// uses gets no copy; a second move makes no more.
 func TestMoveBringsSizes(t *testing.T) {
 	l := newMoveLabWith(t, func(radarr, _, _ *Snapshot) {
 		radarr.QualitySizes = []QualitySize{{Name: "WEBDL-2160p", Max: 250}, {Name: "Bluray-2160p", Max: 300}, {Name: "Remux-2160p", Max: 400}}
@@ -236,15 +237,16 @@ func TestMoveBringsSizes(t *testing.T) {
 		}
 		return pr[0]
 	}
-	movie, show := rules("Ultra-HD"), rules("HD-1080p")
-	if movie.Body.Synced == nil || movie.Body.Synced.From != mediafiles.SourceImportSizes || movie.Body.Synced.OldApp() || movie.Kinds[0] != "movie" || show.Kinds[0] != "show" {
-		t.Fatalf("copies %+v / %+v", movie, show)
+	movie := rules("Ultra-HD")
+	if movie.Body.Synced == nil || movie.Body.Synced.From != mediafiles.SourceImportSizes || movie.Body.Synced.OldApp() || movie.Kinds[0] != "movie" {
+		t.Fatalf("copy %+v", movie)
+	}
+	// The Sonarr here brings no titles, so its profile is not copied.
+	if n := l.count(t, "SELECT count(*) FROM pick_rules WHERE name = 'HD-1080p'"); n != 0 {
+		t.Fatalf("an unused profile got %d copies", n)
 	}
 	if movie.Body.SizeLimits["2160p_remux"] != (mediafiles.SizeLimit{Max: 400 * mib, PerMinute: true}) || movie.Body.GoodEnoughAt != mediafiles.FourK().GoodEnoughAt {
 		t.Fatalf("movie rules %+v", movie.Body)
-	}
-	if show.Body.SizeLimits["1080p_bluray"] != (mediafiles.SizeLimit{Min: 4 * mib, Max: 155 * mib, PerMinute: true}) {
-		t.Fatalf("show rules %+v", show.Body.SizeLimits)
 	}
 	if n := l.count(t, "SELECT count(*) FROM versions WHERE pick_rules_id = ?", movie.ID); n == 0 {
 		t.Fatal("the movie does not use its copy")
@@ -253,7 +255,7 @@ func TestMoveBringsSizes(t *testing.T) {
 	if again := l.move(t, Choices{}); lineOf(t, again.Report, rkey).Result != ResChanged {
 		t.Fatalf("again %+v", lineOf(t, again.Report, rkey))
 	}
-	if n := l.count(t, "SELECT count(*) FROM pick_rules WHERE json_extract(body, '$.synced.from') = 'import_sizes'"); n != 2 {
+	if n := l.count(t, "SELECT count(*) FROM pick_rules WHERE json_extract(body, '$.synced.from') = 'import_sizes'"); n != 1 {
 		t.Fatalf("%d copies after a second move", n)
 	}
 }

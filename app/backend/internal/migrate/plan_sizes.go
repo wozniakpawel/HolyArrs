@@ -11,6 +11,24 @@ import (
 	"github.com/HolyArrs/holyarrs/app/backend/internal/mediafiles"
 )
 
+// usedProfiles are the quality profiles a title or an import list of the
+// app uses. Only those get Pick rules of their own for their sizes; one
+// nothing uses keeps its ready-made match, so no unused rules are made.
+func usedProfiles(s *Snapshot) map[int64]bool {
+	used := map[int64]bool{}
+	for _, t := range s.Titles {
+		used[t.ProfileID] = true
+	}
+	for _, l := range s.ImportLists {
+		for _, k := range []string{"link.qualityProfileId", "qualityProfileId"} {
+			if id := num(anyKey(l.Settings, k)); id != 0 {
+				used[id] = true
+			}
+		}
+	}
+	return used
+}
+
 // appSizes are a Sonarr's or Radarr's size table as limits per quality
 // step; nil when it has none or the owner left sizes behind.
 func (b *builder) appSizes(s *Snapshot) map[string]mediafiles.SizeLimit {
