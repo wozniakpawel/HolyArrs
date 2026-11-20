@@ -4,14 +4,18 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/cookiejar"
+	"os"
 	"path/filepath"
 	"slices"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/HolyArrs/holyarrs/app/backend/internal/core/parts"
+	ytlib "github.com/HolyArrs/holyarrs/app/backend/internal/youtube"
 	"github.com/HolyArrs/holyarrs/app/backend/internal/youtube/youtubetest"
 )
 
@@ -330,5 +334,118 @@ func TestYouTubeJobKindsOnlyWithFlag(t *testing.T) {
 				t.Errorf("%s belongs to %v", k, parts.JobKinds()[k])
 			}
 		}
+	}
+}
+
+// ytDone adds a downloaded video of userID with its file and thumbnail in
+// the YouTube folder, as a finished download leaves it.
+func ytDone(t *testing.T, r *askRig, userID int64, vid, name, content string) int64 {
+	t.Helper()
+	ctx := context.Background()
+	rel := itoa(userID) + "-p/Chan/" + name
+	file := filepath.Join(ytlib.LoadSettings(ctx, r.st.Read()).Folder, filepath.FromSlash(rel))
+	if err := os.MkdirAll(filepath.Dir(file), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	for f, b := range map[string]string{file: content, strings.TrimSuffix(file, ".mp4") + ".jpg": "\xff\xd8\xff"} {
+		if err := os.WriteFile(f, []byte(b), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	var id int64
+	if err := r.st.Write(ctx, func(tx *sql.Tx) error {
+		var err error
+		if id, _, err = ytlib.InsertVideo(tx, ytlib.Video{UserID: userID, VideoID: vid, State: ytlib.StateQueued, AddedAt: time.Now()}); err != nil {
+			return err
+		}
+		return ytlib.FinishVideo(tx, id, rel, int64(len(content)), ytlib.Meta{Title: "Zażółć"})
+	}); err != nil {
+		t.Fatal(err)
+	}
+	return id
+}
+
+// raw sends a request as s with extra headers and returns the answer and its
+// body, without the gzip the Go client adds or undoes on its own.
+func (s *signedIn) raw(method, p string, hdr map[string]string) (*http.Response, []byte) {
+	s.t.Helper()
+	req, _ := http.NewRequest(method, s.base+p, nil)
+	req.Header.Set("Accept-Encoding", "identity")
+	for k, v := range hdr {
+		req.Header.Set(k, v)
+	}
+	resp, err := s.c.Do(req)
+	if err != nil {
+		s.t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	b, _ := io.ReadAll(resp.Body)
+	return resp, b
+}
+
+// route: GET /api/v1/youtube/videos/{id}/file
+// route: GET /api/v1/youtube/videos/{id}/thumb
+// route: PUT /api/v1/youtube/videos/{id}/position
+// route: POST /api/v1/youtube/videos/{id}/retry
+func TestYouTubePlayerRoutes(t *testing.T) {
+	r := ytRig(t)
+	content := strings.Repeat("mp4 bytes ", 300)
+	id := ytDone(t, r, r.ana.id, "abcdefghijk", "2024-01-01 Zażółć [abcdefghijk].mp4", content)
+	file := "/api/v1/youtube/videos/" + itoa(id) + "/file"
+
+	resp, b := r.ana.raw("GET", file, map[string]string{"Range": "bytes=0-1"})
+	if resp.StatusCode != 206 || string(b) != "mp" || resp.Header.Get("Content-Range") != "bytes 0-1/3000" {
+		t.Fatalf("range %d %q %v", resp.StatusCode, b, resp.Header)
+	}
+	resp, b = r.ana.raw("HEAD", file, nil)
+	if resp.StatusCode != 200 || len(b) != 0 || resp.Header.Get("Content-Length") != "3000" {
+		t.Fatalf("head %d %v", resp.StatusCode, resp.Header)
+	}
+	resp, b = r.ana.raw("GET", file, map[string]string{"Accept-Encoding": "gzip"})
+	if resp.StatusCode != 200 || resp.Header.Get("Content-Encoding") != "" || resp.Header.Get("Content-Type") != "video/mp4" || string(b) != content {
+		t.Fatalf("gzip %d %v", resp.StatusCode, resp.Header)
+	}
+	resp, _ = r.ana.raw("GET", file+"?download=1", nil)
+	if cd := resp.Header.Get("Content-Disposition"); resp.StatusCode != 200 || !strings.HasPrefix(cd, "attachment;") || !strings.Contains(cd, "filename*=utf-8''2024-01-01%20Za%C5%BC") {
+		t.Fatalf("download %d %q", resp.StatusCode, cd)
+	}
+	resp, _ = r.ana.raw("GET", "/api/v1/youtube/videos/"+itoa(id)+"/thumb", nil)
+	if resp.StatusCode != 200 || resp.Header.Get("Content-Type") != "image/jpeg" {
+		t.Fatalf("thumb %d %v", resp.StatusCode, resp.Header)
+	}
+
+	// Not hers: the owner gets 404 with nothing of the video.
+	for _, p := range []string{file, file + "?download=1", "/api/v1/youtube/videos/" + itoa(id) + "/thumb"} {
+		resp, b = r.owner.raw("GET", p, nil)
+		if resp.StatusCode != 404 || strings.Contains(string(b), "Zażółć") || resp.Header.Get("Content-Disposition") != "" {
+			t.Fatalf("owner %s: %d %s", p, resp.StatusCode, b)
+		}
+	}
+	r.owner.call("PUT", "/api/v1/youtube/videos/"+itoa(id)+"/position", `{"seconds":1,"duration":2}`, 404)
+	r.owner.call("POST", "/api/v1/youtube/videos/"+itoa(id)+"/retry", "", 404)
+	// Without the permission nothing is served.
+	if resp, _ = r.bo.raw("GET", file, nil); resp.StatusCode != 403 {
+		t.Fatalf("bo %d", resp.StatusCode)
+	}
+
+	var pos struct {
+		Watched bool `json:"watched"`
+	}
+	decodeJSON(t, r.ana.call("PUT", "/api/v1/youtube/videos/"+itoa(id)+"/position", `{"seconds":95,"duration":100}`, 200), &pos)
+	if !pos.Watched {
+		t.Fatal("95/100 not watched")
+	}
+	r.ana.call("POST", "/api/v1/youtube/videos/"+itoa(id)+"/retry", "", 409)
+	if err := r.st.Write(context.Background(), func(tx *sql.Tx) error { return ytlib.SetVideoState(tx, id, ytlib.StateFailed, "x") }); err != nil {
+		t.Fatal(err)
+	}
+	var v ytVideo
+	decodeJSON(t, r.ana.call("POST", "/api/v1/youtube/videos/"+itoa(id)+"/retry", "", 200), &v)
+	if v.State != "queued" {
+		t.Fatalf("retried %+v", v)
+	}
+	// Queued again, the file is no longer served.
+	if resp, _ = r.ana.raw("GET", file, nil); resp.StatusCode != 404 {
+		t.Fatalf("queued file %d", resp.StatusCode)
 	}
 }

@@ -278,6 +278,8 @@ GET /api/v1/youtube/follows auth=youtube scope=read assurance=false part=youtube
 GET /api/v1/youtube/status auth=youtube scope=read assurance=false part=youtube
 GET /api/v1/youtube/videos auth=youtube scope=read assurance=false part=youtube
 GET /api/v1/youtube/videos/{id} auth=youtube scope=read assurance=false part=youtube
+GET /api/v1/youtube/videos/{id}/file auth=youtube scope=read assurance=false part=youtube
+GET /api/v1/youtube/videos/{id}/thumb auth=youtube scope=read assurance=false part=youtube
 GET /calendar auth=unlisted scope=admin assurance=false part=-
 GET /command auth=unlisted scope=admin assurance=false part=-
 GET /command/{id} auth=unlisted scope=admin assurance=false part=-
@@ -533,6 +535,7 @@ POST /api/v1/users/{id}/two-factor/reset auth=users scope=admin assurance=true p
 POST /api/v1/youtube/follows auth=youtube scope=write assurance=false part=youtube
 POST /api/v1/youtube/probe auth=youtube scope=write assurance=false part=youtube
 POST /api/v1/youtube/videos auth=youtube scope=write assurance=false part=youtube
+POST /api/v1/youtube/videos/{id}/retry auth=youtube scope=write assurance=false part=youtube
 POST /command auth=unlisted scope=admin assurance=false part=-
 POST /customformat auth=unlisted scope=admin assurance=false part=-
 POST /delayprofile auth=unlisted scope=admin assurance=false part=-
@@ -621,6 +624,7 @@ PUT /api/v1/titles/{id}/versions/{vid} auth=manage_library scope=write assurance
 PUT /api/v1/users/{id} auth=users scope=admin assurance=true part=core
 PUT /api/v1/users/{id}/media-link auth=owner scope=admin assurance=true part=core
 PUT /api/v1/youtube/follows/{id} auth=youtube scope=write assurance=false part=youtube
+PUT /api/v1/youtube/videos/{id}/position auth=youtube scope=write assurance=false part=youtube
 PUT /config/mediamanagement auth=unlisted scope=admin assurance=false part=-
 PUT /config/mediamanagement/{id} auth=unlisted scope=admin assurance=false part=-
 PUT /config/naming auth=unlisted scope=admin assurance=false part=-

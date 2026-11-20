@@ -382,6 +382,57 @@ func (s *Service) RemoveVideo(ctx context.Context, userID, id int64) error {
 	return s.Store.Write(ctx, func(tx *sql.Tx) error { return MarkRemoved(tx, userID, id) })
 }
 
+// ErrNotFailed refuses a retry of a video that has not failed.
+var ErrNotFailed = errors.New("only a failed video can be tried again")
+
+// RetryVideo puts one of a person's failed videos back in the queue at its
+// own quality cap and queues its download. sql.ErrNoRows when it is not
+// theirs, ErrNotFailed when it has not failed.
+func (s *Service) RetryVideo(ctx context.Context, userID, id int64) (Video, error) {
+	var v Video
+	err := s.Store.Write(ctx, func(tx *sql.Tx) error {
+		old, err := VideoOf(ctx, tx, userID, id)
+		if err != nil {
+			return err
+		}
+		if old.State != StateFailed {
+			return ErrNotFailed
+		}
+		if err := RequeueVideo(tx, userID, id, old.MaxHeight); err != nil {
+			return err
+		}
+		v, err = VideoOf(ctx, tx, userID, id)
+		return err
+	})
+	if err != nil {
+		return Video{}, err
+	}
+	s.queueDownload(ctx, userID, v.ID)
+	return v, nil
+}
+
+// SavePosition keeps where a person stopped in one of their videos and
+// reports whether it is watched now: past 90 % once is watched for good.
+// sql.ErrNoRows when it is not theirs.
+func (s *Service) SavePosition(ctx context.Context, userID, id int64, seconds, duration int) (bool, error) {
+	var v Video
+	err := s.Store.Write(ctx, func(tx *sql.Tx) error {
+		if err := SavePosition(tx, userID, id, seconds, watched(seconds, duration), s.now()); err != nil {
+			return err
+		}
+		var err error
+		v, err = VideoOf(ctx, tx, userID, id)
+		return err
+	})
+	return v.WatchedAt != nil, err
+}
+
+// watched reports whether a position counts as watched: 90 % or more of a
+// known length.
+func watched(seconds, duration int) bool {
+	return duration > 0 && seconds*10 >= duration*9
+}
+
 // removeFiles deletes a video file and its thumbnail under root. A file
 // already gone is fine; a path leaving root is refused.
 func removeFiles(root, rel string) error {

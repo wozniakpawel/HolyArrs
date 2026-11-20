@@ -278,6 +278,8 @@ GET /api/v1/youtube/follows see
 GET /api/v1/youtube/status see
 GET /api/v1/youtube/videos see
 GET /api/v1/youtube/videos/{id} see
+GET /api/v1/youtube/videos/{id}/file see
+GET /api/v1/youtube/videos/{id}/thumb see
 GET /calendar see
 GET /command see
 GET /command/{id} see
@@ -533,6 +535,7 @@ POST /api/v1/users/{id}/two-factor/reset admin
 POST /api/v1/youtube/follows add
 POST /api/v1/youtube/probe add
 POST /api/v1/youtube/videos add
+POST /api/v1/youtube/videos/{id}/retry add
 POST /command control
 POST /customformat settings
 POST /delayprofile settings
@@ -621,6 +624,7 @@ PUT /api/v1/titles/{id}/versions/{vid} add
 PUT /api/v1/users/{id} admin
 PUT /api/v1/users/{id}/media-link admin
 PUT /api/v1/youtube/follows/{id} add
+PUT /api/v1/youtube/videos/{id}/position add
 PUT /config/mediamanagement settings
 PUT /config/mediamanagement/{id} settings
 PUT /config/naming settings

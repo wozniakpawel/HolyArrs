@@ -188,18 +188,22 @@ var RoutePerms = map[string]webserver.Perm{
 
 	// YouTube library: each person's own videos; the settings card shows
 	// owner and admins a total only, and only the owner changes it.
-	"GET /api/v1/youtube/status":          webserver.PermYouTube,
-	"GET /api/v1/settings/youtube":        webserver.NeedUsers,
-	"PUT /api/v1/settings/youtube":        webserver.NeedOwner,
-	"POST /api/v1/youtube/probe":          webserver.PermYouTube,
-	"GET /api/v1/youtube/videos":          webserver.PermYouTube,
-	"POST /api/v1/youtube/videos":         webserver.PermYouTube,
-	"GET /api/v1/youtube/videos/{id}":     webserver.PermYouTube,
-	"DELETE /api/v1/youtube/videos/{id}":  webserver.PermYouTube,
-	"GET /api/v1/youtube/follows":         webserver.PermYouTube,
-	"POST /api/v1/youtube/follows":        webserver.PermYouTube,
-	"PUT /api/v1/youtube/follows/{id}":    webserver.PermYouTube,
-	"DELETE /api/v1/youtube/follows/{id}": webserver.PermYouTube,
+	"GET /api/v1/youtube/status":               webserver.PermYouTube,
+	"GET /api/v1/settings/youtube":             webserver.NeedUsers,
+	"PUT /api/v1/settings/youtube":             webserver.NeedOwner,
+	"POST /api/v1/youtube/probe":               webserver.PermYouTube,
+	"GET /api/v1/youtube/videos":               webserver.PermYouTube,
+	"POST /api/v1/youtube/videos":              webserver.PermYouTube,
+	"GET /api/v1/youtube/videos/{id}":          webserver.PermYouTube,
+	"DELETE /api/v1/youtube/videos/{id}":       webserver.PermYouTube,
+	"GET /api/v1/youtube/videos/{id}/file":     webserver.PermYouTube,
+	"GET /api/v1/youtube/videos/{id}/thumb":    webserver.PermYouTube,
+	"PUT /api/v1/youtube/videos/{id}/position": webserver.PermYouTube,
+	"POST /api/v1/youtube/videos/{id}/retry":   webserver.PermYouTube,
+	"GET /api/v1/youtube/follows":              webserver.PermYouTube,
+	"POST /api/v1/youtube/follows":             webserver.PermYouTube,
+	"PUT /api/v1/youtube/follows/{id}":         webserver.PermYouTube,
+	"DELETE /api/v1/youtube/follows/{id}":      webserver.PermYouTube,
 
 	// AI app sign-in (ai_signin.go): the app's own calls are public; allowing it
 	// needs the person's browser session.

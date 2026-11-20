@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
+	"path/filepath"
 	"strconv"
 	"time"
 
@@ -56,6 +57,8 @@ func (h *Handlers) fail(w http.ResponseWriter, err error) {
 		webserver.Fail(w, http.StatusNotFound, "not found")
 	case IsRefusal(err):
 		webserver.Fail(w, http.StatusBadRequest, err.Error())
+	case errors.Is(err, ErrNotFailed):
+		webserver.Fail(w, http.StatusConflict, err.Error())
 	case errors.Is(err, ErrNeedsTools):
 		webserver.Fail(w, http.StatusServiceUnavailable, err.Error())
 	case errors.Is(err, ErrLookup):
@@ -279,4 +282,92 @@ func (h *Handlers) unfollow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+// videoPath is a downloaded video's file under the YouTube folder. False for
+// a video not done, no folder, or a path that leaves the folder.
+func videoPath(root string, v Video) (string, bool) {
+	if root == "" || v.State != StateDone || v.RelativePath == "" {
+		return "", false
+	}
+	root = filepath.Clean(root)
+	file := filepath.Join(root, filepath.FromSlash(v.RelativePath))
+	rel, err := filepath.Rel(root, file)
+	if err != nil || !filepath.IsLocal(rel) {
+		return "", false
+	}
+	return file, true
+}
+
+// serveVideoFile sends one of the caller's downloaded videos, or with thumb
+// its thumbnail. Anything else, someone else's video included, is 404.
+func (h *Handlers) serveVideoFile(w http.ResponseWriter, r *http.Request, thumb bool) {
+	c, ok := h.caller(w, r)
+	if !ok {
+		return
+	}
+	id, ok := pathID(w, r)
+	if !ok {
+		return
+	}
+	v, err := VideoOf(r.Context(), h.Svc.Store.Read(), c.UserID, id)
+	if err != nil {
+		h.fail(w, err)
+		return
+	}
+	file, ok := videoPath(LoadSettings(r.Context(), h.Svc.Store.Read()).Folder, v)
+	if !ok {
+		webserver.Fail(w, http.StatusNotFound, "not found")
+		return
+	}
+	if thumb {
+		webserver.ServeAttachment(w, r, thumbOf(file), filepath.Base(thumbOf(file)), false)
+		return
+	}
+	webserver.ServeAttachment(w, r, file, filepath.Base(file), r.URL.Query().Get("download") == "1")
+}
+
+func (h *Handlers) videoFile(w http.ResponseWriter, r *http.Request) { h.serveVideoFile(w, r, false) }
+
+func (h *Handlers) videoThumb(w http.ResponseWriter, r *http.Request) { h.serveVideoFile(w, r, true) }
+
+func (h *Handlers) savePosition(w http.ResponseWriter, r *http.Request) {
+	c, ok := h.caller(w, r)
+	if !ok {
+		return
+	}
+	id, ok := pathID(w, r)
+	if !ok {
+		return
+	}
+	var in struct {
+		Seconds  int `json:"seconds"`
+		Duration int `json:"duration"`
+	}
+	if !webserver.Decode(w, r, &in, `send {"seconds": 120, "duration": 600}`) {
+		return
+	}
+	done, err := h.Svc.SavePosition(r.Context(), c.UserID, id, in.Seconds, in.Duration)
+	if err != nil {
+		h.fail(w, err)
+		return
+	}
+	webserver.WriteJSON(w, http.StatusOK, map[string]bool{"watched": done})
+}
+
+func (h *Handlers) retryVideo(w http.ResponseWriter, r *http.Request) {
+	c, ok := h.caller(w, r)
+	if !ok {
+		return
+	}
+	id, ok := pathID(w, r)
+	if !ok {
+		return
+	}
+	v, err := h.Svc.RetryVideo(r.Context(), c.UserID, id)
+	if err != nil {
+		h.fail(w, err)
+		return
+	}
+	webserver.WriteJSON(w, http.StatusOK, v)
 }
