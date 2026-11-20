@@ -208,6 +208,13 @@ func BuildPlan(in []Input, ch Choices) *Plan {
 		b.snapshot(x.Snap)
 	}
 	b.waitItems()
+	// A blocked release goes under the Source its old indexer comes over as,
+	// also when that indexer went into the same Source from another app.
+	for i, it := range b.items[GroupTurnedDown].Items {
+		if n := p.SourceFor(it.TurnDown.Indexer); n != "" {
+			b.items[GroupTurnedDown].Items[i].TurnDown.Indexer = n
+		}
+	}
 	b.pathMaps()
 	p.NeedsInput = noteList(p.NeedsInput)
 	p.Notes = noteList(p.Notes)
