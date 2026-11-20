@@ -28,7 +28,7 @@ import (
 func (h *handler) status(w http.ResponseWriter, r *http.Request) {
 	docker := startup.InContainer(func(p string) bool { _, err := os.Stat(p); return err == nil }, os.Getenv)
 	writeJSON(w, http.StatusOK, map[string]any{
-		"appName": oldAppNames[h.side], "instanceName": AppName, "version": h.version, "urlBase": h.base(r.Context()), "authentication": "apikey",
+		"appName": oldAppNames[h.side], "instanceName": AppName, "version": h.version, "urlBase": h.base(r.Context()), "authentication": "forms",
 		"isDebug": false, "isProduction": true, "isAdmin": false, "isUserInteractive": false,
 		"osName": runtime.GOOS, "isLinux": runtime.GOOS == "linux", "isOsx": runtime.GOOS == "darwin", "isWindows": runtime.GOOS == "windows",
 		"isDocker": docker, "isContainerized": docker, "isNetCore": false, "mode": "console", "branch": "main",
