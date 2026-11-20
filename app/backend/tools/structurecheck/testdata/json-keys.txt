@@ -341,6 +341,7 @@ client_note
 client_secret
 closed_at
 closed_by
+cmd
 code
 codec
 codecs
@@ -378,6 +379,7 @@ content_path
 content_ratings
 content_urls
 controls
+cookies
 copies
 copies_expected
 copy
@@ -641,6 +643,7 @@ fix
 fixed
 flags
 flap_guard
+flaresolverr
 flatrate
 folder
 folderName
@@ -976,6 +979,7 @@ matched_at
 matched_by_id
 matchingSubtitles
 max
+maxTimeout
 max_age_days
 max_rating
 max_rps
@@ -1489,6 +1493,7 @@ res
 reset_time_utc
 resolution
 resource
+response
 restart_needed
 restarts
 restricted
@@ -1679,6 +1684,7 @@ smtp_port
 smtp_security
 smtp_user
 snapshots
+solution
 sonarr
 song
 songs
@@ -1962,6 +1968,7 @@ used_at
 used_by
 usenet_delay
 user
+userAgent
 user_fingerprint
 user_id
 user_key

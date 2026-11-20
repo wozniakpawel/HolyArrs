@@ -82,6 +82,9 @@ type Input struct {
 	// DownloaderID picks the one Downloader this Source's grabs go to; 0 is
 	// any Downloader and nil keeps the stored choice.
 	DownloaderID *int64 `json:"downloader_id"`
+	// FlareSolverr is the address of a FlareSolverr that opens the site's
+	// bot check; empty clears it and nil keeps it.
+	FlareSolverr *string `json:"flaresolverr"`
 }
 
 // queryErr is the error behind ErrQuery.
@@ -285,6 +288,11 @@ func ConfigFor(ctx context.Context, src domain.Source, sec SecretReader) (Config
 		cfg.PathKeys = splitKeys(plain)
 		if cfg.URL, err = revealPath(src.URL, cfg.PathKeys); err != nil {
 			return cfg, err
+		}
+	}
+	if src.FlareSolverrURL != "" {
+		if cfg.FlareSolverr, err = url.Parse(src.FlareSolverrURL); err != nil {
+			return cfg, ErrFlareSolverr
 		}
 	}
 	if src.ProxyURL != "" {
@@ -641,6 +649,11 @@ func fill(in Input, src *domain.Source, isNew bool) (key, proxyPass string, err 
 			proxyPass = pass
 		}
 		src.ProxyURL = clean
+	}
+	if in.FlareSolverr != nil {
+		if src.FlareSolverrURL, err = ParseFlareSolverr(*in.FlareSolverr); err != nil {
+			return "", "", err
+		}
 	}
 	if isNew {
 		src.State = "enabled"
