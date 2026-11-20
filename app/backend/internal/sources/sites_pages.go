@@ -2,8 +2,8 @@ package sources
 
 import (
 	"context"
-	"fmt"
 	"encoding/xml"
+	"fmt"
 	"net/url"
 	"regexp"
 	"strconv"

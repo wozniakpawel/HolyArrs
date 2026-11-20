@@ -87,6 +87,27 @@ func TestThePirateBay_MovieByIMDbThenWords(t *testing.T) {
 	}
 }
 
+// The recent list, which the Source check reads, writes its numbers as
+// numbers, not strings as the search does.
+func TestThePirateBay_RecentWithNumbers(t *testing.T) {
+	t.Parallel()
+	var asked string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		asked = r.URL.Path
+		_, _ = w.Write([]byte(`[{"id":85103954,"info_hash":"78C9F19BEB1C21E6B9CF03D0B10686A35925ED2F","category":201,"name":"Steps (2026) iTA-ENG.WEBDL.1080p.x264-Dr4gon.mkv","status":"trusted","num_files":1,"size":2829072239,"seeders":7,"leechers":2,"username":"Dr4gon.","added":1795179505,"anon":0,"imdb":"tt14413964"}]`))
+	}))
+	t.Cleanup(srv.Close)
+	items, err := siteClient(srv.URL, "thepiratebay", "").Search(context.Background(), Query{feed: true})
+	items = one(t, items, err, 1)
+	if asked != "/precompiled/data_top100_recent.json" {
+		t.Fatalf("asked %q", asked)
+	}
+	wantItem(t, items[0], "Steps (2026) iTA-ENG.WEBDL.1080p.x264-Dr4gon.mkv", "magnet:?xt=urn:btih:78c9f19beb1c21e6b9cf03d0b10686a35925ed2f", 2829072239, 7, 9, "78c9f19beb1c21e6b9cf03d0b10686a35925ed2f")
+	if items[0].Files != 1 || !items[0].Published.Equal(time.Unix(1795179505, 0)) || items[0].IMDb != "14413964" {
+		t.Errorf("item %+v", items[0])
+	}
+}
+
 func TestYTS(t *testing.T) {
 	t.Parallel()
 	srv := siteServer(t, "yts.json", func(r *http.Request, _ string) {
