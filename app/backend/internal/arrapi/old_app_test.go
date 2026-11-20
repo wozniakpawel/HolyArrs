@@ -88,7 +88,7 @@ func TestFileShape_BazarrFields(t *testing.T) {
 			t.Errorf("%s: %v", src, q.Name)
 		}
 	}
-	if l := originalLanguage(nil); l.Name != "Unknown" {
+	if l := originalLanguage("sonarr", nil); l.Name != "Unknown" || originalLanguage("radarr", ptr("pl")).ID != 12 || originalLanguage("sonarr", ptr("ar")).ID != 26 {
 		t.Errorf("no original language: %+v", l)
 	}
 	if got := alternateTitles("sonarr", 1, []string{" Lab ", ""}); len(got) != 1 || got[0].Title != "Lab" || *got[0].SeasonNumber != -1 {

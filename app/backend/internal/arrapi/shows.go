@@ -293,7 +293,7 @@ func sourceID(ids map[string]string, k string) int64 { return atoi64(ids[k]) }
 
 func (h *handler) librarySeries(ctx context.Context, t mediafiles.Title, parts []mediafiles.Part, v mediafiles.Version, folders map[int64]mediafiles.LibraryFolder, counts map[int]*seasonCounts) series {
 	s := series{ID: t.ID, Title: t.Name, SortTitle: t.SortName, Status: showStatus(t.Status), Ended: t.Status == "ended",
-		AlternateTitles: ptr(alternateTitles(h.side, t.ID, t.Aliases)), OriginalLanguage: ptr(originalLanguage(t.OriginalLanguage)),
+		AlternateTitles: ptr(alternateTitles(h.side, t.ID, t.Aliases)), OriginalLanguage: ptr(originalLanguage(h.side, t.OriginalLanguage)),
 		Images: h.libraryImages(ctx, t), Seasons: []season{}, QualityProfileID: v.PickRulesID, LanguageProfileID: 1, SeasonFolder: true,
 		Monitored: t.KeepUpToDate, MonitorNewItems: "all", Runtime: t.RuntimeMinutes, TvdbID: sourceID(t.SourceIDs, "tvdb"),
 		TvMazeID: sourceID(t.SourceIDs, "tvmaze"), TmdbID: sourceID(t.SourceIDs, "tmdb"), ImdbID: t.SourceIDs["imdb"],

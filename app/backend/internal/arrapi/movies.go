@@ -161,7 +161,7 @@ var sourceNames = map[string]string{"web_dl": "WEBDL", "web_rip": "WEBRip", "tv"
 // such as WEBDL-1080p, because Bazarr splits it on the dash.
 func mediaFileOf(side string, f mediafiles.File, root, folder string) *mediaFile {
 	mf := &mediaFile{ID: f.ID, RelativePath: strings.TrimPrefix(f.RelativePath, folder+"/"),
-		Path: filepath.Join(root, filepath.FromSlash(f.RelativePath)), Size: f.Size, DateAdded: utc(f.AddedAt), Languages: languagesOf(f.Languages)}
+		Path: filepath.Join(root, filepath.FromSlash(f.RelativePath)), Size: f.Size, DateAdded: utc(f.AddedAt), Languages: languagesOf(side, f.Languages)}
 	if f.ReleaseName != nil {
 		mf.SceneName = *f.ReleaseName
 	}
@@ -288,7 +288,7 @@ func (h *handler) loadMovies(ctx context.Context, lookup bool, where string, arg
 			QualityProfileID: v.PickRulesID, Monitored: t.KeepUpToDate, MinimumAvailability: availability(t.ReleaseGate),
 			IsAvailable: t.GateOpensAt != nil && !t.GateOpensAt.After(now), Runtime: t.RuntimeMinutes, TmdbID: sourceID(t.SourceIDs, "tmdb"),
 			ImdbID: t.SourceIDs["imdb"], TitleSlug: t.SourceIDs["tmdb"], Genres: nonNil(t.Genres), Tags: []int64{}, Added: utc(t.CreatedAt),
-			Images: h.libraryImages(ctx, t), AlternateTitles: ptr(alternateTitles(h.side, t.ID, t.Aliases)), OriginalLanguage: ptr(originalLanguage(t.OriginalLanguage))}
+			Images: h.libraryImages(ctx, t), AlternateTitles: ptr(alternateTitles(h.side, t.ID, t.Aliases)), OriginalLanguage: ptr(originalLanguage(h.side, t.OriginalLanguage))}
 		if l := tags[t.ID]; l != nil {
 			m.Tags = l
 		}
@@ -335,7 +335,7 @@ func (h *handler) lookupMovieOf(m metadata.Movie) movie {
 		RemotePoster: m.Poster, Year: m.Year, MinimumAvailability: "tba", IsAvailable: true, Runtime: m.Runtime, TmdbID: sourceID(m.IDs, "tmdb"),
 		ImdbID: m.IDs["imdb"], TitleSlug: m.IDs["tmdb"], Genres: nonNil(m.Genres), Tags: []int64{}, Added: zeroDate}
 	out.OriginalTitle, out.CleanTitle, out.Certification, out.Studio = m.Name, cleanTitle(m.Name), m.Rating, m.Studio
-	out.OriginalLanguage = ptr(originalLanguage(&m.OriginalLanguage))
+	out.OriginalLanguage = ptr(originalLanguage(h.side, &m.OriginalLanguage))
 	out.Keywords, out.Ratings, out.ReleaseDate = []string{}, movieRatings(m.Votes, m.Score), utcPtr(m.CinemaDate)
 	if m.Collection != nil {
 		out.Collection = &movieCollection{Title: m.Collection.Name, TmdbID: atoi64(m.Collection.ID)}
