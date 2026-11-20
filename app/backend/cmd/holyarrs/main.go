@@ -604,6 +604,7 @@ func serve(ctx context.Context, c config, o runOpts) error {
 	}
 	au := accounts.New(s, accounts.Options{Vault: vault, SafeMode: c.SafeMode, SSO: sso, ConfigUnmapped: unmapped != ""})
 	defer au.Close()
+	youtubeForgets(au, s, q, hub)
 	loop(jobs.Loop{Name: "sessions", Label: "Session clean-up", Every: time.Hour, Run: au.Cleanup})
 	var restarting atomic.Bool
 	restart := func() {

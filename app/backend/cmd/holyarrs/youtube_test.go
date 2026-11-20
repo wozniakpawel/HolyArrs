@@ -467,3 +467,27 @@ func TestYouTubePlayerRoutes(t *testing.T) {
 		t.Fatalf("queued file %d", resp.StatusCode)
 	}
 }
+
+// Deleting a person takes their YouTube rows and folder with them, and
+// leaves everyone else's alone.
+func TestDeletingAPersonForgetsTheirYouTube(t *testing.T) {
+	r := ytRig(t)
+	youtubeForgets(r.api.s.Auth, r.st, r.api.s.Queue, r.live)
+	ana := ytDone(t, r, r.ana.id, "aaaaaaaaaaa", "a.mp4", "anna")
+	bo := ytDone(t, r, r.bo.id, "bbbbbbbbbbb", "b.mp4", "bo")
+	r.owner.call("DELETE", "/api/v1/users/"+itoa(r.ana.id), "", 204)
+	ctx := context.Background()
+	if _, err := ytlib.VideoByID(ctx, r.st.Read(), ana); err == nil {
+		t.Fatal("the deleted person's video row is still there")
+	}
+	if _, err := ytlib.VideoByID(ctx, r.st.Read(), bo); err != nil {
+		t.Fatalf("another person's video went: %v", err)
+	}
+	root := ytlib.LoadSettings(ctx, r.st.Read()).Folder
+	if _, err := os.Stat(filepath.Join(root, itoa(r.ana.id)+"-p")); !os.IsNotExist(err) {
+		t.Fatalf("the deleted person's folder: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(root, itoa(r.bo.id)+"-p", "Chan", "b.mp4")); err != nil {
+		t.Fatalf("another person's file: %v", err)
+	}
+}

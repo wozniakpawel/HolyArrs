@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"os"
 	"os/exec"
 
@@ -49,6 +50,20 @@ func youtubeJobs(st *database.Store, q *jobs.Queue, live *webserver.LiveHub) {
 	svc := newYouTubeService(st, q, live)
 	q.Handle(ytlib.KindCheck, svc.HandleCheck)
 	q.Handle(ytlib.KindDownload, svc.HandleDownload)
+}
+
+// youtubeForgets removes a deleted person's YouTube library while the
+// youtube feature switch is on.
+func youtubeForgets(au *accounts.Auth, st *database.Store, q *jobs.Queue, live *webserver.LiveHub) {
+	if !startup.FeatureOn(startup.YouTube) {
+		return
+	}
+	svc := newYouTubeService(st, q, live)
+	au.OnPersonDeleted(func(ctx context.Context, userID int64) {
+		if err := svc.ForgetPerson(ctx, userID); err != nil {
+			log.Printf("youtube: removing user %d's library: %v", userID, err)
+		}
+	})
 }
 
 // youtubeRoutes registers the YouTube routes while the youtube feature
