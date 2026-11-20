@@ -110,7 +110,7 @@ func TestHookSchema(t *testing.T) {
 		t.Fatalf("schema: %d %s", st, b)
 	}
 	k := kinds[0]
-	if k["implementation"] != "Webhook" || k["configContract"] != "WebhookSettings" || k["supportsOnDownload"] != true || k["supportsOnGrab"] != false || k["onSeriesAdd"] != false {
+	if k["implementation"] != "Webhook" || k["configContract"] != "WebhookSettings" || k["supportsOnDownload"] != true || k["supportsOnGrab"] != true || k["supportsOnApplicationUpdate"] != false || k["onSeriesAdd"] != false {
 		t.Fatalf("webhook kind: %v", k)
 	}
 	var names []string

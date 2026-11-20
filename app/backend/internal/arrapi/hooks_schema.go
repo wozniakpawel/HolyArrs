@@ -7,8 +7,9 @@ import (
 // hookSchema answers the one kind of record HolyArrs keeps, the webhook,
 // in the shape the old apps list their notification kinds. Phone apps
 // such as Helmarr read it before they add their own webhook. Every event
-// switch is there, since clients decode them all, but only imports and
-// upgrades say they are supported: those are the calls HolyArrs makes.
+// switch is there; all but application updates are sent (HolyArrs
+// is updated with its image) and import complete (each file is its own
+// import event).
 func (h *handler) hookSchema(w http.ResponseWriter, r *http.Request) {
 	events := []string{"onGrab", "onDownload", "onUpgrade", "onRename", "onHealthIssue", "onHealthRestored", "onApplicationUpdate", "onManualInteractionRequired"}
 	if h.side == "sonarr" {
@@ -31,7 +32,7 @@ func (h *handler) hookSchema(w http.ResponseWriter, r *http.Request) {
 	}
 	for _, e := range events {
 		m[e] = false
-		m["supportsO"+e[1:]] = e == "onDownload" || e == "onUpgrade"
+		m["supportsO"+e[1:]] = e != "onApplicationUpdate" && e != "onImportComplete"
 	}
 	writeJSON(w, http.StatusOK, []map[string]any{m})
 }
