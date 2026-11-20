@@ -123,6 +123,8 @@ A better subtitle must score higher than the one it replaces.
 | subdl | movies and shows | API key | Searches by TMDB id, IMDb id or name. The download count resets at midnight UTC. |
 | Gestdown | shows | none | Show subtitles from Addic7ed. |
 | Podnapisi | movies and shows | none | Starts turned off because the site does not answer now. Turn it on when it does. |
+| NapiProjekt | movies and shows, Polish only | none | Matched by the video file's own hash, so it needs the file on disk. The site has no https. |
+| Napisy24 | movies and shows, Polish only | none | Matched by the video file's hash and size, so it needs the file on disk. Uses the public login subliminal and Bazarr use. |
 | TVsubtitles | shows | none | Reads the site's home page first, for its cookie and its current search page. Always uses https. |
 | Addic7ed (direct) | shows | user name and password | At least 3 s between calls and 100 calls a day by default. Unfinished subtitles are left out. HolyArrs never tries to get past a captcha. |
 
