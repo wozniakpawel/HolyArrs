@@ -198,3 +198,58 @@ func TestFlareSolverr_SavedOnTheSourceAndUsed(t *testing.T) {
 		t.Fatalf("bad address: %v", err)
 	}
 }
+
+func TestFlareSolverr_RedirectToAnotherSiteIsRefused(t *testing.T) {
+	var direct, asked atomic.Int32
+	site := checkedSite(t, &direct)
+	c := New(Config{URL: site, AllowLocal: true, Format: "site", FlareSolverr: fakeFlare(t, &asked, func(a flareAsk) any {
+		ans := solved(a).(map[string]any)
+		ans["solution"].(map[string]any)["url"] = "https://elsewhere.example/landing"
+		return ans
+	})})
+	_, err := c.send(context.Background(), http.MethodGet, site+"/one", nil, nil)
+	var se *Error
+	if !errors.As(err, &se) || se.Kind != KindBlocked || !strings.Contains(se.Msg, "another site") {
+		t.Fatalf("got %v", err)
+	}
+	if c.clearanceFor(strings.TrimPrefix(site, "http://")) != nil || c.pass != nil {
+		t.Fatal("cookies from another site were kept")
+	}
+}
+
+func TestFlareSolverr_RedirectToAPrivateAddressIsRefused(t *testing.T) {
+	var direct, asked atomic.Int32
+	site := checkedSite(t, &direct)
+	u, _ := url.Parse(site)
+	c := New(Config{URL: site, AllowLocal: true, Format: "site", FlareSolverr: fakeFlare(t, &asked, func(a flareAsk) any {
+		ans := solved(a).(map[string]any)
+		// The same name, which now leads home.
+		ans["solution"].(map[string]any)["url"] = "http://www.site.example:" + u.Port() + "/one"
+		return ans
+	})})
+	// The site's own name looks up as public; its www. name as a home address.
+	c.cfg.AllowLocal = false
+	c.cfg.AllowAddr = func(ip net.IP) bool { return !ip.IsPrivate() && !ip.IsLoopback() }
+	c.cfg.resolve = func(_ context.Context, host string) ([]net.IP, error) {
+		if strings.HasPrefix(host, "www.") {
+			return []net.IP{net.ParseIP("192.168.1.10")}, nil
+		}
+		return []net.IP{net.ParseIP("93.184.216.34")}, nil
+	}
+	_, err := c.solve(context.Background(), "http://site.example:"+u.Port()+"/one")
+	var se *Error
+	if !errors.As(err, &se) || se.Kind != KindBlocked || asked.Load() != 1 || c.pass != nil {
+		t.Fatalf("got %v, asked %d, kept %+v", err, asked.Load(), c.pass)
+	}
+}
+
+func TestSameSite(t *testing.T) {
+	for _, c := range []struct {
+		a, b string
+		want bool
+	}{{"1337x.to", "www.1337x.to", true}, {"WWW.Site.example.", "site.example", true}, {"x1337x.ws", "1337x.to", false}, {"", "a", false}} {
+		if got := sameSite(c.a, c.b); got != c.want {
+			t.Errorf("%q %q: %v", c.a, c.b, got)
+		}
+	}
+}

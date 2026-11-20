@@ -120,7 +120,7 @@ More in [Troubleshooting](../../help/troubleshooting/).
 
 Keys and proxy passwords are stored encrypted and shown hidden. Moving a Source to another host asks for the key again. Local network access never opens cloud metadata addresses.
 
-HolyArrs asks FlareSolverr only when a call meets the site's bot check, and only for plain page reads. It then keeps the cookie FlareSolverr's browser got and calls the site directly until the site checks again. FlareSolverr gets the whole address, key included, and the Source's proxy, so the page comes from the same route. FlareSolverr itself may be on the local network; the site it opens still has to pass the Source's own rule.
+HolyArrs asks FlareSolverr only when a call meets the site's bot check, and only for plain page reads. It then keeps the cookie FlareSolverr's browser got and calls the site directly until the site checks again. FlareSolverr gets the whole address, key included, and the Source's proxy, so the page comes from the same route. FlareSolverr itself may be on the local network; the site it opens still has to pass the Source's own rule, before the ask and again for the page it ended on. A page that ended on another site is refused. FlareSolverr looks names up and follows redirects itself, so HolyArrs cannot fully stop it reaching your home network. Run it away from your other services, for example inside a VPN container's network.
 
 </details>
 

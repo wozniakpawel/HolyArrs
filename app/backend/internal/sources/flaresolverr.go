@@ -178,6 +178,21 @@ func (c *Client) solve(ctx context.Context, raw string) ([]byte, error) {
 		return nil, &Error{Kind: KindBlocked, Detail: BlockBotCheck, Msg: "FlareSolverr could not pass the site's bot check: " + c.scrub(msg)}
 	}
 	s := a.Solution
+	// FlareSolverr's browser follows redirects and looks names up itself, so
+	// the page it ended on is checked too: another site, or a name that now
+	// leads somewhere the Source may not go, is refused and nothing is kept.
+	// A name that changes its answer between the two lookups (DNS rebinding
+	// at FlareSolverr's side) cannot be caught from here; run FlareSolverr
+	// away from the home network, such as inside a VPN container.
+	if s.URL != "" {
+		end, err := url.Parse(s.URL)
+		if err != nil || !sameSite(end.Hostname(), u.Hostname()) {
+			return nil, &Error{Kind: KindBlocked, Msg: "FlareSolverr ended on another site than the Source's; refused"}
+		}
+		if _, err := checkName(ctx, c.cfg, end.Hostname()); err != nil {
+			return nil, &Error{Kind: KindBlocked, Msg: c.scrub(err.Error())}
+		}
+	}
 	switch {
 	case s.Status == http.StatusTooManyRequests:
 		return nil, &Error{Kind: KindRateLimited, Msg: "the Source asked us to slow down", RetryAfter: Backoff(1)}
@@ -200,6 +215,12 @@ func (c *Client) solve(ctx context.Context, raw string) ([]byte, error) {
 		}
 	}
 	return unwrapPre([]byte(s.Response)), nil
+}
+
+// sameSite says whether two host names are one site, give or take "www.".
+func sameSite(a, b string) bool {
+	norm := func(h string) string { return strings.TrimPrefix(strings.ToLower(strings.TrimSuffix(h, ".")), "www.") }
+	return a != "" && norm(a) == norm(b)
 }
 
 // flareClient reaches FlareSolverr straight, never through the app proxy:

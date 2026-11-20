@@ -98,6 +98,8 @@ Some sites, 1337x most of all, show Cloudflare's bot check instead of results. T
 
 HolyArrs asks FlareSolverr only when the site shows its check. Calls in between go straight to the site with the cookie FlareSolverr got.
 
+FlareSolverr opens whatever page it is asked for in a real browser. Run it where it cannot reach the rest of your home network, such as inside your VPN container's network, next to your torrent app.
+
 ## Through a VPN
 
 Sites see the address HolyArrs calls them from. To send that through a VPN, use one of these:
