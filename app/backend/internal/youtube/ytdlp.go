@@ -95,12 +95,16 @@ type rawInfo struct {
 // Probe asks yt-dlp what a link is. Playlists and channels list only their
 // first five entries.
 func (r Runner) Probe(ctx context.Context, l Link) (Probe, error) {
+	target, err := canonicalURL(l)
+	if err != nil {
+		return Probe{}, err
+	}
+	l.URL = target
 	args := []string{"-J", "--no-playlist"}
-	target := l.URL
 	if l.Kind != KindVideo {
 		args = []string{"-J", "--flat-playlist", "--playlist-end", "5"}
 		if l.Kind == KindChannel {
-			target = l.URL + "/videos"
+			target += "/videos"
 		}
 	}
 	var raw rawInfo
@@ -134,13 +138,14 @@ func (r Runner) Probe(ctx context.Context, l Link) (Probe, error) {
 // its Videos and Live tabs, plus Shorts when includeShorts is set, newest
 // first; a playlist keeps its own order and every entry.
 func (r Runner) Entries(ctx context.Context, l Link, includeShorts bool) ([]Entry, error) {
+	base, err := canonicalURL(l)
+	if err != nil || l.Kind == KindVideo {
+		return nil, ErrNotYouTube
+	}
 	ctx, cancel := context.WithTimeout(ctx, entriesTimeout)
 	defer cancel()
 	if l.Kind == KindPlaylist {
-		return r.listTab(ctx, l.URL, false)
-	}
-	if l.Kind != KindChannel {
-		return nil, ErrNotYouTube
+		return r.listTab(ctx, base, false)
 	}
 	tabs := []string{"videos", "streams"}
 	if includeShorts {
@@ -149,7 +154,7 @@ func (r Runner) Entries(ctx context.Context, l Link, includeShorts bool) ([]Entr
 	seen := map[string]bool{}
 	var all []Entry
 	for _, tab := range tabs {
-		es, err := r.listTab(ctx, l.URL+"/"+tab, tab == "shorts")
+		es, err := r.listTab(ctx, base+"/"+tab, tab == "shorts")
 		if err != nil && strings.Contains(err.Error(), "does not have a") {
 			continue // channels without live streams or shorts have no such tab
 		}

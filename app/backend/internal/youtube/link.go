@@ -98,6 +98,34 @@ func watchURL(id string) string {
 	return site + "watch?v=" + id
 }
 
+// canonicalURL rebuilds a link's URL from its kind and checked ID, so a
+// Link made anywhere but ParseLink never hands yt-dlp its own URL.
+func canonicalURL(l Link) (string, error) {
+	switch l.Kind {
+	case KindVideo:
+		if reVideoID.MatchString(l.ID) {
+			return watchURL(l.ID), nil
+		}
+	case KindPlaylist:
+		if rePlaylistID.MatchString(l.ID) {
+			return site + "playlist?list=" + l.ID, nil
+		}
+	case KindChannel:
+		if reChannelID.MatchString(l.ID) {
+			return site + "channel/" + l.ID, nil
+		}
+		if reHandle.MatchString(l.ID) {
+			return site + l.ID, nil
+		}
+		for _, p := range []string{"c/", "user/"} {
+			if name, ok := strings.CutPrefix(l.ID, p); ok && reLegacyName.MatchString(name) {
+				return site + l.ID, nil
+			}
+		}
+	}
+	return "", ErrNotYouTube
+}
+
 // tabOnly reports whether rest is empty or one known channel tab.
 func tabOnly(rest []string) bool {
 	return len(rest) == 0 || (len(rest) == 1 && channelTabs[rest[0]])

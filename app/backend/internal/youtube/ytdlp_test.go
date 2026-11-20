@@ -67,6 +67,64 @@ func TestRunnerArgsNeverCarryRawInput(t *testing.T) {
 	}
 }
 
+func TestRunnerRebuildsURLFromKindAndID(t *testing.T) {
+	r, f := fakeRunner(t, "ok")
+	ctx := context.Background()
+	forged := []struct {
+		l    Link
+		want string
+	}{
+		{Link{KindVideo, "dQw4w9WgXcQ", "https://evil.example/x"}, "https://www.youtube.com/watch?v=dQw4w9WgXcQ"},
+		{Link{KindPlaylist, "PLtestlist01", "--exec=touch /tmp/x"}, "https://www.youtube.com/playlist?list=PLtestlist01"},
+		{Link{KindChannel, "@Veritasium", "https://evil.example/@Veritasium"}, "https://www.youtube.com/@Veritasium/videos"},
+	}
+	for _, c := range forged {
+		p, err := r.Probe(ctx, c.l)
+		if err != nil {
+			t.Fatalf("Probe(%+v): %v", c.l, err)
+		}
+		calls := f.Calls(t)
+		args := calls[len(calls)-1]
+		if n := len(args); args[n-2] != "--" || args[n-1] != c.want {
+			t.Fatalf("Probe(%+v) args end %q, want -- %q", c.l, args[n-2:], c.want)
+		}
+		if strings.Contains(p.Link.URL, "evil") || strings.Contains(p.Link.URL, "exec") {
+			t.Fatalf("Probe kept the forged URL: %q", p.Link.URL)
+		}
+	}
+	n := len(f.Calls(t))
+	if _, err := r.Entries(ctx, Link{KindChannel, "@Veritasium", "--exec=x"}, true); err != nil {
+		t.Fatal(err)
+	}
+	for _, c := range f.Calls(t)[n:] {
+		if u := c[len(c)-1]; !strings.HasPrefix(u, "https://www.youtube.com/@Veritasium/") || c[len(c)-2] != "--" {
+			t.Fatalf("Entries args end %q", c[len(c)-2:])
+		}
+	}
+	bad := []Link{
+		{KindVideo, "--exec=xxxx", "https://www.youtube.com/watch?v=dQw4w9WgXcQ"},
+		{KindPlaylist, "PL x/../..", "https://www.youtube.com/playlist?list=PLtestlist01"},
+		{KindChannel, "evil.example/x", "https://www.youtube.com/@Veritasium"},
+		{KindChannel, "c/../../x", "https://www.youtube.com/@Veritasium"},
+		{"other", "dQw4w9WgXcQ", "https://www.youtube.com/watch?v=dQw4w9WgXcQ"},
+	}
+	n = len(f.Calls(t))
+	for _, l := range bad {
+		if _, err := r.Probe(ctx, l); !errors.Is(err, ErrNotYouTube) {
+			t.Errorf("Probe(%+v) err = %v", l, err)
+		}
+		if _, err := r.Entries(ctx, l, false); !errors.Is(err, ErrNotYouTube) {
+			t.Errorf("Entries(%+v) err = %v", l, err)
+		}
+	}
+	if _, err := r.Entries(ctx, Link{KindVideo, "dQw4w9WgXcQ", ""}, false); !errors.Is(err, ErrNotYouTube) {
+		t.Errorf("Entries(video) err = %v", err)
+	}
+	if got := len(f.Calls(t)); got != n {
+		t.Fatalf("refused links still ran yt-dlp %d times", got-n)
+	}
+}
+
 func TestRunnerWithoutFFmpegLeavesItToYTDLP(t *testing.T) {
 	f := youtubetest.NewFake(t, "ok")
 	r := Runner{Tools: Tools{YTDLP: f.Bin}}
