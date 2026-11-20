@@ -159,7 +159,9 @@ func (c *Client) solve(ctx context.Context, raw string) ([]byte, error) {
 		if errors.As(err, &ue) {
 			err = ue.Err
 		}
-		return nil, &Error{Kind: KindDown, Msg: "FlareSolverr did not answer: " + c.scrub(err.Error()), cause: err}
+		// No detail from the dial: FlareSolverr may sit on the local network,
+		// and the reason would tell which hosts and ports there answer.
+		return nil, &Error{Kind: KindDown, Msg: "FlareSolverr did not answer; check its address and that it runs", cause: err}
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(io.LimitReader(resp.Body, 32<<20))
@@ -168,7 +170,7 @@ func (c *Client) solve(ctx context.Context, raw string) ([]byte, error) {
 	}
 	var a flareAnswer
 	if json.Unmarshal(body, &a) != nil {
-		return nil, &Error{Kind: KindBroken, Msg: fmt.Sprintf("FlareSolverr answered %s with something that is not its answer; check the address", resp.Status)}
+		return nil, &Error{Kind: KindBroken, Msg: "FlareSolverr's address answered with something that is not FlareSolverr; check the address"}
 	}
 	if a.Status != "ok" {
 		msg := strings.TrimSpace(a.Message)
