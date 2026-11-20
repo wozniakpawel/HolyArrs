@@ -1586,5 +1586,17 @@
 	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs citește listele și listele de urmărire Trakt; o listă de vizionate sau de colecție rămâne în Sonarr",
 	"server.migrate.add-your-trakt-key-under-settings-2": "Adaugă cheia ta Trakt în Setări > Liste externe înainte de a porni o listă Trakt; o listă privată are nevoie acolo și de Autentificare cu Trakt.",
 	"server.requests.send-code-the-code-trakt-showed": "trimite {\"code\": \"<the code Trakt showed>\"}",
-	"server.requests.send-secret-trakt-app-client-secret-line": "trimite {\"secret\": \"<Trakt app client secret>\"}, sau {\"secret\": \"\"} pentru a o elimina"
+	"server.requests.send-secret-trakt-app-client-secret-line": "trimite {\"secret\": \"<Trakt app client secret>\"}, sau {\"secret\": \"\"} pentru a o elimina",
+	"server.library.keep-up-to-date-off-its": "{name} {labels}: „Menține la zi” oprit, fișierul a fost șters de pe disc",
+	"server.library.keep-up-to-date-off-its-2": "{name}: „Menține la zi” oprit, fișierul a fost șters de pe disc",
+	"server.migrate.already-set-this-way": "este deja setat așa",
+	"server.migrate.stop-looking-for-deleted-episodes": "Nu mai căuta episoadele șterse",
+	"server.migrate.stop-looking-for-deleted-movies": "Nu mai căuta filmele șterse",
+	"server.migrate.the-deleted-file-switch-is-back": "comutatorul pentru fișiere șterse a revenit cum era",
+	"server.migrate.already-on-the-turned-down-list": "este deja pe lista „Respins”",
+	"server.migrate.its-title-did-not-come-over": "titlul său nu a fost adus",
+	"server.migrate.its-title-is-not-in-the": "titlul său nu este în bibliotecă",
+	"server.migrate.on-the-old-app-s-blocklist": "pe lista de blocare a aplicației vechi",
+	"server.migrate.the-old-app-gave-no-release": "aplicația veche nu a dat numele lansării sau protocolul",
+	"server.migrate.turned-down": "Respins"
 }

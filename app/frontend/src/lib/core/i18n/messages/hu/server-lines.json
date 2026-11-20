@@ -1586,5 +1586,17 @@
 	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "a HolyArrs Trakt-listákat és figyelőlistákat olvas; a megnézett vagy gyűjtemény-lista a Sonarrban marad",
 	"server.migrate.add-your-trakt-key-under-settings-2": "Adja hozzá a Trakt-kulcsát a Beállítások > Külső listák alatt, mielőtt bekapcsol egy Trakt-listát; privát listához ott a Bejelentkezés Trakttal is kell.",
 	"server.requests.send-code-the-code-trakt-showed": "küldje: {\"code\": \"<the code Trakt showed>\"}",
-	"server.requests.send-secret-trakt-app-client-secret-line": "küldje: {\"secret\": \"<Trakt app client secret>\"}, vagy {\"secret\": \"\"} az eltávolításához"
+	"server.requests.send-secret-trakt-app-client-secret-line": "küldje: {\"secret\": \"<Trakt app client secret>\"}, vagy {\"secret\": \"\"} az eltávolításához",
+	"server.library.keep-up-to-date-off-its": "{name} {labels}: „Naprakészen tartás” kikapcsolva, a fájlt törölték a lemezről",
+	"server.library.keep-up-to-date-off-its-2": "{name}: „Naprakészen tartás” kikapcsolva, a fájlt törölték a lemezről",
+	"server.migrate.already-set-this-way": "már így van beállítva",
+	"server.migrate.stop-looking-for-deleted-episodes": "Ne keresse tovább a törölt epizódokat",
+	"server.migrate.stop-looking-for-deleted-movies": "Ne keresse tovább a törölt filmeket",
+	"server.migrate.the-deleted-file-switch-is-back": "a törölt fájlok kapcsolója visszaállt",
+	"server.migrate.already-on-the-turned-down-list": "már a(z) „Elvetett” listán van",
+	"server.migrate.its-title-did-not-come-over": "a címe nem jött át",
+	"server.migrate.its-title-is-not-in-the": "a címe nincs a könyvtárban",
+	"server.migrate.on-the-old-app-s-blocklist": "a régi alkalmazás tiltólistáján",
+	"server.migrate.the-old-app-gave-no-release": "a régi alkalmazás nem adott kiadásnevet vagy protokollt",
+	"server.migrate.turned-down": "Elvetett"
 }

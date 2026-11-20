@@ -1586,5 +1586,17 @@
 	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs membaca daftar dan watchlist Trakt; daftar yang ditonton atau koleksi tetap di Sonarr",
 	"server.migrate.add-your-trakt-key-under-settings-2": "Tambahkan kunci Trakt-mu di Pengaturan > Daftar luar sebelum menyalakan daftar Trakt; daftar pribadi juga perlu Masuk dengan Trakt di sana.",
 	"server.requests.send-code-the-code-trakt-showed": "kirim {\"code\": \"<the code Trakt showed>\"}",
-	"server.requests.send-secret-trakt-app-client-secret-line": "kirim {\"secret\": \"<Trakt app client secret>\"}, atau {\"secret\": \"\"} untuk menghapusnya"
+	"server.requests.send-secret-trakt-app-client-secret-line": "kirim {\"secret\": \"<Trakt app client secret>\"}, atau {\"secret\": \"\"} untuk menghapusnya",
+	"server.library.keep-up-to-date-off-its": "{name} {labels}: Selalu terbaru mati, filenya dihapus dari disk",
+	"server.library.keep-up-to-date-off-its-2": "{name}: Selalu terbaru mati, filenya dihapus dari disk",
+	"server.migrate.already-set-this-way": "sudah diatur begini",
+	"server.migrate.stop-looking-for-deleted-episodes": "Berhenti mencari episode yang dihapus",
+	"server.migrate.stop-looking-for-deleted-movies": "Berhenti mencari film yang dihapus",
+	"server.migrate.the-deleted-file-switch-is-back": "sakelar file terhapus kembali seperti semula",
+	"server.migrate.already-on-the-turned-down-list": "sudah ada di daftar \"Ditolak\"",
+	"server.migrate.its-title-did-not-come-over": "judulnya tidak ikut dipindah",
+	"server.migrate.its-title-is-not-in-the": "judulnya tidak ada di Pustaka",
+	"server.migrate.on-the-old-app-s-blocklist": "di daftar blokir aplikasi lama",
+	"server.migrate.the-old-app-gave-no-release": "aplikasi lama tidak memberi nama rilis atau protokol",
+	"server.migrate.turned-down": "Ditolak"
 }

@@ -258,6 +258,7 @@ block
 block_checked_at
 block_counter
 blocked
+blocklist
 blocklist_checked_at
 blocklist_stale
 blocks
@@ -630,6 +631,7 @@ file_name
 file_path
 file_pattern
 filelist
+file_rules
 filename
 files
 files_stay
@@ -828,6 +830,7 @@ indexers
 indexes
 info
 infoHash
+info_hash
 infohash
 inherit
 inspection_status
@@ -1939,6 +1942,9 @@ undo_state
 undone_at
 unfollow
 unique_user_key
+unkeep_deleted
+unkeep_deleted_episodes
+unkeep_deleted_movies
 unknown
 unreachable
 unresolved

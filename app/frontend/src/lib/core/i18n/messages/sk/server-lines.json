@@ -1586,5 +1586,17 @@
 	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs číta zoznamy a zoznamy na pozeranie z Trakt; zoznam pozretých alebo zbierky zostáva v Sonarr",
 	"server.migrate.add-your-trakt-key-under-settings-2": "Pred zapnutím zoznamu Trakt pridajte svoj kľúč Trakt v Nastavenia > Externé zoznamy; súkromný zoznam tam navyše potrebuje Prihlásiť sa cez Trakt.",
 	"server.requests.send-code-the-code-trakt-showed": "pošlite {\"code\": \"<the code Trakt showed>\"}",
-	"server.requests.send-secret-trakt-app-client-secret-line": "pošlite {\"secret\": \"<Trakt app client secret>\"}, alebo {\"secret\": \"\"} na jeho odstránenie"
+	"server.requests.send-secret-trakt-app-client-secret-line": "pošlite {\"secret\": \"<Trakt app client secret>\"}, alebo {\"secret\": \"\"} na jeho odstránenie",
+	"server.library.keep-up-to-date-off-its": "{name} {labels}: „Udržiavať aktuálne“ vypnuté, súbor bol zmazaný z disku",
+	"server.library.keep-up-to-date-off-its-2": "{name}: „Udržiavať aktuálne“ vypnuté, súbor bol zmazaný z disku",
+	"server.migrate.already-set-this-way": "už je nastavené takto",
+	"server.migrate.stop-looking-for-deleted-episodes": "Nehľadať zmazané diely",
+	"server.migrate.stop-looking-for-deleted-movies": "Nehľadať zmazané filmy",
+	"server.migrate.the-deleted-file-switch-is-back": "prepínač zmazaných súborov je späť, ako bol",
+	"server.migrate.already-on-the-turned-down-list": "už je v zozname „Zamietnuté“",
+	"server.migrate.its-title-did-not-come-over": "jeho titul sa nepreniesol",
+	"server.migrate.its-title-is-not-in-the": "jeho titul nie je v knižnici",
+	"server.migrate.on-the-old-app-s-blocklist": "na blokovacom zozname starej aplikácie",
+	"server.migrate.the-old-app-gave-no-release": "stará aplikácia neuviedla názov vydania ani protokol",
+	"server.migrate.turned-down": "Zamietnuté"
 }

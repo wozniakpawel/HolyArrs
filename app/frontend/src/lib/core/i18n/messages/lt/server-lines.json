@@ -1586,5 +1586,17 @@
 	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs skaito Trakt sąrašus ir stebėjimo sąrašus; žiūrėtų ar kolekcijos sąrašas lieka Sonarr",
 	"server.migrate.add-your-trakt-key-under-settings-2": "Prieš įjungdami Trakt sąrašą, skiltyje Nustatymai > Išoriniai sąrašai pridėkite savo Trakt raktą; privačiam sąrašui ten dar reikia Prisijungti su Trakt.",
 	"server.requests.send-code-the-code-trakt-showed": "siųskite {\"code\": \"<the code Trakt showed>\"}",
-	"server.requests.send-secret-trakt-app-client-secret-line": "siųskite {\"secret\": \"<Trakt app client secret>\"}, arba {\"secret\": \"\"}, kad jį pašalintumėte"
+	"server.requests.send-secret-trakt-app-client-secret-line": "siųskite {\"secret\": \"<Trakt app client secret>\"}, arba {\"secret\": \"\"}, kad jį pašalintumėte",
+	"server.library.keep-up-to-date-off-its": "{name} {labels}: „Laikyti naujausią“ išjungta, failas ištrintas iš disko",
+	"server.library.keep-up-to-date-off-its-2": "{name}: „Laikyti naujausią“ išjungta, failas ištrintas iš disko",
+	"server.migrate.already-set-this-way": "jau taip nustatyta",
+	"server.migrate.stop-looking-for-deleted-episodes": "Nebeieškoti ištrintų serijų",
+	"server.migrate.stop-looking-for-deleted-movies": "Nebeieškoti ištrintų filmų",
+	"server.migrate.the-deleted-file-switch-is-back": "ištrintų failų jungiklis grąžintas kaip buvo",
+	"server.migrate.already-on-the-turned-down-list": "jau sąraše „Atmesta“",
+	"server.migrate.its-title-did-not-come-over": "jo pavadinimas nebuvo perkeltas",
+	"server.migrate.its-title-is-not-in-the": "jo pavadinimo nėra bibliotekoje",
+	"server.migrate.on-the-old-app-s-blocklist": "senos programos blokavimo sąraše",
+	"server.migrate.the-old-app-gave-no-release": "sena programa nepateikė leidimo pavadinimo ar protokolo",
+	"server.migrate.turned-down": "Atmesta"
 }

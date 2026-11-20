@@ -1586,5 +1586,17 @@
 	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "o HolyArrs lê listas e watchlists do Trakt; uma lista de assistidos ou de coleção fica no Sonarr",
 	"server.migrate.add-your-trakt-key-under-settings-2": "Adicione sua chave do Trakt em Configurações > Listas externas antes de ativar uma lista do Trakt; uma lista privada também precisa de Entrar com o Trakt lá.",
 	"server.requests.send-code-the-code-trakt-showed": "send {\"code\": \"<the code Trakt showed>\"}",
-	"server.requests.send-secret-trakt-app-client-secret-line": "envie {\"secret\": \"<Trakt app client secret>\"}, ou {\"secret\": \"\"} para removê-la"
+	"server.requests.send-secret-trakt-app-client-secret-line": "envie {\"secret\": \"<Trakt app client secret>\"}, ou {\"secret\": \"\"} para removê-la",
+	"server.library.keep-up-to-date-off-its": "{name} {labels}: “Manter em dia” desligado, o arquivo foi apagado do disco",
+	"server.library.keep-up-to-date-off-its-2": "{name}: “Manter em dia” desligado, o arquivo foi apagado do disco",
+	"server.migrate.already-set-this-way": "já está assim",
+	"server.migrate.stop-looking-for-deleted-episodes": "Parar de procurar episódios apagados",
+	"server.migrate.stop-looking-for-deleted-movies": "Parar de procurar filmes apagados",
+	"server.migrate.the-deleted-file-switch-is-back": "a opção de arquivos apagados voltou ao que era",
+	"server.migrate.already-on-the-turned-down-list": "já está na lista “Descartados”",
+	"server.migrate.its-title-did-not-come-over": "o título não veio junto",
+	"server.migrate.its-title-is-not-in-the": "o título não está na Biblioteca",
+	"server.migrate.on-the-old-app-s-blocklist": "na lista de bloqueio do app antigo",
+	"server.migrate.the-old-app-gave-no-release": "o app antigo não deu nome de lançamento nem protocolo",
+	"server.migrate.turned-down": "Descartados"
 }

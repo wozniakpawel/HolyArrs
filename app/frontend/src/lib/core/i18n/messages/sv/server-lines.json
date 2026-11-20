@@ -1586,5 +1586,17 @@
 	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs läser Trakt-listor och bevakningslistor; en tittad- eller samlingslista blir kvar i Sonarr",
 	"server.migrate.add-your-trakt-key-under-settings-2": "Lägg till din Trakt-nyckel under Inställningar > Externa listor innan du slår på en Trakt-lista; en privat lista behöver också Logga in med Trakt där.",
 	"server.requests.send-code-the-code-trakt-showed": "skicka {\"code\": \"<the code Trakt showed>\"}",
-	"server.requests.send-secret-trakt-app-client-secret-line": "skicka {\"secret\": \"<Trakt app client secret>\"}, eller {\"secret\": \"\"} för att ta bort den"
+	"server.requests.send-secret-trakt-app-client-secret-line": "skicka {\"secret\": \"<Trakt app client secret>\"}, eller {\"secret\": \"\"} för att ta bort den",
+	"server.library.keep-up-to-date-off-its": "{name} {labels}: ”Håll uppdaterad” av, filen raderades från disken",
+	"server.library.keep-up-to-date-off-its-2": "{name}: ”Håll uppdaterad” av, filen raderades från disken",
+	"server.migrate.already-set-this-way": "är redan inställt så",
+	"server.migrate.stop-looking-for-deleted-episodes": "Sluta leta efter raderade avsnitt",
+	"server.migrate.stop-looking-for-deleted-movies": "Sluta leta efter raderade filmer",
+	"server.migrate.the-deleted-file-switch-is-back": "brytaren för raderade filer är tillbaka som förut",
+	"server.migrate.already-on-the-turned-down-list": "står redan på listan ”Nekade”",
+	"server.migrate.its-title-did-not-come-over": "dess titel kom inte med",
+	"server.migrate.its-title-is-not-in-the": "dess titel finns inte i biblioteket",
+	"server.migrate.on-the-old-app-s-blocklist": "på den gamla appens spärrlista",
+	"server.migrate.the-old-app-gave-no-release": "den gamla appen gav inget releasenamn eller protokoll",
+	"server.migrate.turned-down": "Nekade"
 }

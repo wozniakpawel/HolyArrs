@@ -1586,5 +1586,17 @@
 	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs อ่านรายการ Trakt และรายการที่ต้องการดู รายการที่ดูแล้วหรือคอลเลกชันยังอยู่ใน Sonarr",
 	"server.migrate.add-your-trakt-key-under-settings-2": "เพิ่มคีย์ Trakt ของคุณในการตั้งค่า > รายการภายนอก ก่อนเปิดรายการ Trakt รายการส่วนตัวต้องใช้ เข้าสู่ระบบด้วย Trakt ที่นั่นด้วย",
 	"server.requests.send-code-the-code-trakt-showed": "ส่ง {\"code\": \"<the code Trakt showed>\"}",
-	"server.requests.send-secret-trakt-app-client-secret-line": "ส่ง {\"secret\": \"<Trakt app client secret>\"} หรือ {\"secret\": \"\"} เพื่อลบ"
+	"server.requests.send-secret-trakt-app-client-secret-line": "ส่ง {\"secret\": \"<Trakt app client secret>\"} หรือ {\"secret\": \"\"} เพื่อลบ",
+	"server.library.keep-up-to-date-off-its": "{name} {labels}: ปิด \"อัปเดตให้ทันสมัย\" แล้ว ไฟล์ถูกลบออกจากดิสก์",
+	"server.library.keep-up-to-date-off-its-2": "{name}: ปิด \"อัปเดตให้ทันสมัย\" แล้ว ไฟล์ถูกลบออกจากดิสก์",
+	"server.migrate.already-set-this-way": "ตั้งค่าแบบนี้อยู่แล้ว",
+	"server.migrate.stop-looking-for-deleted-episodes": "เลิกหาตอนที่ลบแล้ว",
+	"server.migrate.stop-looking-for-deleted-movies": "เลิกหาภาพยนตร์ที่ลบแล้ว",
+	"server.migrate.the-deleted-file-switch-is-back": "สวิตช์ไฟล์ที่ลบกลับเป็นเหมือนเดิมแล้ว",
+	"server.migrate.already-on-the-turned-down-list": "อยู่ในรายการ \"ปฏิเสธแล้ว\" แล้ว",
+	"server.migrate.its-title-did-not-come-over": "ไม่ได้ย้ายเรื่องนี้มา",
+	"server.migrate.its-title-is-not-in-the": "เรื่องนี้ไม่อยู่ในคลัง",
+	"server.migrate.on-the-old-app-s-blocklist": "อยู่ในรายการบล็อกของแอปเก่า",
+	"server.migrate.the-old-app-gave-no-release": "แอปเก่าไม่ได้ให้ชื่อรีลีสหรือโปรโตคอล",
+	"server.migrate.turned-down": "ปฏิเสธแล้ว"
 }

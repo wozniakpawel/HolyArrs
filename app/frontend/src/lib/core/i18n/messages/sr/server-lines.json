@@ -1586,5 +1586,17 @@
 	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs чита Trakt листе и листе за гледање; листа одгледаног или колекције остаје у Sonarr-у",
 	"server.migrate.add-your-trakt-key-under-settings-2": "Додај свој Trakt кључ у Подешавања > Спољне листе пре него што укључиш Trakt листу; приватној листи тамо треба и Пријава преко Trakt-а.",
 	"server.requests.send-code-the-code-trakt-showed": "пошаљи {\"code\": \"<the code Trakt showed>\"}",
-	"server.requests.send-secret-trakt-app-client-secret-line": "пошаљи {\"secret\": \"<Trakt app client secret>\"}, или {\"secret\": \"\"} да га уклониш"
+	"server.requests.send-secret-trakt-app-client-secret-line": "пошаљи {\"secret\": \"<Trakt app client secret>\"}, или {\"secret\": \"\"} да га уклониш",
+	"server.library.keep-up-to-date-off-its": "{name} {labels}: „Одржавај ажурним” искључено, датотека је обрисана са диска",
+	"server.library.keep-up-to-date-off-its-2": "{name}: „Одржавај ажурним” искључено, датотека је обрисана са диска",
+	"server.migrate.already-set-this-way": "већ је тако подешено",
+	"server.migrate.stop-looking-for-deleted-episodes": "Престани да тражиш обрисане епизоде",
+	"server.migrate.stop-looking-for-deleted-movies": "Престани да тражиш обрисане филмове",
+	"server.migrate.the-deleted-file-switch-is-back": "прекидач за обрисане датотеке враћен је какав је био",
+	"server.migrate.already-on-the-turned-down-list": "већ је на листи „Одбијено”",
+	"server.migrate.its-title-did-not-come-over": "његов наслов није пренет",
+	"server.migrate.its-title-is-not-in-the": "његов наслов није у библиотеци",
+	"server.migrate.on-the-old-app-s-blocklist": "на листи блокираних старе апликације",
+	"server.migrate.the-old-app-gave-no-release": "стара апликација није дала назив издања нити протокол",
+	"server.migrate.turned-down": "Одбијено"
 }

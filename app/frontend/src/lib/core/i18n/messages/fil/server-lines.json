@@ -1586,5 +1586,17 @@
 	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "Binabasa ng HolyArrs ang mga listahan at watchlist ng Trakt; mananatili sa Sonarr ang listahan ng napanood o koleksyon",
 	"server.migrate.add-your-trakt-key-under-settings-2": "Idagdag ang Trakt key mo sa Settings > Mga Panlabas na listahan bago i-on ang listahan ng Trakt; kailangan din ng pribadong listahan ang Mag-sign in gamit ang Trakt doon.",
 	"server.requests.send-code-the-code-trakt-showed": "ipadala ang {\"code\": \"<the code Trakt showed>\"}",
-	"server.requests.send-secret-trakt-app-client-secret-line": "ipadala ang {\"secret\": \"<Trakt app client secret>\"}, o {\"secret\": \"\"} para alisin ito"
+	"server.requests.send-secret-trakt-app-client-secret-line": "ipadala ang {\"secret\": \"<Trakt app client secret>\"}, o {\"secret\": \"\"} para alisin ito",
+	"server.library.keep-up-to-date-off-its": "{name} {labels}: Naka-off ang Panatilihing napapanahon, binura ang file nito sa disk",
+	"server.library.keep-up-to-date-off-its-2": "{name}: Naka-off ang Panatilihing napapanahon, binura ang file nito sa disk",
+	"server.migrate.already-set-this-way": "nakatakda na nang ganito",
+	"server.migrate.stop-looking-for-deleted-episodes": "Huwag nang hanapin ang mga binurang episode",
+	"server.migrate.stop-looking-for-deleted-movies": "Huwag nang hanapin ang mga binurang pelikula",
+	"server.migrate.the-deleted-file-switch-is-back": "bumalik sa dati ang switch para sa mga binurang file",
+	"server.migrate.already-on-the-turned-down-list": "nasa listahang \"Tinanggihan\" na",
+	"server.migrate.its-title-did-not-come-over": "hindi nailipat ang pamagat nito",
+	"server.migrate.its-title-is-not-in-the": "wala sa Library ang pamagat nito",
+	"server.migrate.on-the-old-app-s-blocklist": "nasa blocklist ng lumang app",
+	"server.migrate.the-old-app-gave-no-release": "walang ibinigay na pangalan ng release o protocol ang lumang app",
+	"server.migrate.turned-down": "Tinanggihan"
 }

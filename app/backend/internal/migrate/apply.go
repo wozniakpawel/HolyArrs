@@ -274,28 +274,6 @@ func isDir(p string) bool {
 	return err == nil && fi.IsDir()
 }
 
-// partOf is the part an item belongs to ("" for the core).
-func partOf(it Item) string {
-	kind := ""
-	switch {
-	case it.Folder != nil:
-		kind = it.Folder.Kind
-	case it.Title != nil:
-		kind = it.Title.Kind
-	case it.NeverAdd != nil:
-		kind = it.NeverAdd.Kind
-	case it.OutsideList != nil:
-		kind = it.OutsideList.titleKind()
-	case it.Protocol != nil:
-		return it.Protocol.Part
-	case it.Subtitles != nil:
-		return "subtitles"
-	case it.Ask != nil:
-		return "wishlist"
-	}
-	return map[string]string{"movie": "movies", "show": "shows", "music": "music", "artist": "music"}[kind]
-}
-
 // run is one pass over a Plan.
 type run struct {
 	m      *Mover
@@ -652,7 +630,7 @@ var natural = map[string][2]string{
 	"ask": {"asks", "name"}, "user": {"users", "name"}, "alert": {"alerts", "name"}, "subtitle_site": {"subtitle_sites", "name"},
 	"source": {"sources", "name"}, "downloader": {"downloaders", "name"}, "never_add": {"never_add", "name"},
 	"title": {"titles", "kind"}, "folder": {"library_folders", "path"}, "outside_list": {"outside_lists", "name"},
-	"pick_rules": {"pick_rules", "name"}, "own_trait": {"own_traits", "name"},
+	"pick_rules": {"pick_rules", "name"}, "own_trait": {"own_traits", "name"}, "turned_down": {"releases", "name"},
 }
 
 type rowQuerier interface {
@@ -795,6 +773,10 @@ func (r *run) one(group string, it Item) (string, string) {
 		return r.ask(it)
 	case it.Alert != nil:
 		return r.alert(it)
+	case it.FileRules != nil:
+		return r.fileRules(it)
+	case it.TurnDown != nil:
+		return r.turnDown(it)
 	}
 	return ResFailed, "nothing to do for it"
 }

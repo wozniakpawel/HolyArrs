@@ -1586,5 +1586,17 @@
 	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs llegeix llistes i llistes de seguiment de Trakt; una llista de vistos o de col·lecció es queda a Sonarr",
 	"server.migrate.add-your-trakt-key-under-settings-2": "Afegeix la teva clau de Trakt a Configuració > Llistes externes abans d'activar una llista de Trakt; una llista privada també necessita Inicia la sessió amb Trakt allà.",
 	"server.requests.send-code-the-code-trakt-showed": "envia {\"code\": \"<the code Trakt showed>\"}",
-	"server.requests.send-secret-trakt-app-client-secret-line": "envia {\"secret\": \"<Trakt app client secret>\"}, o {\"secret\": \"\"} per eliminar-la"
+	"server.requests.send-secret-trakt-app-client-secret-line": "envia {\"secret\": \"<Trakt app client secret>\"}, o {\"secret\": \"\"} per eliminar-la",
+	"server.library.keep-up-to-date-off-its": "{name} {labels}: «Mantén al dia» desactivat, el fitxer s'ha esborrat del disc",
+	"server.library.keep-up-to-date-off-its-2": "{name}: «Mantén al dia» desactivat, el fitxer s'ha esborrat del disc",
+	"server.migrate.already-set-this-way": "ja està configurat així",
+	"server.migrate.stop-looking-for-deleted-episodes": "Deixa de buscar episodis esborrats",
+	"server.migrate.stop-looking-for-deleted-movies": "Deixa de buscar pel·lícules esborrades",
+	"server.migrate.the-deleted-file-switch-is-back": "l'interruptor de fitxers esborrats torna a estar com era",
+	"server.migrate.already-on-the-turned-down-list": "ja és a la llista «Descartats»",
+	"server.migrate.its-title-did-not-come-over": "el seu títol no s'ha portat",
+	"server.migrate.its-title-is-not-in-the": "el seu títol no és a la biblioteca",
+	"server.migrate.on-the-old-app-s-blocklist": "a la llista de bloqueig de l'app antiga",
+	"server.migrate.the-old-app-gave-no-release": "l'app antiga no en va donar el nom de la versió ni el protocol",
+	"server.migrate.turned-down": "Descartats"
 }

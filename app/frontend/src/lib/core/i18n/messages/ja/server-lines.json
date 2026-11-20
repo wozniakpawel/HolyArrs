@@ -1586,5 +1586,17 @@
 	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs は Trakt のリストとウォッチリストを読み取ります。視聴済みやコレクションのリストは Sonarr に残ります",
 	"server.migrate.add-your-trakt-key-under-settings-2": "Trakt のリストをオンにする前に、設定 > 外部リスト で Trakt のキーを追加してください。非公開リストには、そこで「Trakt でサインイン」も必要です。",
 	"server.requests.send-code-the-code-trakt-showed": "{\"code\": \"<the code Trakt showed>\"} を送信してください",
-	"server.requests.send-secret-trakt-app-client-secret-line": "{\"secret\": \"<Trakt app client secret>\"} を送信してください。削除するには {\"secret\": \"\"} を送信してください"
+	"server.requests.send-secret-trakt-app-client-secret-line": "{\"secret\": \"<Trakt app client secret>\"} を送信してください。削除するには {\"secret\": \"\"} を送信してください",
+	"server.library.keep-up-to-date-off-its": "{name} {labels}: 「最新に保つ」をオフ、ファイルがディスクから削除されました",
+	"server.library.keep-up-to-date-off-its-2": "{name}: 「最新に保つ」をオフ、ファイルがディスクから削除されました",
+	"server.migrate.already-set-this-way": "すでにこの設定です",
+	"server.migrate.stop-looking-for-deleted-episodes": "削除したエピソードは探さない",
+	"server.migrate.stop-looking-for-deleted-movies": "削除した映画は探さない",
+	"server.migrate.the-deleted-file-switch-is-back": "削除ファイルのスイッチを元に戻しました",
+	"server.migrate.already-on-the-turned-down-list": "すでに「不採用」リストにあります",
+	"server.migrate.its-title-did-not-come-over": "タイトルが移行されていません",
+	"server.migrate.its-title-is-not-in-the": "タイトルがライブラリにありません",
+	"server.migrate.on-the-old-app-s-blocklist": "以前のアプリのブロックリストにあります",
+	"server.migrate.the-old-app-gave-no-release": "以前のアプリがリリース名やプロトコルを返しませんでした",
+	"server.migrate.turned-down": "不採用"
 }

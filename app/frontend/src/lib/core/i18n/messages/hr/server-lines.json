@@ -1586,5 +1586,17 @@
 	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs čita Trakt popise i popise za gledanje; popis pogledanog ili zbirke ostaje u Sonarru",
 	"server.migrate.add-your-trakt-key-under-settings-2": "Dodaj svoj Trakt ključ u Postavke > Vanjski popisi prije nego uključiš Trakt popis; privatni popis tamo treba i Prijava putem Trakta.",
 	"server.requests.send-code-the-code-trakt-showed": "pošalji {\"code\": \"<the code Trakt showed>\"}",
-	"server.requests.send-secret-trakt-app-client-secret-line": "pošalji {\"secret\": \"<Trakt app client secret>\"}, ili {\"secret\": \"\"} da ga ukloniš"
+	"server.requests.send-secret-trakt-app-client-secret-line": "pošalji {\"secret\": \"<Trakt app client secret>\"}, ili {\"secret\": \"\"} da ga ukloniš",
+	"server.library.keep-up-to-date-off-its": "{name} {labels}: „Drži ažurnim” isključeno, datoteka je obrisana s diska",
+	"server.library.keep-up-to-date-off-its-2": "{name}: „Drži ažurnim” isključeno, datoteka je obrisana s diska",
+	"server.migrate.already-set-this-way": "već je tako postavljeno",
+	"server.migrate.stop-looking-for-deleted-episodes": "Prestani tražiti obrisane epizode",
+	"server.migrate.stop-looking-for-deleted-movies": "Prestani tražiti obrisane filmove",
+	"server.migrate.the-deleted-file-switch-is-back": "prekidač za obrisane datoteke vraćen je kakav je bio",
+	"server.migrate.already-on-the-turned-down-list": "već je na popisu „Odbačeno”",
+	"server.migrate.its-title-did-not-come-over": "njegov naslov nije prenesen",
+	"server.migrate.its-title-is-not-in-the": "njegov naslov nije u biblioteci",
+	"server.migrate.on-the-old-app-s-blocklist": "na popisu blokiranih stare aplikacije",
+	"server.migrate.the-old-app-gave-no-release": "stara aplikacija nije dala naziv izdanja ni protokol",
+	"server.migrate.turned-down": "Odbačeno"
 }

@@ -1586,5 +1586,17 @@
 	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs зчитує списки й списки перегляду Trakt; список переглянутого або колекції лишається в Sonarr",
 	"server.migrate.add-your-trakt-key-under-settings-2": "Додай свій ключ Trakt у Налаштування > Зовнішні списки, перш ніж вмикати список Trakt; для приватного списку там також потрібно «Увійти через Trakt».",
 	"server.requests.send-code-the-code-trakt-showed": "надішли {\"code\": \"<the code Trakt showed>\"}",
-	"server.requests.send-secret-trakt-app-client-secret-line": "надішли {\"secret\": \"<Trakt app client secret>\"} або {\"secret\": \"\"}, щоб прибрати його"
+	"server.requests.send-secret-trakt-app-client-secret-line": "надішли {\"secret\": \"<Trakt app client secret>\"} або {\"secret\": \"\"}, щоб прибрати його",
+	"server.library.keep-up-to-date-off-its": "{name} {labels}: «Стежити за оновленнями» вимкнено, файл видалено з диска",
+	"server.library.keep-up-to-date-off-its-2": "{name}: «Стежити за оновленнями» вимкнено, файл видалено з диска",
+	"server.migrate.already-set-this-way": "вже так налаштовано",
+	"server.migrate.stop-looking-for-deleted-episodes": "Не шукати видалені серії",
+	"server.migrate.stop-looking-for-deleted-movies": "Не шукати видалені фільми",
+	"server.migrate.the-deleted-file-switch-is-back": "перемикач видалених файлів знову як був",
+	"server.migrate.already-on-the-turned-down-list": "вже в списку «Відкинуто»",
+	"server.migrate.its-title-did-not-come-over": "його тайтл не перенесено",
+	"server.migrate.its-title-is-not-in-the": "його тайтла немає в бібліотеці",
+	"server.migrate.on-the-old-app-s-blocklist": "у чорному списку старого застосунку",
+	"server.migrate.the-old-app-gave-no-release": "старий застосунок не вказав назву релізу чи протокол",
+	"server.migrate.turned-down": "Відкинуто"
 }

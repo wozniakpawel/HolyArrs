@@ -1586,5 +1586,17 @@
 	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs чете списъци и списъци за гледане от Trakt; списък с гледани или колекция остава в Sonarr",
 	"server.migrate.add-your-trakt-key-under-settings-2": "Добавете ключа си за Trakt в Настройки > Външни списъци, преди да включите списък от Trakt; за личен списък там е нужен и Вход с Trakt.",
 	"server.requests.send-code-the-code-trakt-showed": "изпратете {\"code\": \"<the code Trakt showed>\"}",
-	"server.requests.send-secret-trakt-app-client-secret-line": "изпратете {\"secret\": \"<Trakt app client secret>\"}, или {\"secret\": \"\"}, за да го премахнете"
+	"server.requests.send-secret-trakt-app-client-secret-line": "изпратете {\"secret\": \"<Trakt app client secret>\"}, или {\"secret\": \"\"}, за да го премахнете",
+	"server.library.keep-up-to-date-off-its": "{name} {labels}: „Поддържане актуално“ е изключено, файлът е изтрит от диска",
+	"server.library.keep-up-to-date-off-its-2": "{name}: „Поддържане актуално“ е изключено, файлът е изтрит от диска",
+	"server.migrate.already-set-this-way": "вече е настроено така",
+	"server.migrate.stop-looking-for-deleted-episodes": "Спиране на търсенето на изтрити епизоди",
+	"server.migrate.stop-looking-for-deleted-movies": "Спиране на търсенето на изтрити филми",
+	"server.migrate.the-deleted-file-switch-is-back": "превключвателят за изтрити файлове е както преди",
+	"server.migrate.already-on-the-turned-down-list": "вече е в списъка „Отхвърлени“",
+	"server.migrate.its-title-did-not-come-over": "заглавието му не беше пренесено",
+	"server.migrate.its-title-is-not-in-the": "заглавието му не е в библиотеката",
+	"server.migrate.on-the-old-app-s-blocklist": "в черния списък на старото приложение",
+	"server.migrate.the-old-app-gave-no-release": "старото приложение не даде име на издание или протокол",
+	"server.migrate.turned-down": "Отхвърлени"
 }

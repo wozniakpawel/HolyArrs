@@ -1586,5 +1586,17 @@
 	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs leser Trakt-lister og ønskelister. En sett- eller samlingsliste blir i Sonarr",
 	"server.migrate.add-your-trakt-key-under-settings-2": "Legg til Trakt-nøkkelen din under Innstillinger > Eksterne lister før du slår på en Trakt-liste. En privat liste trenger også Logg inn med Trakt der.",
 	"server.requests.send-code-the-code-trakt-showed": "send {\"code\": \"<the code Trakt showed>\"}",
-	"server.requests.send-secret-trakt-app-client-secret-line": "send {\"secret\": \"<Trakt app client secret>\"}, eller {\"secret\": \"\"} for å fjerne den"
+	"server.requests.send-secret-trakt-app-client-secret-line": "send {\"secret\": \"<Trakt app client secret>\"}, eller {\"secret\": \"\"} for å fjerne den",
+	"server.library.keep-up-to-date-off-its": "{name} {labels}: «Hold oppdatert» av, filen ble slettet fra disken",
+	"server.library.keep-up-to-date-off-its-2": "{name}: «Hold oppdatert» av, filen ble slettet fra disken",
+	"server.migrate.already-set-this-way": "er allerede satt slik",
+	"server.migrate.stop-looking-for-deleted-episodes": "Slutt å lete etter slettede episoder",
+	"server.migrate.stop-looking-for-deleted-movies": "Slutt å lete etter slettede filmer",
+	"server.migrate.the-deleted-file-switch-is-back": "bryteren for slettede filer er tilbake som før",
+	"server.migrate.already-on-the-turned-down-list": "står allerede på listen «Avvist»",
+	"server.migrate.its-title-did-not-come-over": "tittelen ble ikke med over",
+	"server.migrate.its-title-is-not-in-the": "tittelen er ikke i biblioteket",
+	"server.migrate.on-the-old-app-s-blocklist": "på blokkeringslisten i den gamle appen",
+	"server.migrate.the-old-app-gave-no-release": "den gamle appen ga ikke utgivelsesnavn eller protokoll",
+	"server.migrate.turned-down": "Avvist"
 }

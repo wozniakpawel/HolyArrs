@@ -1586,5 +1586,17 @@
 	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs Trakt listelerini ve izleme listelerini okur; izlenenler ya da koleksiyon listesi Sonarr'da kalır",
 	"server.migrate.add-your-trakt-key-under-settings-2": "Bir Trakt listesini açmadan önce Trakt anahtarını Ayarlar > Dış listeler altına ekle; özel bir liste için orada Trakt ile giriş yap da gerekir.",
 	"server.requests.send-code-the-code-trakt-showed": "şunu gönder: {\"code\": \"<the code Trakt showed>\"}",
-	"server.requests.send-secret-trakt-app-client-secret-line": "şunu gönder: {\"secret\": \"<Trakt app client secret>\"}, ya da kaldırmak için {\"secret\": \"\"}"
+	"server.requests.send-secret-trakt-app-client-secret-line": "şunu gönder: {\"secret\": \"<Trakt app client secret>\"}, ya da kaldırmak için {\"secret\": \"\"}",
+	"server.library.keep-up-to-date-off-its": "{name} {labels}: “Güncel tut” kapalı, dosyası diskten silindi",
+	"server.library.keep-up-to-date-off-its-2": "{name}: “Güncel tut” kapalı, dosyası diskten silindi",
+	"server.migrate.already-set-this-way": "zaten böyle ayarlı",
+	"server.migrate.stop-looking-for-deleted-episodes": "Silinen bölümleri artık arama",
+	"server.migrate.stop-looking-for-deleted-movies": "Silinen filmleri artık arama",
+	"server.migrate.the-deleted-file-switch-is-back": "silinen dosya anahtarı eski hâline döndü",
+	"server.migrate.already-on-the-turned-down-list": "zaten “Reddedilenler” listesinde",
+	"server.migrate.its-title-did-not-come-over": "başlığı taşınmadı",
+	"server.migrate.its-title-is-not-in-the": "başlığı kitaplıkta değil",
+	"server.migrate.on-the-old-app-s-blocklist": "eski uygulamanın engel listesinde",
+	"server.migrate.the-old-app-gave-no-release": "eski uygulama sürüm adı veya protokol vermedi",
+	"server.migrate.turned-down": "Reddedilenler"
 }

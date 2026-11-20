@@ -1586,5 +1586,17 @@
 	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs đọc danh sách và danh sách xem của Trakt; danh sách đã xem hoặc bộ sưu tập ở lại Sonarr",
 	"server.migrate.add-your-trakt-key-under-settings-2": "Hãy thêm khóa Trakt của bạn trong Cài đặt > Danh sách ngoài trước khi bật một danh sách Trakt; danh sách riêng tư cũng cần Đăng nhập bằng Trakt ở đó.",
 	"server.requests.send-code-the-code-trakt-showed": "gửi {\"code\": \"<the code Trakt showed>\"}",
-	"server.requests.send-secret-trakt-app-client-secret-line": "gửi {\"secret\": \"<Trakt app client secret>\"}, hoặc {\"secret\": \"\"} để xóa nó"
+	"server.requests.send-secret-trakt-app-client-secret-line": "gửi {\"secret\": \"<Trakt app client secret>\"}, hoặc {\"secret\": \"\"} để xóa nó",
+	"server.library.keep-up-to-date-off-its": "{name} {labels}: Đã tắt “Luôn cập nhật”, tệp đã bị xóa khỏi ổ đĩa",
+	"server.library.keep-up-to-date-off-its-2": "{name}: Đã tắt “Luôn cập nhật”, tệp đã bị xóa khỏi ổ đĩa",
+	"server.migrate.already-set-this-way": "đã được đặt như vậy",
+	"server.migrate.stop-looking-for-deleted-episodes": "Không tìm lại tập đã xóa",
+	"server.migrate.stop-looking-for-deleted-movies": "Không tìm lại phim đã xóa",
+	"server.migrate.the-deleted-file-switch-is-back": "công tắc tệp đã xóa đã trở lại như cũ",
+	"server.migrate.already-on-the-turned-down-list": "đã có trong danh sách “Đã loại”",
+	"server.migrate.its-title-did-not-come-over": "tựa của nó không được chuyển sang",
+	"server.migrate.its-title-is-not-in-the": "tựa của nó không có trong Thư viện",
+	"server.migrate.on-the-old-app-s-blocklist": "trong danh sách chặn của ứng dụng cũ",
+	"server.migrate.the-old-app-gave-no-release": "ứng dụng cũ không cho tên bản phát hành hay giao thức",
+	"server.migrate.turned-down": "Đã loại"
 }

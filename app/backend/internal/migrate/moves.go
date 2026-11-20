@@ -527,6 +527,9 @@ func (m *Mover) undoOne(ctx context.Context, x madeRow, by domain.Actor) (string
 				"it is set up or has downloads now, so it stays; remove it under Settings > Downloaders")
 		case "never_add":
 			return del("", "already gone")
+		case "turned_down":
+			return del(" AND state = 'turned_down' AND NOT EXISTS (SELECT 1 FROM downloads WHERE release_id = releases.id)",
+				"it was downloaded or taken off the list since, so it stays")
 		case "outside_list":
 			return del(" AND enabled = 0", "you turned it on since, so it stays; remove it under Settings > Outside lists")
 		case "title":
@@ -676,6 +679,8 @@ func (m *Mover) undoOne(ctx context.Context, x madeRow, by domain.Actor) (string
 			return ResFailed, err.Error()
 		}
 		return ResRemoved, "naming is back as it was"
+	case "file_rules":
+		return undoFileRules(ctx, m.Store, x.before, x.after, by)
 	case "subtitle_languages":
 		var old []subtitles.Want
 		if x.after == "" || json.Unmarshal([]byte(x.before), &old) != nil {

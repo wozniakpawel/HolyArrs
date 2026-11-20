@@ -35,6 +35,9 @@ type arrSet struct {
 	table  string
 	only   []Kind // nil: every arr app
 	needed bool   // a failure fails the read (else a note)
+	// soft makes any failure a note, for a list that may be too large to
+	// read and is not worth failing the whole read for.
+	soft bool
 }
 
 func (r arrReader) apiBase() string {
@@ -118,6 +121,9 @@ func (r arrReader) sets() []arrSet {
 		{name: "delays", api: []string{"/delayprofile"}, table: "DelayProfiles"},
 		// The availability delay; a backup keeps it in the Config table (fromBackup).
 		{name: "indexerconfig", api: []string{"/config/indexer"}, only: []Kind{Radarr}},
+		// The "unmonitor deleted" switch; a backup keeps it in the Config table (fromBackup).
+		{name: "media", api: []string{"/config/mediamanagement"}, only: []Kind{Sonarr, Radarr}},
+		{name: "blocklist", api: []string{"/blocklist"}, table: "Blocklist", only: []Kind{Sonarr, Radarr}, soft: true},
 		excl,
 		{name: "naming", api: []string{"/config/naming", "/settings/naming"}, table: "NamingConfig"},
 		{name: "indexers", api: []string{"/indexer"}, table: "Indexers"},
@@ -238,7 +244,7 @@ func (r arrReader) fromAPI(ctx context.Context, src Source) (*arrRows, error) {
 			got, lastErr = r.albumsByArtist(ctx, c, out.sets["titles"])
 		}
 		if lastErr != nil {
-			if s.needed || !errors.Is(lastErr, ErrBadAnswer) {
+			if s.needed || !s.soft && !errors.Is(lastErr, ErrBadAnswer) {
 				return nil, lastErr
 			}
 			out.notes = append(out.notes, "the app has no "+s.name+" list; skipped")
@@ -259,7 +265,7 @@ func (r arrReader) fromAPI(ctx context.Context, src Source) (*arrRows, error) {
 			if _, paged := lower(x)["records"]; paged {
 				if rows, err = r.pages(ctx, c, used); err != nil {
 					// A later page that fails is skipped like a missing route.
-					if s.needed || !errors.Is(err, ErrBadAnswer) {
+					if s.needed || !s.soft && !errors.Is(err, ErrBadAnswer) {
 						return nil, err
 					}
 					out.notes = append(out.notes, "the app has no "+s.name+" list; skipped")
@@ -340,16 +346,20 @@ func (r arrReader) fromBackup(ctx context.Context, src Source) (*arrRows, error)
 		return nil, err
 	}
 	r.fileQualitiesBackup(ctx, t, out)
-	// Radarr's availability delay is one key of the Config table (keys
-	// lower-cased); a backup without it leaves this server's default.
-	if r.kind == Radarr && t.exists(ctx, "Config") {
+	// Radarr's availability delay and the "unmonitor deleted" switch are
+	// keys of the Config table (keys lower-cased); a backup without them
+	// leaves this server's defaults.
+	if (r.kind == Radarr || r.kind == Sonarr) && t.exists(ctx, "Config") {
 		rows, err := t.all(ctx, "Config")
 		if err != nil {
 			return nil, err
 		}
 		for _, m := range rows {
-			if strings.EqualFold(str(m["key"]), "availabilitydelay") {
+			switch k := strings.ToLower(str(m["key"])); {
+			case k == "availabilitydelay" && r.kind == Radarr:
 				out.sets["indexerconfig"] = []map[string]any{{"availabilitydelay": m["value"]}}
+			case k == "autounmonitorpreviouslydownloadedmovies" && r.kind == Radarr, k == "autounmonitorpreviouslydownloadedepisodes" && r.kind == Sonarr:
+				out.sets["media"] = []map[string]any{{k: m["value"]}}
 			}
 		}
 	}
