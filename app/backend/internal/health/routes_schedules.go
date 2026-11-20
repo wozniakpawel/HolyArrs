@@ -66,6 +66,7 @@ var ScheduleInfos = map[string]ScheduleInfo{
 	"clean_history":         {"Clean up History", "Removes History Events older than their keep time.", 6 * schHour, 7 * schDay, schHour, "/settings/this-app"},
 	"subtitle_missing":      {"Look for missing subtitles", "Searches the subtitle sites for every file missing a wished language.", schHour, 7 * schDay, schHour, "/settings/subtitles"},
 	"subtitle_better":       {"Look for better subtitles", "Searches again for subtitles under their Pass mark.", 6 * schHour, 7 * schDay, schHour, "/settings/subtitles"},
+	"youtube_check":         {"Check YouTube follows", "Looks for new videos in the playlists and channels people follow.", schHour, 7 * schDay, schHour, ""},
 }
 
 // ScheduleView is one scheduled Job kind on the Schedules page.

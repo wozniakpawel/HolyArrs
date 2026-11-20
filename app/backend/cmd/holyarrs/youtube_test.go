@@ -11,6 +11,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/HolyArrs/holyarrs/app/backend/internal/core/parts"
 	"github.com/HolyArrs/holyarrs/app/backend/internal/youtube/youtubetest"
 )
 
@@ -311,4 +312,23 @@ func TestOtherPersonsRowsAre404(t *testing.T) {
 	}
 	// Following the same channel is her own follow, not a duplicate.
 	r.ana.call("POST", "/api/v1/youtube/follows", `{"url":"https://www.youtube.com/@veritasium"}`, 201)
+}
+
+// The check and download jobs have handlers only with the youtube feature
+// switch on, and both belong to the YouTube part.
+func TestYouTubeJobKindsOnlyWithFlag(t *testing.T) {
+	for _, flags := range []string{"", "youtube"} {
+		t.Setenv("HOLYARRS_FLAGS", flags)
+		var kinds []string
+		startApp(t, config{}, runOpts{kinds: func(k []string) { kinds = k }})
+		check, download := slices.Contains(kinds, "youtube_check"), slices.Contains(kinds, "youtube_download")
+		if on := flags == "youtube"; check != on || download != on {
+			t.Fatalf("flags %q: kinds %v", flags, kinds)
+		}
+		for _, k := range kinds {
+			if strings.HasPrefix(k, "youtube_") && parts.JobKinds()[k] != parts.Of(parts.YouTube) {
+				t.Errorf("%s belongs to %v", k, parts.JobKinds()[k])
+			}
+		}
+	}
 }

@@ -545,6 +545,8 @@ func serve(ctx context.Context, c config, o runOpts) error {
 	// Subtitles: searches after imports and better copies, two schedules.
 	subs := &subtitles.Service{Store: s, Live: hub, Vault: vault}
 	subs.Register(q)
+	// YouTube: checks and downloads, only with the youtube feature switch on.
+	youtubeJobs(s, q, hub)
 	if !c.SafeMode {
 		s.OnEvent(func(e domain.Event) {
 			if pc.On(parts.Subtitles) {

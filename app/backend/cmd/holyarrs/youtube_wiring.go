@@ -6,6 +6,8 @@ import (
 	"os/exec"
 
 	"github.com/HolyArrs/holyarrs/app/backend/internal/accounts"
+	"github.com/HolyArrs/holyarrs/app/backend/internal/core/database"
+	"github.com/HolyArrs/holyarrs/app/backend/internal/core/jobs"
 	"github.com/HolyArrs/holyarrs/app/backend/internal/core/startup"
 	"github.com/HolyArrs/holyarrs/app/backend/internal/core/webserver"
 	"github.com/HolyArrs/holyarrs/app/backend/internal/importer"
@@ -13,10 +15,10 @@ import (
 	ytlib "github.com/HolyArrs/holyarrs/app/backend/internal/youtube"
 )
 
-// youtubeService builds the YouTube library from the app's services.
-func (a *handlers) youtubeService() *ytlib.Service {
-	st := a.s.Store
-	svc := &ytlib.Service{Store: st, Queue: a.s.Queue,
+// newYouTubeService builds the YouTube library from the app's store, queue
+// and live hub.
+func newYouTubeService(st *database.Store, q *jobs.Queue, live *webserver.LiveHub) *ytlib.Service {
+	svc := &ytlib.Service{Store: st, Queue: q,
 		Tools: func() ytlib.Tools { return ytlib.FindTools(os.Getenv, exec.LookPath) },
 		Run:   func(t ytlib.Tools) ytlib.Runner { return ytlib.Runner{Tools: t} },
 		CheckFolder: func(ctx context.Context, path string) error {
@@ -27,10 +29,26 @@ func (a *handlers) youtubeService() *ytlib.Service {
 		},
 		FreeSpace: importer.FreeSpace,
 	}
-	if a.s.Live != nil {
-		svc.Live = a.s.Live
+	if live != nil {
+		svc.Live = live
 	}
 	return svc
+}
+
+// youtubeService builds the YouTube library from the app's services.
+func (a *handlers) youtubeService() *ytlib.Service {
+	return newYouTubeService(a.s.Store, a.s.Queue, a.s.Live)
+}
+
+// youtubeJobs registers the check and download jobs while the youtube
+// feature switch is on; with it off the kinds have no handler.
+func youtubeJobs(st *database.Store, q *jobs.Queue, live *webserver.LiveHub) {
+	if !startup.FeatureOn(startup.YouTube) {
+		return
+	}
+	svc := newYouTubeService(st, q, live)
+	q.Handle(ytlib.KindCheck, svc.HandleCheck)
+	q.Handle(ytlib.KindDownload, svc.HandleDownload)
 }
 
 // youtubeRoutes registers the YouTube routes while the youtube feature
