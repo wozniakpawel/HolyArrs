@@ -30,7 +30,7 @@ Old apps often run in other containers and see folders under other names. A rule
 | --- | --- |
 | Library folders | Library folders for movies and shows. |
 | Movies and shows | Titles, matched by TMDB or TVDB id. Folders and files stay where they are. A watched title gets **Keep up to date**; seasons that were not watched stay off. Nothing is searched for during the move. |
-| Quality profiles | Each one matched to the closest **Pick rules** preset (Standard, 4K). The **Import** step shows why. Titles use the preset of their profile. |
+| Quality profiles | Each one matched to the closest **Pick rules** preset (Standard, 4K). The **Import** step shows why. Titles use the preset of their profile. See [What changes with a preset](#what-changes-with-a-preset). |
 | Exclusions | The **Never-add** list. |
 | Blocklist | The **Turned down** list of each title that comes over, so those releases are never taken again. A show's release is turned down for the episodes its name gives. Each one is kept under the Source with the old indexer's name, or else the first Source of its protocol, so add or link your Sources first. |
 | Radarr's release stage per movie, and its availability delay | Each movie's **Release gate** and gate delay, up to 365 days. Your default for new movies stays. |
@@ -56,6 +56,15 @@ Under **Advanced**, add path rules. The longest matching rule wins. Titles whose
 ### Waits
 
 The old default wait rule comes over only when it differs from that app's own default, and only while those Pick rules keep the waits they came with. "Skip the wait at the top quality" turns on **Skip the wait once good enough**. If two apps set different waits for the same Pick rules, neither is used. The **Import** step shows the change and how many versions use those Pick rules.
+
+### What changes with a preset
+
+A profile without custom format scores becomes a preset, and the preset's own rules apply:
+
+- **Language.** The presets take a release in the title's original language, or one that also carries it. Radarr's **Original** is the same. A Sonarr profile, or Radarr's **Any** language, took every language, so a dubbed-only release it would grab is now refused.
+- **Upgrades.** The presets look for a better copy until **Good enough**. A profile that never upgraded, such as a stock **Any**, now does. Turn **Keep up to date** off for those titles if you do not want that.
+- **Steps.** Standard takes 720p and 1080p TV, web and Blu-ray copies only. A profile that also took SD, 2160p, CAM or telesync copies loses those.
+- **Sizes.** The old apps' per-quality size table is not brought. Standard takes 0.5 to 6 GB an hour. Sonarr's own table allows up to about 9 GB an hour for 1080p Blu-ray, so raise the largest size of Standard under **Settings > Pick rules** if you want those episodes.
 
 ## What stays behind
 
