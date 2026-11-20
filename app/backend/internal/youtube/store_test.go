@@ -264,7 +264,7 @@ func TestKeepLastExcessByUploadDate(t *testing.T) {
 		ids[d] = addVideo(t, s, Video{UserID: 1, FollowID: &fid, VideoID: string(rune('a'+d)) + "_done", State: StateDone, UploadedAt: day(d)})
 	}
 	addVideo(t, s, Video{UserID: 1, FollowID: &fid, VideoID: "old_queued", State: StateQueued, UploadedAt: day(1)})
-	got, err := KeepLastExcess(ctx, s.Read(), fid, 2)
+	got, err := KeepLastExcess(ctx, s.Read(), 1, fid, 2)
 	if err != nil || len(got) != 3 {
 		t.Fatalf("KeepLastExcess = %v, %v", got, err)
 	}
@@ -273,7 +273,10 @@ func TestKeepLastExcessByUploadDate(t *testing.T) {
 			t.Fatalf("KeepLastExcess[%d] = %d (%v), want day %d row %d", i, got[i].ID, got[i].UploadedAt, d, ids[d])
 		}
 	}
-	if got, _ := KeepLastExcess(ctx, s.Read(), fid, 5); len(got) != 0 {
+	if got, err := KeepLastExcess(ctx, s.Read(), 2, fid, 2); err != nil || len(got) != 0 {
+		t.Fatalf("KeepLastExcess for another person's follow = %v, %v; want none", got, err)
+	}
+	if got, _ := KeepLastExcess(ctx, s.Read(), 1, fid, 5); len(got) != 0 {
 		t.Fatalf("KeepLastExcess with room = %v", got)
 	}
 }

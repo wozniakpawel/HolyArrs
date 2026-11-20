@@ -139,12 +139,12 @@ func QueuedVideos(ctx context.Context, q database.Lister) ([]Video, error) {
 	return database.Select[Video](ctx, q, "youtube_videos", "state = 'queued' ORDER BY id")
 }
 
-// KeepLastExcess reads a follow's downloaded videos beyond its n newest by
-// upload date, newest of them first. Videos with no upload date count as
-// oldest.
-func KeepLastExcess(ctx context.Context, q database.Lister, followID int64, n int) ([]Video, error) {
+// KeepLastExcess reads the downloaded videos of one of a person's follows
+// beyond its n newest by upload date, newest of them first. Videos with no
+// upload date count as oldest.
+func KeepLastExcess(ctx context.Context, q database.Lister, userID, followID int64, n int) ([]Video, error) {
 	return database.Select[Video](ctx, q, "youtube_videos",
-		"follow_id = ? AND state = 'done' ORDER BY uploaded_at IS NULL, uploaded_at DESC, id DESC LIMIT -1 OFFSET ?", followID, max(n, 0))
+		"user_id = ? AND follow_id = ? AND state = 'done' ORDER BY uploaded_at IS NULL, uploaded_at DESC, id DESC LIMIT -1 OFFSET ?", userID, followID, max(n, 0))
 }
 
 // VideosOfFollow reads every video row of one of a person's follows,
