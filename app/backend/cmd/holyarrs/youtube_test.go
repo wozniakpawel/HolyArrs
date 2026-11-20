@@ -427,6 +427,24 @@ func TestYouTubePlayerRoutes(t *testing.T) {
 	if resp, _ = r.bo.raw("GET", file, nil); resp.StatusCode != 403 {
 		t.Fatalf("bo %d", resp.StatusCode)
 	}
+	// A kid is denied, even ticked for youtube and with a video of her own.
+	kai := ytJoin(t, r, "kai", `{"max_rating":"PG"}`)
+	if err := r.st.Write(context.Background(), func(tx *sql.Tx) error {
+		_, err := tx.Exec(`UPDATE users SET perms = '["ask","youtube","save_files"]' WHERE id = ?`, kai.id)
+		return err
+	}); err != nil {
+		t.Fatal(err)
+	}
+	kid := ytDone(t, r, kai.id, "kidkidkidki", "2024-01-01 K [kidkidkidki].mp4", "x")
+	for _, c := range []struct{ method, path string }{
+		{"GET", "/api/v1/youtube/videos/" + itoa(kid) + "/file"},
+		{"GET", "/api/v1/youtube/videos/" + itoa(kid) + "/file?download=1"},
+		{"GET", "/api/v1/youtube/videos/" + itoa(kid) + "/thumb"},
+		{"PUT", "/api/v1/youtube/videos/" + itoa(kid) + "/position"},
+		{"POST", "/api/v1/youtube/videos/" + itoa(kid) + "/retry"},
+	} {
+		kai.call(c.method, c.path, `{"seconds":1,"duration":2}`, 403)
+	}
 
 	var pos struct {
 		Watched bool `json:"watched"`

@@ -320,10 +320,14 @@ func (h *Handlers) serveVideoFile(w http.ResponseWriter, r *http.Request, thumb 
 		webserver.Fail(w, http.StatusNotFound, "not found")
 		return
 	}
+	// Named outright: the type must not hang on the server's mime.types file
+	// or on sniffing, or Safari will not play the video.
 	if thumb {
+		w.Header().Set("Content-Type", "image/jpeg")
 		webserver.ServeAttachment(w, r, thumbOf(file), filepath.Base(thumbOf(file)), false)
 		return
 	}
+	w.Header().Set("Content-Type", "video/mp4")
 	webserver.ServeAttachment(w, r, file, filepath.Base(file), r.URL.Query().Get("download") == "1")
 }
 

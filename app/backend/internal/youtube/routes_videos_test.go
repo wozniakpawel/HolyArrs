@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"io"
+	"mime"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -247,5 +248,34 @@ func TestRetryOnlyFromFailed(t *testing.T) {
 	params, ok := jobsQueued["youtube:2:"+itoa(failed)]
 	if len(jobsQueued) != 1 || !ok || params["row_id"] != float64(failed) {
 		t.Fatalf("jobs %v", jobsQueued)
+	}
+}
+
+// The video and thumbnail types do not hang on the host's mime.types file
+// (the shipped image has none) or on sniffing: with the extension table
+// saying otherwise and bytes that sniff as text, they are still named.
+// Not parallel: it changes the process-wide extension table.
+func TestVideoFileTypeWithoutMimeTable(t *testing.T) {
+	for ext, was := range map[string]string{".mp4": mime.TypeByExtension(".mp4"), ".jpg": mime.TypeByExtension(".jpg")} {
+		if err := mime.AddExtensionType(ext, "application/x-unknown"); err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() {
+			if was != "" {
+				_ = mime.AddExtensionType(ext, was)
+			}
+		})
+	}
+	r := newFileRig(t)
+	id := r.done(2, "typetypetyp", "2-ana/C/2024-01-01 T [typetypetyp].mp4", "plain text, not a video")
+	for kind, want := range map[string]string{"file": "video/mp4", "thumb": "image/jpeg"} {
+		resp, _ := r.do("GET", "/api/v1/youtube/videos/"+itoa(id)+"/"+kind, 2, "", nil)
+		if resp.StatusCode != http.StatusOK || resp.Header.Get("Content-Type") != want {
+			t.Errorf("%s: %d %q", kind, resp.StatusCode, resp.Header.Get("Content-Type"))
+		}
+	}
+	resp, _ := r.do("GET", "/api/v1/youtube/videos/999999/file", 2, "", nil)
+	if resp.StatusCode != http.StatusNotFound || resp.Header.Get("Content-Type") != "application/json" {
+		t.Errorf("404 type: %d %q", resp.StatusCode, resp.Header.Get("Content-Type"))
 	}
 }

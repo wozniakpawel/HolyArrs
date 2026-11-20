@@ -9,7 +9,8 @@ import (
 )
 
 // ServeAttachment sends the file at path under the file name name, with
-// range requests, HEAD and If-Modified-Since. With download set the browser
+// range requests, HEAD and If-Modified-Since. A Content-Type the caller set
+// is kept; without one it comes from the name's extension or the bytes. With download set the browser
 // is told to save it as name; a name outside ASCII goes as filename* (RFC
 // 2231). A missing file, or a folder, answers 404. Errors never carry the
 // path, which may hold a title.

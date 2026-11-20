@@ -37,6 +37,18 @@ func TestServeAttachment(t *testing.T) {
 	if cd := serve(file, "Zażółć \"x\".mp4", true, nil).Header().Get("Content-Disposition"); cd != `attachment; filename*=utf-8''Za%C5%BC%C3%B3%C5%82%C4%87%20%22x%22.mp4` {
 		t.Fatalf("utf-8 name: %q", cd)
 	}
+	// A type the caller set wins over the extension and the bytes.
+	odd := filepath.Join(dir, "a.noext")
+	if err := os.WriteFile(odd, []byte("plain text, not a video"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	req := httptest.NewRequest("GET", "/x", nil)
+	w = httptest.NewRecorder()
+	w.Header().Set("Content-Type", "video/mp4")
+	ServeAttachment(w, req, odd, "a.noext", false)
+	if w.Code != http.StatusOK || w.Header().Get("Content-Type") != "video/mp4" {
+		t.Fatalf("preset type: %d %v", w.Code, w.Header())
+	}
 	for _, p := range []string{filepath.Join(dir, "gone.mp4"), dir} {
 		w := serve(p, "gone.mp4", true, nil)
 		if w.Code != http.StatusNotFound || w.Header().Get("Content-Disposition") != "" || strings.Contains(w.Body.String(), dir) {
