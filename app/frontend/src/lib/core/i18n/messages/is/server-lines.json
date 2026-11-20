@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "titill hans er ekki í safninu",
 	"server.migrate.on-the-old-app-s-blocklist": "á bannlista gamla forritsins",
 	"server.migrate.the-old-app-gave-no-release": "gamla forritið gaf ekkert útgáfuheiti eða samskiptareglu",
-	"server.migrate.turned-down": "Hafnað"
+	"server.migrate.turned-down": "Hafnað",
+	"server.migrate.built-in-site-read-directly-with": "innbyggður vefur {name}, lesinn beint án Prowlarr; bætt við í biðstöðu: athugaðu hann og haltu áfram sjálf(ur)"
 }

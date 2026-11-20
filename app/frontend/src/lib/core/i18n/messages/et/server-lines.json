@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "selle pealkiri pole kogus",
 	"server.migrate.on-the-old-app-s-blocklist": "vana rakenduse blokeerimisnimekirjas",
 	"server.migrate.the-old-app-gave-no-release": "vana rakendus ei andnud väljalaske nime ega protokolli",
-	"server.migrate.turned-down": "Tagasi lükatud"
+	"server.migrate.turned-down": "Tagasi lükatud",
+	"server.migrate.built-in-site-read-directly-with": "sisseehitatud sait {name}, loetakse otse ilma Prowlarrita; lisatud peatatuna: kontrolli ja jätka ise"
 }

@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "son titre n’est pas dans la bibliothèque",
 	"server.migrate.on-the-old-app-s-blocklist": "dans la liste de blocage de l’ancienne app",
 	"server.migrate.the-old-app-gave-no-release": "l’ancienne app n’a donné ni nom de sortie ni protocole",
-	"server.migrate.turned-down": "Écartées"
+	"server.migrate.turned-down": "Écartées",
+	"server.migrate.built-in-site-read-directly-with": "site intégré {name}, lu directement sans Prowlarr ; ajouté en pause : vérifiez-le et reprenez-le vous-même"
 }

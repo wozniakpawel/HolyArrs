@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "タイトルがライブラリにありません",
 	"server.migrate.on-the-old-app-s-blocklist": "以前のアプリのブロックリストにあります",
 	"server.migrate.the-old-app-gave-no-release": "以前のアプリがリリース名やプロトコルを返しませんでした",
-	"server.migrate.turned-down": "不採用"
+	"server.migrate.turned-down": "不採用",
+	"server.migrate.built-in-site-read-directly-with": "組み込みサイト {name}。Prowlarr を通さず直接読み込みます。一時停止で追加しました: 確認してから自分で再開してください"
 }

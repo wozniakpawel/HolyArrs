@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "jego tytułu nie ma w bibliotece",
 	"server.migrate.on-the-old-app-s-blocklist": "na liście zablokowanych starej aplikacji",
 	"server.migrate.the-old-app-gave-no-release": "stara aplikacja nie podała nazwy wydania ani protokołu",
-	"server.migrate.turned-down": "Odrzucone na stałe"
+	"server.migrate.turned-down": "Odrzucone na stałe",
+	"server.migrate.built-in-site-read-directly-with": "wbudowany serwis {name}, czytany bezpośrednio bez Prowlarra; dodany jako wstrzymany: sprawdź go i wznów samodzielnie"
 }

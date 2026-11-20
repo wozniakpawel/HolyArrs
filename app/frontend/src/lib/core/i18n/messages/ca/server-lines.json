@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "el seu títol no és a la biblioteca",
 	"server.migrate.on-the-old-app-s-blocklist": "a la llista de bloqueig de l'app antiga",
 	"server.migrate.the-old-app-gave-no-release": "l'app antiga no en va donar el nom de la versió ni el protocol",
-	"server.migrate.turned-down": "Descartats"
+	"server.migrate.turned-down": "Descartats",
+	"server.migrate.built-in-site-read-directly-with": "lloc integrat {name}, llegit directament sense Prowlarr; afegit en pausa: comproveu-lo i reprengueu-lo vosaltres"
 }

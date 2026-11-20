@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "এর টাইটেল লাইব্রেরিতে নেই",
 	"server.migrate.on-the-old-app-s-blocklist": "পুরোনো অ্যাপের ব্লকলিস্টে",
 	"server.migrate.the-old-app-gave-no-release": "পুরোনো অ্যাপ এর রিলিজের নাম বা প্রোটোকল দেয়নি",
-	"server.migrate.turned-down": "বাতিল করা"
+	"server.migrate.turned-down": "বাতিল করা",
+	"server.migrate.built-in-site-read-directly-with": "বিল্ট-ইন সাইট {name}, Prowlarr ছাড়াই সরাসরি পড়া হয়; থামানো অবস্থায় যোগ করা হয়েছে: নিজে দেখে চালু করুন"
 }

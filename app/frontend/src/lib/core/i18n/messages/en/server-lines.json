@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "its title is not in the Library",
 	"server.migrate.on-the-old-app-s-blocklist": "on the old app's blocklist",
 	"server.migrate.the-old-app-gave-no-release": "the old app gave no release name or protocol for it",
-	"server.migrate.turned-down": "turned down"
+	"server.migrate.turned-down": "turned down",
+	"server.migrate.built-in-site-read-directly-with": "built-in site {name}, read directly with no Prowlarr; added paused: check it and resume it yourself"
 }

@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "tā nosaukuma nav bibliotēkā",
 	"server.migrate.on-the-old-app-s-blocklist": "vecās lietotnes bloķēšanas sarakstā",
 	"server.migrate.the-old-app-gave-no-release": "vecā lietotne nedeva laidiena nosaukumu vai protokolu",
-	"server.migrate.turned-down": "Noraidīts"
+	"server.migrate.turned-down": "Noraidīts",
+	"server.migrate.built-in-site-read-directly-with": "iebūvēta vietne {name}, lasīta tieši bez Prowlarr; pievienota apturēta: pārbaudiet to un atsāciet paši"
 }

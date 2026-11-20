@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "његов наслов није у библиотеци",
 	"server.migrate.on-the-old-app-s-blocklist": "на листи блокираних старе апликације",
 	"server.migrate.the-old-app-gave-no-release": "стара апликација није дала назив издања нити протокол",
-	"server.migrate.turned-down": "Одбијено"
+	"server.migrate.turned-down": "Одбијено",
+	"server.migrate.built-in-site-read-directly-with": "уграђени сајт {name}, чита се директно без Prowlarr-а; додат паузиран: проверите га и сами наставите"
 }

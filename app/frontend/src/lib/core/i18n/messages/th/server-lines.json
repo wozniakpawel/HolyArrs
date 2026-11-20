@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "เรื่องนี้ไม่อยู่ในคลัง",
 	"server.migrate.on-the-old-app-s-blocklist": "อยู่ในรายการบล็อกของแอปเก่า",
 	"server.migrate.the-old-app-gave-no-release": "แอปเก่าไม่ได้ให้ชื่อรีลีสหรือโปรโตคอล",
-	"server.migrate.turned-down": "ปฏิเสธแล้ว"
+	"server.migrate.turned-down": "ปฏิเสธแล้ว",
+	"server.migrate.built-in-site-read-directly-with": "เว็บในตัว {name} อ่านโดยตรงโดยไม่ผ่าน Prowlarr; เพิ่มไว้แบบหยุดชั่วคราว: ตรวจดูแล้วเริ่มต่อเอง"
 }

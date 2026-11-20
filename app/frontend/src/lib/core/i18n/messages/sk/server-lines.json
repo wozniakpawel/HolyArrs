@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "jeho titul nie je v knižnici",
 	"server.migrate.on-the-old-app-s-blocklist": "na blokovacom zozname starej aplikácie",
 	"server.migrate.the-old-app-gave-no-release": "stará aplikácia neuviedla názov vydania ani protokol",
-	"server.migrate.turned-down": "Zamietnuté"
+	"server.migrate.turned-down": "Zamietnuté",
+	"server.migrate.built-in-site-read-directly-with": "vstavaná stránka {name}, číta sa priamo bez Prowlarru; pridaná pozastavená: skontrolujte ju a obnovte sami"
 }

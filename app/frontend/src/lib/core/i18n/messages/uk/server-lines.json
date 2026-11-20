@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "його тайтла немає в бібліотеці",
 	"server.migrate.on-the-old-app-s-blocklist": "у чорному списку старого застосунку",
 	"server.migrate.the-old-app-gave-no-release": "старий застосунок не вказав назву релізу чи протокол",
-	"server.migrate.turned-down": "Відкинуто"
+	"server.migrate.turned-down": "Відкинуто",
+	"server.migrate.built-in-site-read-directly-with": "вбудований сайт {name}, читається напряму без Prowlarr; додано на паузі: перевірте його й відновіть самі"
 }

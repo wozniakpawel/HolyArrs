@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "dens titel er ikke i biblioteket",
 	"server.migrate.on-the-old-app-s-blocklist": "på den gamle apps blokeringsliste",
 	"server.migrate.the-old-app-gave-no-release": "den gamle app gav intet udgivelsesnavn eller protokol",
-	"server.migrate.turned-down": "Afvist"
+	"server.migrate.turned-down": "Afvist",
+	"server.migrate.built-in-site-read-directly-with": "indbygget websted {name}, læses direkte uden Prowlarr; tilføjet på pause: tjek det og genoptag det selv"
 }

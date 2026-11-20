@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "titlul său nu este în bibliotecă",
 	"server.migrate.on-the-old-app-s-blocklist": "pe lista de blocare a aplicației vechi",
 	"server.migrate.the-old-app-gave-no-release": "aplicația veche nu a dat numele lansării sau protocolul",
-	"server.migrate.turned-down": "Respins"
+	"server.migrate.turned-down": "Respins",
+	"server.migrate.built-in-site-read-directly-with": "site încorporat {name}, citit direct fără Prowlarr; adăugat în pauză: verifică-l și reia-l singur"
 }

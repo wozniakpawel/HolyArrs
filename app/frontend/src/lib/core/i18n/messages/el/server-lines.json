@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "ο τίτλος του δεν είναι στη βιβλιοθήκη",
 	"server.migrate.on-the-old-app-s-blocklist": "στη λίστα αποκλεισμού της παλιάς εφαρμογής",
 	"server.migrate.the-old-app-gave-no-release": "η παλιά εφαρμογή δεν έδωσε όνομα έκδοσης ή πρωτόκολλο",
-	"server.migrate.turned-down": "Απορρίφθηκαν"
+	"server.migrate.turned-down": "Απορρίφθηκαν",
+	"server.migrate.built-in-site-read-directly-with": "ενσωματωμένος ιστότοπος {name}, διαβάζεται απευθείας χωρίς Prowlarr· προστέθηκε σε παύση: ελέγξτε τον και συνεχίστε τον μόνοι σας"
 }

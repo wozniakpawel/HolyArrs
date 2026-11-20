@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "tựa của nó không có trong Thư viện",
 	"server.migrate.on-the-old-app-s-blocklist": "trong danh sách chặn của ứng dụng cũ",
 	"server.migrate.the-old-app-gave-no-release": "ứng dụng cũ không cho tên bản phát hành hay giao thức",
-	"server.migrate.turned-down": "Đã loại"
+	"server.migrate.turned-down": "Đã loại",
+	"server.migrate.built-in-site-read-directly-with": "trang có sẵn {name}, đọc trực tiếp không qua Prowlarr; đã thêm ở trạng thái tạm dừng: tự kiểm tra rồi tiếp tục"
 }

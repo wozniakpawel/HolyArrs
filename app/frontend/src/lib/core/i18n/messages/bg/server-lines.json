@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "заглавието му не е в библиотеката",
 	"server.migrate.on-the-old-app-s-blocklist": "в черния списък на старото приложение",
 	"server.migrate.the-old-app-gave-no-release": "старото приложение не даде име на издание или протокол",
-	"server.migrate.turned-down": "Отхвърлени"
+	"server.migrate.turned-down": "Отхвърлени",
+	"server.migrate.built-in-site-read-directly-with": "вграден сайт {name}, чете се директно без Prowlarr; добавен на пауза: проверете го и го пуснете сами"
 }

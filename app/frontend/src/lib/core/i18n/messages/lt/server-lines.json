@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "jo pavadinimo nėra bibliotekoje",
 	"server.migrate.on-the-old-app-s-blocklist": "senos programos blokavimo sąraše",
 	"server.migrate.the-old-app-gave-no-release": "sena programa nepateikė leidimo pavadinimo ar protokolo",
-	"server.migrate.turned-down": "Atmesta"
+	"server.migrate.turned-down": "Atmesta",
+	"server.migrate.built-in-site-read-directly-with": "įtaisyta svetainė {name}, skaitoma tiesiogiai be Prowlarr; pridėta pristabdyta: patikrinkite ir pratęskite patys"
 }

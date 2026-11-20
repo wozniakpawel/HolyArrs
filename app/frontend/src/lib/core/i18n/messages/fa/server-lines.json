@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "عنوانش در کتابخانه نیست",
 	"server.migrate.on-the-old-app-s-blocklist": "در فهرست مسدود برنامهٔ قدیمی",
 	"server.migrate.the-old-app-gave-no-release": "برنامهٔ قدیمی نام انتشار یا پروتکلی برایش نداد",
-	"server.migrate.turned-down": "ردشده"
+	"server.migrate.turned-down": "ردشده",
+	"server.migrate.built-in-site-read-directly-with": "سایت داخلی {name}، مستقیم و بدون Prowlarr خوانده می‌شود؛ متوقف اضافه شد: خودتان بررسی و ادامه دهید"
 }

@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "它的作品不在媒體庫中",
 	"server.migrate.on-the-old-app-s-blocklist": "在舊應用的封鎖清單中",
 	"server.migrate.the-old-app-gave-no-release": "舊應用沒有給出發行名稱或協定",
-	"server.migrate.turned-down": "已排除"
+	"server.migrate.turned-down": "已排除",
+	"server.migrate.built-in-site-read-directly-with": "內建網站 {name}，直接讀取，不需 Prowlarr；已以暫停狀態加入：請自行檢查後再繼續"
 }

@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "它的作品不在媒体库中",
 	"server.migrate.on-the-old-app-s-blocklist": "在旧应用的屏蔽列表中",
 	"server.migrate.the-old-app-gave-no-release": "旧应用没有给出发布名称或协议",
-	"server.migrate.turned-down": "已排除"
+	"server.migrate.turned-down": "已排除",
+	"server.migrate.built-in-site-read-directly-with": "内置站点 {name}，直接读取，无需 Prowlarr；已以暂停状态添加：请自行检查后恢复"
 }

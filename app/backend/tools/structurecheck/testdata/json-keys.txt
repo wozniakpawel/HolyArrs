@@ -58,6 +58,7 @@ Value
 Version
 _embedded
 _held
+_id
 _new_proof
 about
 absolute
@@ -207,6 +208,7 @@ attention
 attributes
 attribution
 audio
+audio_channels
 audio_languages
 audio_tracks
 audio_unknown
@@ -348,6 +350,7 @@ client_note
 client_secret
 closed_at
 closed_by
+cmd
 code
 codec
 codecs
@@ -385,6 +388,7 @@ content_path
 content_ratings
 content_urls
 controls
+cookies
 copies
 copies_expected
 copy
@@ -424,6 +428,7 @@ data
 data_compat
 date
 dateAdded
+date_uploaded_unix
 dates
 day
 day_down
@@ -654,6 +659,7 @@ fix
 fixed
 flags
 flap_guard
+flaresolverr
 flatrate
 folder
 folderName
@@ -803,6 +809,7 @@ imdb
 imdbId
 imdbRating
 imdbVotes
+imdb_code
 imdb_id
 imdb_rating
 imdb_votes
@@ -996,6 +1003,7 @@ matched_at
 matched_by_id
 matchingSubtitles
 max
+maxTimeout
 max_age_days
 max_rating
 max_rps
@@ -1174,6 +1182,7 @@ notifications
 nth
 numSeeders
 num_complete
+num_files
 num_incomplete
 num_leechs
 num_peers
@@ -1398,6 +1407,7 @@ proxy_allow_local_network
 proxy_password
 proxy_url
 public_client
+publish_time
 published_at
 qbittorrent
 qid
@@ -1511,6 +1521,7 @@ res
 reset_time_utc
 resolution
 resource
+response
 restart_needed
 restarts
 restricted
@@ -1703,6 +1714,7 @@ smtp_port
 smtp_security
 smtp_user
 snapshots
+solution
 sonarr
 song
 songs
@@ -1830,6 +1842,7 @@ title_ids
 title_kind
 title_language
 title_layer
+title_long
 title_name
 titles
 tls
@@ -1993,6 +2006,7 @@ used_by
 usenet_delay
 user
 user_code
+userAgent
 user_fingerprint
 user_id
 user_key
@@ -2017,6 +2031,7 @@ versions
 via
 videoDetails
 videoname
+video_codec
 videos
 view
 vip

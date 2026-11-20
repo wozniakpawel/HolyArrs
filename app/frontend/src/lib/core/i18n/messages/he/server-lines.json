@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "הכותר שלו לא בספרייה",
 	"server.migrate.on-the-old-app-s-blocklist": "ברשימת החסימה של האפליקציה הישנה",
 	"server.migrate.the-old-app-gave-no-release": "האפליקציה הישנה לא נתנה שם הוצאה או פרוטוקול",
-	"server.migrate.turned-down": "נפסל"
+	"server.migrate.turned-down": "נפסל",
+	"server.migrate.built-in-site-read-directly-with": "אתר מובנה {name}, נקרא ישירות בלי Prowlarr; נוסף מושהה: בדקו אותו והמשיכו אותו בעצמכם"
 }

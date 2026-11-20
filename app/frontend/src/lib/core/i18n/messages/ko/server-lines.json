@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "작품이 라이브러리에 없음",
 	"server.migrate.on-the-old-app-s-blocklist": "이전 앱의 차단 목록에 있음",
 	"server.migrate.the-old-app-gave-no-release": "이전 앱이 릴리스 이름이나 프로토콜을 주지 않았음",
-	"server.migrate.turned-down": "거부됨"
+	"server.migrate.turned-down": "거부됨",
+	"server.migrate.built-in-site-read-directly-with": "기본 제공 사이트 {name}, Prowlarr 없이 직접 읽음; 일시 중지 상태로 추가됨: 직접 확인하고 다시 시작하세요"
 }

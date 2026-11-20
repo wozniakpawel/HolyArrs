@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "a címe nincs a könyvtárban",
 	"server.migrate.on-the-old-app-s-blocklist": "a régi alkalmazás tiltólistáján",
 	"server.migrate.the-old-app-gave-no-release": "a régi alkalmazás nem adott kiadásnevet vagy protokollt",
-	"server.migrate.turned-down": "Elvetett"
+	"server.migrate.turned-down": "Elvetett",
+	"server.migrate.built-in-site-read-directly-with": "beépített oldal: {name}, közvetlenül olvasva Prowlarr nélkül; szüneteltetve hozzáadva: ellenőrizd és folytasd magad"
 }

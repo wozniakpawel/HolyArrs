@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "عنوانه ليس في المكتبة",
 	"server.migrate.on-the-old-app-s-blocklist": "في قائمة الحظر في التطبيق القديم",
 	"server.migrate.the-old-app-gave-no-release": "لم يعطِ التطبيق القديم اسم إصدار أو بروتوكولًا له",
-	"server.migrate.turned-down": "مستبعَد"
+	"server.migrate.turned-down": "مستبعَد",
+	"server.migrate.built-in-site-read-directly-with": "موقع مدمج {name}، يُقرأ مباشرة دون Prowlarr؛ أُضيف موقوفًا مؤقتًا: افحصه واستأنفه بنفسك"
 }

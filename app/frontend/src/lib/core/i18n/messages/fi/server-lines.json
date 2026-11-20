@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "sen nimike ei ole kirjastossa",
 	"server.migrate.on-the-old-app-s-blocklist": "vanhan sovelluksen estolistalla",
 	"server.migrate.the-old-app-gave-no-release": "vanha sovellus ei antanut julkaisun nimeä tai protokollaa",
-	"server.migrate.turned-down": "Hylätyt"
+	"server.migrate.turned-down": "Hylätyt",
+	"server.migrate.built-in-site-read-directly-with": "sisäänrakennettu sivusto {name}, luetaan suoraan ilman Prowlarria; lisätty keskeytettynä: tarkista ja jatka itse"
 }

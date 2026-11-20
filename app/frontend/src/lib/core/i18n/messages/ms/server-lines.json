@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "tajuknya tiada dalam Pustaka",
 	"server.migrate.on-the-old-app-s-blocklist": "dalam senarai sekatan aplikasi lama",
 	"server.migrate.the-old-app-gave-no-release": "aplikasi lama tidak memberi nama keluaran atau protokol",
-	"server.migrate.turned-down": "Ditolak"
+	"server.migrate.turned-down": "Ditolak",
+	"server.migrate.built-in-site-read-directly-with": "laman terbina dalam {name}, dibaca terus tanpa Prowlarr; ditambah dalam keadaan dijeda: semak dan sambung sendiri"
 }

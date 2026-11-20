@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "başlığı kitaplıkta değil",
 	"server.migrate.on-the-old-app-s-blocklist": "eski uygulamanın engel listesinde",
 	"server.migrate.the-old-app-gave-no-release": "eski uygulama sürüm adı veya protokol vermedi",
-	"server.migrate.turned-down": "Reddedilenler"
+	"server.migrate.turned-down": "Reddedilenler",
+	"server.migrate.built-in-site-read-directly-with": "yerleşik site {name}, Prowlarr olmadan doğrudan okunur; duraklatılmış olarak eklendi: kendin kontrol edip sürdür"
 }

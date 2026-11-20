@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "sein Titel ist nicht in der Bibliothek",
 	"server.migrate.on-the-old-app-s-blocklist": "auf der Sperrliste der alten App",
 	"server.migrate.the-old-app-gave-no-release": "die alte App nannte keinen Release-Namen oder kein Protokoll",
-	"server.migrate.turned-down": "Verworfen"
+	"server.migrate.turned-down": "Verworfen",
+	"server.migrate.built-in-site-read-directly-with": "eingebaute Seite {name}, direkt gelesen ohne Prowlarr; pausiert hinzugefügt: prüfe sie und setze sie selbst fort"
 }

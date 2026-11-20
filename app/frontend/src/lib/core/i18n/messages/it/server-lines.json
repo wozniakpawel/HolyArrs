@@ -1598,5 +1598,6 @@
 	"server.migrate.its-title-is-not-in-the": "il suo titolo non è nella libreria",
 	"server.migrate.on-the-old-app-s-blocklist": "nella lista di blocco della vecchia app",
 	"server.migrate.the-old-app-gave-no-release": "la vecchia app non ha dato nome della release né protocollo",
-	"server.migrate.turned-down": "Scartate"
+	"server.migrate.turned-down": "Scartate",
+	"server.migrate.built-in-site-read-directly-with": "sito integrato {name}, letto direttamente senza Prowlarr; aggiunto in pausa: controllalo e riprendilo tu"
 }
