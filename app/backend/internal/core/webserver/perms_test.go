@@ -47,3 +47,22 @@ func TestShownPermsFollowTheYouTubeFlag(t *testing.T) {
 		t.Fatalf("flag on: %v", got)
 	}
 }
+
+func TestKidNeverHasYouTubeOrSaveFiles(t *testing.T) {
+	for _, perms := range [][]Perm{{PermAsk}, {PermAsk, PermYouTube, PermSaveFiles}} {
+		kid := Caller{Role: RoleMember, MaxRating: "PG", Perms: perms}
+		if kid.Has(PermYouTube) || kid.Has(PermSaveFiles) {
+			t.Fatalf("kid with %v has a YouTube permission", perms)
+		}
+		if eff := kid.Effective(); slices.Contains(eff, PermYouTube) || slices.Contains(eff, PermSaveFiles) || !slices.Contains(eff, PermAsk) {
+			t.Fatalf("kid with %v: effective %v", perms, eff)
+		}
+	}
+	adult := Caller{Role: RoleMember, Perms: []Perm{PermYouTube, PermSaveFiles}}
+	if !adult.Has(PermYouTube) || !adult.Has(PermSaveFiles) {
+		t.Fatal("a ticked member lost the YouTube permissions")
+	}
+	if !(Caller{Role: RoleOwner}).Has(PermYouTube) {
+		t.Fatal("the owner lost youtube")
+	}
+}

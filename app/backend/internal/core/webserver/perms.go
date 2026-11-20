@@ -84,6 +84,9 @@ func (c Caller) Has(p Perm) bool {
 		return c.Role == RoleAdmin
 	case p == NeedOwner:
 		return false
+	case (p == PermYouTube || p == PermSaveFiles) && c.MaxRating != "":
+		// A kid never keeps a YouTube library or saves files, ticked or not.
+		return false
 	}
 	return slices.Contains(c.Perms, p)
 }

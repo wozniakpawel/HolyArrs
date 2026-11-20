@@ -92,16 +92,24 @@ func TestYouTubeSettingsAndStatusRoutes(t *testing.T) {
 		t.Fatalf("status %+v", st)
 	}
 
-	// A kid gets nothing, even when ticked. The users screen refuses the
-	// tick for a kid, so it goes straight into the row.
+	// A kid gets nothing, ticked or not. The users screen refuses the tick
+	// for a kid, so it goes straight into the row.
 	kai := ytJoin(t, r, "kai", `{"max_rating":"PG"}`)
+	kai.call("GET", "/api/v1/youtube/status", "", 403)
 	if err := r.st.Write(context.Background(), func(tx *sql.Tx) error {
-		_, err := tx.Exec(`UPDATE users SET perms = '["ask","youtube"]' WHERE id = ?`, kai.id)
+		_, err := tx.Exec(`UPDATE users SET perms = '["ask","youtube","save_files"]' WHERE id = ?`, kai.id)
 		return err
 	}); err != nil {
 		t.Fatal(err)
 	}
-	kai.call("GET", "/api/v1/youtube/status", "", 404)
+	kai.call("GET", "/api/v1/youtube/status", "", 403)
+	var me struct {
+		Perms []string `json:"perms"`
+	}
+	decodeJSON(t, kai.call("GET", "/api/v1/auth/me", "", 200), &me)
+	if !slices.Contains(me.Perms, "ask") || slices.Contains(me.Perms, "youtube") || slices.Contains(me.Perms, "save_files") {
+		t.Fatalf("kid perms %v", me.Perms)
+	}
 
 	// A program path pointing nowhere counts as missing.
 	t.Setenv("HOLYARRS_YTDLP", filepath.Join(t.TempDir(), "nowhere", "yt-dlp"))
