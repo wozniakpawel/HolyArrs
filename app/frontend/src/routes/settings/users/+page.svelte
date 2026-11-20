@@ -12,7 +12,7 @@
 	import Avatar from '#lib/ui/Avatar.svelte';
 	import LoadError from '#lib/ui/LoadError.svelte';
 	import Sheet from '#lib/ui/Sheet.svelte';
-	import { choosePreset, presetOf, presetOptions, type Mix, Sessions, UserMediaLink, DeletePersonAsk, focusAfterAsk, kidLabel, ratingChoices } from '#lib/accounts/index.ts';
+	import { choosePreset, permWords, presetOf, presetOptions, type Mix, Sessions, UserMediaLink, DeletePersonAsk, focusAfterAsk, kidLabel, ratingChoices } from '#lib/accounts/index.ts';
 	import type { AskSettings, LimitKind, PersonLimit, PersonQualities, QualityLine } from '#lib/requests/index.ts';
 	import { QualityPicker, kindAsks } from '#lib/requests/index.ts';
 	import { onMount } from 'svelte';
@@ -57,16 +57,7 @@
 		rating_country?: string;
 	}
 
-	const permWord = $derived<Record<Perm, string>>({
-		ask: t('settings.users.permAsk'),
-		auto_approve: t('settings.users.permAuto'),
-		auto_approve_four_k: t('settings.users.permAuto4k'),
-		approve: t('settings.users.permApprove'),
-		manage_library: t('settings.users.permLibrary'),
-		settings: t('settings.users.permSettings'),
-		youtube: t('settings.users.permYouTube'),
-		save_files: t('settings.users.permSaveFiles')
-	});
+	const permWord = $derived(permWords());
 	const defaults: Record<'admin' | 'member', Perm[]> = {
 		admin: ['ask', 'auto_approve', 'approve', 'manage_library'],
 		member: ['ask']
