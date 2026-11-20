@@ -1603,5 +1603,6 @@
 	"server.migrate.becomes-pick-rules-a-copy-of": "становится Правилами отбора {name}, копией {preset} с размерами старого приложения",
 	"server.migrate.no-holyarrs-quality-step-matches-it": "ни одна ступень качества HolyArrs ему не соответствует",
 	"server.migrate.no-quality-profile-came-over-to-2": "профиль качества для этого не импортирован",
-	"server.migrate.you-left-size-limits-behind-titles": "вы оставили ограничения размера; тайтлы берут размеры своих Правил отбора"
+	"server.migrate.you-left-size-limits-behind-titles": "вы оставили ограничения размера; тайтлы берут размеры своих Правил отбора",
+	"server.migrate.the-same-as-a-source-that": "то же, что {name}, источник, который уже есть"
 }

@@ -1603,5 +1603,6 @@
 	"server.migrate.becomes-pick-rules-a-copy-of": "γίνεται Κανόνες επιλογής {name}, αντίγραφο του {preset} με τα μεγέθη της παλιάς εφαρμογής",
 	"server.migrate.no-holyarrs-quality-step-matches-it": "κανένα βήμα ποιότητας του HolyArrs δεν του ταιριάζει",
 	"server.migrate.no-quality-profile-came-over-to-2": "δεν μεταφέρθηκε προφίλ ποιότητας για να το φέρει",
-	"server.migrate.you-left-size-limits-behind-titles": "άφησες πίσω τα όρια μεγέθους· οι τίτλοι παίρνουν τα μεγέθη των Κανόνων επιλογής τους"
+	"server.migrate.you-left-size-limits-behind-titles": "άφησες πίσω τα όρια μεγέθους· οι τίτλοι παίρνουν τα μεγέθη των Κανόνων επιλογής τους",
+	"server.migrate.the-same-as-a-source-that": "το ίδιο με {name}, μια Πηγή που υπάρχει ήδη εδώ"
 }

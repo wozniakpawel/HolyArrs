@@ -1603,5 +1603,6 @@
 	"server.migrate.becomes-pick-rules-a-copy-of": "saab Valikureegliteks {name}, {preset} koopiaks vana rakenduse suurustega",
 	"server.migrate.no-holyarrs-quality-step-matches-it": "ükski HolyArrsi kvaliteediaste sellele ei vasta",
 	"server.migrate.no-quality-profile-came-over-to-2": "ükski kvaliteediprofiil ei tulnud seda kandma",
-	"server.migrate.you-left-size-limits-behind-titles": "jätsid suuruspiirangud maha; pealkirjad võtavad suurused oma Valikureeglitest"
+	"server.migrate.you-left-size-limits-behind-titles": "jätsid suuruspiirangud maha; pealkirjad võtavad suurused oma Valikureeglitest",
+	"server.migrate.the-same-as-a-source-that": "sama mis {name}, allikas, mis on siin olemas"
 }

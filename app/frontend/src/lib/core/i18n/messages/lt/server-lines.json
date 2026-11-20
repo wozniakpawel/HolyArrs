@@ -1603,5 +1603,6 @@
 	"server.migrate.becomes-pick-rules-a-copy-of": "tampa Pasirinkimo taisyklėmis {name} – {preset} kopija su senos programos dydžiais",
 	"server.migrate.no-holyarrs-quality-step-matches-it": "neatitinka jokia HolyArrs kokybės pakopa",
 	"server.migrate.no-quality-profile-came-over-to-2": "neatkeliavo joks kokybės profilis, kuris jį nešiotų",
-	"server.migrate.you-left-size-limits-behind-titles": "dydžio ribas palikote; pavadinimai ima savo Pasirinkimo taisyklių dydžius"
+	"server.migrate.you-left-size-limits-behind-titles": "dydžio ribas palikote; pavadinimai ima savo Pasirinkimo taisyklių dydžius",
+	"server.migrate.the-same-as-a-source-that": "tas pats kaip {name}, Šaltinis, kuris jau yra"
 }

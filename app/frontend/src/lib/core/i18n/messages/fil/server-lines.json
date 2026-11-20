@@ -1603,5 +1603,6 @@
 	"server.migrate.becomes-pick-rules-a-copy-of": "nagiging Mga panuntunan sa pagpili {name}, kopya ng {preset} na may mga laki ng lumang app",
 	"server.migrate.no-holyarrs-quality-step-matches-it": "walang quality step ng HolyArrs na tugma rito",
 	"server.migrate.no-quality-profile-came-over-to-2": "walang quality profile na dumating para dalhin ito",
-	"server.migrate.you-left-size-limits-behind-titles": "iniwan mo ang mga limit sa laki; ginagamit ng mga title ang mga laki ng kanilang Mga panuntunan sa pagpili"
+	"server.migrate.you-left-size-limits-behind-titles": "iniwan mo ang mga limit sa laki; ginagamit ng mga title ang mga laki ng kanilang Mga panuntunan sa pagpili",
+	"server.migrate.the-same-as-a-source-that": "kapareho ng {name}, isang Source na nandito na"
 }

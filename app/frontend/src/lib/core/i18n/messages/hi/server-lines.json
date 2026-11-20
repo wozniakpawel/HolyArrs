@@ -1603,5 +1603,6 @@
 	"server.migrate.becomes-pick-rules-a-copy-of": "चुनाव के नियम {name} बनता है, पुराने ऐप के आकारों के साथ {preset} की कॉपी",
 	"server.migrate.no-holyarrs-quality-step-matches-it": "HolyArrs का कोई क्वालिटी स्टेप इससे मेल नहीं खाता",
 	"server.migrate.no-quality-profile-came-over-to-2": "इसे ले जाने के लिए कोई क्वालिटी प्रोफ़ाइल नहीं आई",
-	"server.migrate.you-left-size-limits-behind-titles": "आपने आकार की सीमाएं पीछे छोड़ दीं; टाइटल अपने चुनाव के नियमों के आकार लेते हैं"
+	"server.migrate.you-left-size-limits-behind-titles": "आपने आकार की सीमाएं पीछे छोड़ दीं; टाइटल अपने चुनाव के नियमों के आकार लेते हैं",
+	"server.migrate.the-same-as-a-source-that": "{name} जैसा ही, एक सोर्स जो यहां है"
 }

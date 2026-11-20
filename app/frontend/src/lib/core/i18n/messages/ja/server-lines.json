@@ -1603,5 +1603,6 @@
 	"server.migrate.becomes-pick-rules-a-copy-of": "選定ルール {name} になります（旧アプリのサイズを持つ {preset} のコピー）",
 	"server.migrate.no-holyarrs-quality-step-matches-it": "一致する HolyArrs の画質ステップがありません",
 	"server.migrate.no-quality-profile-came-over-to-2": "引き継ぐ画質プロファイルがありませんでした",
-	"server.migrate.you-left-size-limits-behind-titles": "サイズ制限は持ってきませんでした。タイトルは選定ルールのサイズを使います"
+	"server.migrate.you-left-size-limits-behind-titles": "サイズ制限は持ってきませんでした。タイトルは選定ルールのサイズを使います",
+	"server.migrate.the-same-as-a-source-that": "{name} と同じで、すでにあるソースです"
 }

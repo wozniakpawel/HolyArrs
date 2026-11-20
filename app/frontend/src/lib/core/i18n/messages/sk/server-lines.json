@@ -1603,5 +1603,6 @@
 	"server.migrate.becomes-pick-rules-a-copy-of": "stane sa Pravidlami výberu {name}, kópiou {preset} s veľkosťami starej aplikácie",
 	"server.migrate.no-holyarrs-quality-step-matches-it": "nezodpovedá mu žiadny stupeň kvality HolyArrs",
 	"server.migrate.no-quality-profile-came-over-to-2": "neprenesený žiadny profil kvality, ktorý by ho niesol",
-	"server.migrate.you-left-size-limits-behind-titles": "limity veľkosti ste nechali tak; tituly berú veľkosti zo svojich Pravidiel výberu"
+	"server.migrate.you-left-size-limits-behind-titles": "limity veľkosti ste nechali tak; tituly berú veľkosti zo svojich Pravidiel výberu",
+	"server.migrate.the-same-as-a-source-that": "to isté ako {name}, Zdroj, ktorý tu už je"
 }

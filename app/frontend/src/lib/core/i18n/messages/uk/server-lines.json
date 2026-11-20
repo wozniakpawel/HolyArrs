@@ -1603,5 +1603,6 @@
 	"server.migrate.becomes-pick-rules-a-copy-of": "стає Правилами вибору {name}, копією {preset} з розмірами старого застосунку",
 	"server.migrate.no-holyarrs-quality-step-matches-it": "жоден щабель якості HolyArrs йому не відповідає",
 	"server.migrate.no-quality-profile-came-over-to-2": "жоден профіль якості не прийшов, щоб це нести",
-	"server.migrate.you-left-size-limits-behind-titles": "ти залишив обмеження розміру; тайтли беруть розміри своїх Правил вибору"
+	"server.migrate.you-left-size-limits-behind-titles": "ти залишив обмеження розміру; тайтли беруть розміри своїх Правил вибору",
+	"server.migrate.the-same-as-a-source-that": "те саме, що {name}, джерело, яке вже є"
 }

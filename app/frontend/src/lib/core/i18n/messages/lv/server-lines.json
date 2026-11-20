@@ -1603,5 +1603,6 @@
 	"server.migrate.becomes-pick-rules-a-copy-of": "kļūst par Izvēles noteikumiem {name} – {preset} kopiju ar vecās lietotnes izmēriem",
 	"server.migrate.no-holyarrs-quality-step-matches-it": "neviens HolyArrs kvalitātes pakāpiens tam neatbilst",
 	"server.migrate.no-quality-profile-came-over-to-2": "nepārnāca neviens kvalitātes profils, kas to nestu",
-	"server.migrate.you-left-size-limits-behind-titles": "tu atstāji izmēra ierobežojumus; nosaukumi ņem savu Izvēles noteikumu izmērus"
+	"server.migrate.you-left-size-limits-behind-titles": "tu atstāji izmēra ierobežojumus; nosaukumi ņem savu Izvēles noteikumu izmērus",
+	"server.migrate.the-same-as-a-source-that": "tas pats, kas {name}, Avots, kas jau ir šeit"
 }

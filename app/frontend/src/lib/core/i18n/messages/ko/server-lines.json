@@ -1603,5 +1603,6 @@
 	"server.migrate.becomes-pick-rules-a-copy-of": "선택 규칙 {name}이 됩니다 · 이전 앱의 크기를 가진 {preset}의 복사본",
 	"server.migrate.no-holyarrs-quality-step-matches-it": "일치하는 HolyArrs 품질 단계가 없습니다",
 	"server.migrate.no-quality-profile-came-over-to-2": "이를 담을 품질 프로필을 가져오지 않았습니다",
-	"server.migrate.you-left-size-limits-behind-titles": "크기 제한을 두고 왔습니다. 타이틀은 선택 규칙의 크기를 사용합니다"
+	"server.migrate.you-left-size-limits-behind-titles": "크기 제한을 두고 왔습니다. 타이틀은 선택 규칙의 크기를 사용합니다",
+	"server.migrate.the-same-as-a-source-that": "{name}와 같으며, 이미 있는 소스입니다"
 }

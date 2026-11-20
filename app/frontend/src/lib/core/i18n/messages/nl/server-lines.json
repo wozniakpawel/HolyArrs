@@ -1603,5 +1603,6 @@
 	"server.migrate.becomes-pick-rules-a-copy-of": "wordt de Keuzeregels {name}, een kopie van {preset} met de groottes van de oude app",
 	"server.migrate.no-holyarrs-quality-step-matches-it": "geen kwaliteitsstap van HolyArrs past erbij",
 	"server.migrate.no-quality-profile-came-over-to-2": "er is geen kwaliteitsprofiel meegekomen om het te dragen",
-	"server.migrate.you-left-size-limits-behind-titles": "je hebt de groottegrenzen achtergelaten; titels nemen de groottes van hun Keuzeregels"
+	"server.migrate.you-left-size-limits-behind-titles": "je hebt de groottegrenzen achtergelaten; titels nemen de groottes van hun Keuzeregels",
+	"server.migrate.the-same-as-a-source-that": "hetzelfde als {name}, een Bron die hier al staat"
 }

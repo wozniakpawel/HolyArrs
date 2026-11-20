@@ -1603,5 +1603,6 @@
 	"server.migrate.becomes-pick-rules-a-copy-of": "se convierte en las Reglas de elección {name}, una copia de {preset} con los tamaños de la app antigua",
 	"server.migrate.no-holyarrs-quality-step-matches-it": "ningún paso de calidad de HolyArrs le corresponde",
 	"server.migrate.no-quality-profile-came-over-to-2": "no llegó ningún perfil de calidad que lo lleve",
-	"server.migrate.you-left-size-limits-behind-titles": "dejaste atrás los límites de tamaño; los títulos toman los tamaños de sus Reglas de elección"
+	"server.migrate.you-left-size-limits-behind-titles": "dejaste atrás los límites de tamaño; los títulos toman los tamaños de sus Reglas de elección",
+	"server.migrate.the-same-as-a-source-that": "lo mismo que {name}, una Fuente que ya está aquí"
 }

@@ -1603,5 +1603,6 @@
 	"server.migrate.becomes-pick-rules-a-copy-of": "กลายเป็นกฎการเลือก {name} ซึ่งคัดลอกจาก {preset} พร้อมขนาดของแอปเดิม",
 	"server.migrate.no-holyarrs-quality-step-matches-it": "ไม่มีขั้นคุณภาพของ HolyArrs ที่ตรงกัน",
 	"server.migrate.no-quality-profile-came-over-to-2": "ไม่มีโปรไฟล์คุณภาพที่นำมารองรับ",
-	"server.migrate.you-left-size-limits-behind-titles": "คุณไม่ได้นำขีดจำกัดขนาดมา ชื่อเรื่องใช้ขนาดตามกฎการเลือกของตัวเอง"
+	"server.migrate.you-left-size-limits-behind-titles": "คุณไม่ได้นำขีดจำกัดขนาดมา ชื่อเรื่องใช้ขนาดตามกฎการเลือกของตัวเอง",
+	"server.migrate.the-same-as-a-source-that": "เหมือนกับ {name} ซึ่งเป็นแหล่งที่มาที่มีอยู่แล้ว"
 }

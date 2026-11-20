@@ -1603,5 +1603,6 @@
 	"server.migrate.becomes-pick-rules-a-copy-of": "verður að Valreglunum {name}, afriti af {preset} með stærðum gamla forritsins",
 	"server.migrate.no-holyarrs-quality-step-matches-it": "ekkert gæðaþrep í HolyArrs passar við það",
 	"server.migrate.no-quality-profile-came-over-to-2": "ekkert gæðasnið kom yfir til að bera það",
-	"server.migrate.you-left-size-limits-behind-titles": "þú skildir stærðarmörkin eftir; titlar fá stærðirnar úr Valreglum sínum"
+	"server.migrate.you-left-size-limits-behind-titles": "þú skildir stærðarmörkin eftir; titlar fá stærðirnar úr Valreglum sínum",
+	"server.migrate.the-same-as-a-source-that": "það sama og {name}, heimild sem er hér"
 }

@@ -1603,5 +1603,6 @@
 	"server.migrate.becomes-pick-rules-a-copy-of": "bliver Valgregler {name}, en kopi af {preset} med den gamle apps størrelser",
 	"server.migrate.no-holyarrs-quality-step-matches-it": "intet kvalitetstrin i HolyArrs passer til den",
 	"server.migrate.no-quality-profile-came-over-to-2": "ingen kvalitetsprofil kom med til at bære den",
-	"server.migrate.you-left-size-limits-behind-titles": "du lod størrelsesgrænserne blive tilbage; titler bruger størrelserne fra deres Valgregler"
+	"server.migrate.you-left-size-limits-behind-titles": "du lod størrelsesgrænserne blive tilbage; titler bruger størrelserne fra deres Valgregler",
+	"server.migrate.the-same-as-a-source-that": "det samme som {name}, en Kilde der findes her"
 }

@@ -1603,5 +1603,6 @@
 	"server.migrate.becomes-pick-rules-a-copy-of": "becomes Pick rules {name}, a copy of {preset} with the old app's sizes",
 	"server.migrate.no-holyarrs-quality-step-matches-it": "no HolyArrs quality step matches it",
 	"server.migrate.no-quality-profile-came-over-to-2": "no quality profile came over to carry it",
-	"server.migrate.you-left-size-limits-behind-titles": "you left size limits behind; titles take the sizes of their Pick rules"
+	"server.migrate.you-left-size-limits-behind-titles": "you left size limits behind; titles take the sizes of their Pick rules",
+	"server.migrate.the-same-as-a-source-that": "the same as {name}, a Source that is here"
 }

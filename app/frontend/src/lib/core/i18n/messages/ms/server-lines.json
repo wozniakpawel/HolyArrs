@@ -1603,5 +1603,6 @@
 	"server.migrate.becomes-pick-rules-a-copy-of": "menjadi Peraturan pilihan {name}, salinan {preset} dengan saiz aplikasi lama",
 	"server.migrate.no-holyarrs-quality-step-matches-it": "tiada langkah kualiti HolyArrs yang sepadan",
 	"server.migrate.no-quality-profile-came-over-to-2": "tiada profil kualiti dibawa masuk untuk membawanya",
-	"server.migrate.you-left-size-limits-behind-titles": "anda meninggalkan had saiz; tajuk mengambil saiz daripada Peraturan pilihannya"
+	"server.migrate.you-left-size-limits-behind-titles": "anda meninggalkan had saiz; tajuk mengambil saiz daripada Peraturan pilihannya",
+	"server.migrate.the-same-as-a-source-that": "sama seperti {name}, Sumber yang ada di sini"
 }
