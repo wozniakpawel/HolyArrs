@@ -227,7 +227,7 @@ func TestCoreImportsNoModule(t *testing.T) {
 }
 
 // testOnlySubs are helper packages another module's tests may import.
-var testOnlySubs = []string{"clienttest", "signtest", "fakesite"}
+var testOnlySubs = []string{"clienttest", "signtest", "fakesite", "youtubetest"}
 
 func TestModuleImportsRootOnly(t *testing.T) {
 	root := repoRoot(t)

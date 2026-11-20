@@ -232,6 +232,7 @@ GET /api/v1/settings/trakt-token settings
 GET /api/v1/settings/ui settings
 GET /api/v1/settings/url-base admin
 GET /api/v1/settings/watch-history settings
+GET /api/v1/settings/youtube settings
 GET /api/v1/shows/lookup see
 GET /api/v1/sources see
 GET /api/v1/sources/sites see
@@ -271,7 +272,9 @@ GET /api/v1/users/{id}/avatar admin
 GET /api/v1/users/{id}/sessions admin
 GET /api/v1/watch-services see
 GET /api/v1/wiki/{kind}/{id} see
+GET /api/v1/youtube/status see
 GET /calendar see
+GET /command see
 GET /command/{id} see
 GET /config/mediamanagement see
 GET /config/mediamanagement/{id} see
@@ -596,6 +599,7 @@ PUT /api/v1/settings/trakt-token settings
 PUT /api/v1/settings/ui settings
 PUT /api/v1/settings/url-base admin
 PUT /api/v1/settings/watch-history settings
+PUT /api/v1/settings/youtube settings
 PUT /api/v1/sources/{id} settings
 PUT /api/v1/subtitle-sites/{id} settings
 PUT /api/v1/titles/{id} add

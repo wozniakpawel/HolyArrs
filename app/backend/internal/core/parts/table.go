@@ -111,6 +111,11 @@ var routeOwners = map[string]Owner{
 	"GET /api/v1/auth/ai-connect":                         Core,
 	"POST /api/v1/auth/ai-connect":                        Core,
 
+	// YouTube library.
+	"GET /api/v1/youtube/status":   youtube,
+	"GET /api/v1/settings/youtube": youtube,
+	"PUT /api/v1/settings/youtube": youtube,
+
 	"GET /api/v1/plugins":                               Core,
 	"POST /api/v1/plugins/{id}/install":                 Core,
 	"POST /api/v1/plugins/{id}/start":                   Core,

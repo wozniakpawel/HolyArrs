@@ -667,6 +667,7 @@ flags
 flap_guard
 flaresolverr
 flatrate
+floor_bytes
 folder
 folderName
 folderPath
@@ -674,6 +675,7 @@ folder_moved
 folder_name
 folder_path
 folder_pattern
+folder_set
 folders
 follow
 follow_id
@@ -996,6 +998,7 @@ logo_path
 logos
 looked
 lossless
+low_space
 low_space_mb
 m
 machine_made
@@ -1048,6 +1051,7 @@ minFormatScore
 minUpgradeFormatScore
 min_app_version
 min_blocklist_counter
+min_free_gb
 min_free_mb
 min_from
 min_password_length
@@ -2112,3 +2116,5 @@ year_to
 youTubeTrailerId
 youtube_id
 yt_id
+ytdlp_update_error
+ytdlp_updated_at

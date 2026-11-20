@@ -185,6 +185,13 @@ var RoutePerms = map[string]webserver.Perm{
 	"GET /mcp":                webserver.NeedSignedIn,
 	"GET /api/v1/settings/ai": webserver.NeedSignedIn,
 	"PUT /api/v1/settings/ai": webserver.NeedOwner,
+
+	// YouTube library: each person's own videos; the settings card shows
+	// owner and admins a total only, and only the owner changes it.
+	"GET /api/v1/youtube/status":   webserver.PermYouTube,
+	"GET /api/v1/settings/youtube": webserver.NeedUsers,
+	"PUT /api/v1/settings/youtube": webserver.NeedOwner,
+
 	// AI app sign-in (ai_signin.go): the app's own calls are public; allowing it
 	// needs the person's browser session.
 	"GET /.well-known/oauth-protected-resource":           webserver.NeedPublic,

@@ -381,14 +381,23 @@ func TestDownloadCancelled(t *testing.T) {
 func TestFindToolsPrefersEnv(t *testing.T) {
 	env := map[string]string{"HOLYARRS_YTDLP": "/config/bin/yt-dlp"}
 	look := func(name string) (string, error) {
-		if name == "ffmpeg" {
-			return "/usr/bin/ffmpeg", nil
+		switch {
+		case name == "/nowhere/yt-dlp":
+			return "", errors.New("no such file")
+		case strings.HasPrefix(name, "/"):
+			return name, nil
 		}
 		return "/usr/bin/" + name, nil
 	}
 	tl := FindTools(func(k string) string { return env[k] }, look)
 	if tl.YTDLP != "/config/bin/yt-dlp" || tl.FFmpeg != "/usr/bin/ffmpeg" || len(tl.Missing()) != 0 {
 		t.Fatalf("tools = %+v", tl)
+	}
+	// A set path that is not a program is missing; PATH is not tried.
+	env["HOLYARRS_YTDLP"] = "/nowhere/yt-dlp"
+	tl = FindTools(func(k string) string { return env[k] }, look)
+	if !slices.Equal(tl.Missing(), []string{"yt-dlp"}) {
+		t.Fatalf("set path pointing nowhere: %+v", tl)
 	}
 	tl = FindTools(func(string) string { return "" }, look)
 	if tl.YTDLP != "/usr/bin/yt-dlp" {
