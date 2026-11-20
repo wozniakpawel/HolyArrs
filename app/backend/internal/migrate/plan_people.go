@@ -366,7 +366,7 @@ func (b *builder) leftBehind(s *Snapshot) {
 		case kind == "tmdblistimport" || (strings.Contains(kind, "trakt") && !strings.Contains(kind, "popular")):
 			why = "HolyArrs reads TMDB lists and public Trakt lists; add it again under Settings > Outside lists"
 			if strings.Contains(kind, "trakt") {
-				why += " (a private list needs to be made public first)"
+				why += " (a private list needs Sign in with Trakt there)"
 			}
 		case s.Kind == Sonarr:
 			why = "HolyArrs reads TMDB lists and public Trakt lists only; this list stays in Sonarr"
@@ -549,7 +549,9 @@ func (b *builder) outsideList(app Kind, i int, l Provider) bool {
 		detail += "; Keep up to date off"
 	}
 	if kind == requests.ListTrakt {
-		detail += "; needs your Trakt key, and the list must be public"
+		// The old app read it signed in; here a private list needs Sign in
+		// with Trakt, a public one only the key.
+		detail += "; needs your Trakt key, and Sign in with Trakt if the list is private"
 	}
 	key := "outside_list:" + kind + ":" + strings.ToLower(norm)
 	if op.TitleKind == "show" {

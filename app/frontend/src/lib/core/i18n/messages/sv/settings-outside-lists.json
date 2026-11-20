@@ -86,5 +86,21 @@
 	"settings.outsideLists.addNever": "Lägg till på listan Lägg aldrig till",
 	"settings.outsideLists.showDot": "serie ·",
 	"settings.outsideLists.takeOff": "Ta bort {name}",
-	"settings.outsideLists.empty": "Inget på listan än"
+	"settings.outsideLists.empty": "Inget på listan än",
+	"settings.outsideLists.traktSignInTitle": "Trakt-inloggning",
+	"settings.outsideLists.traktSignInInfo": "Logga in för att läsa dina privata Trakt-listor och din bevakningslista och för att lägga till det du sett på Trakt i tittarhistoriken.",
+	"settings.outsideLists.traktSignedInAs": "Inloggad som {name}.",
+	"settings.outsideLists.traktNotSignedIn": "Inte inloggad. Bara offentliga listor läses.",
+	"settings.outsideLists.traktSignIn": "Logga in med Trakt",
+	"settings.outsideLists.traktPasteCode": "Godkänn HolyArrs på Trakt-sidan som öppnades och klistra sedan in koden som Trakt visar här.",
+	"settings.outsideLists.traktCode": "Kod från Trakt",
+	"settings.outsideLists.traktFinish": "Slutför inloggningen",
+	"settings.outsideLists.traktDeviceInstead": "Använd en enhetskod i stället",
+	"settings.outsideLists.traktDeviceSteps": "Öppna {url} på valfri enhet och ange {code}. Den här sidan väntar tills du godkänner.",
+	"settings.outsideLists.traktDenied": "Trakt-inloggningen nekades.",
+	"settings.outsideLists.traktExpired": "Koden gick ut. Börja om.",
+	"settings.outsideLists.traktSignOut": "Logga ut från Trakt",
+	"settings.outsideLists.traktSignedIn": "Inloggad på Trakt",
+	"settings.outsideLists.traktSignedOut": "Utloggad från Trakt",
+	"settings.outsideLists.traktSecret": "Klienthemlighet (bara äldre Trakt-appar; nya appar har ingen)"
 }

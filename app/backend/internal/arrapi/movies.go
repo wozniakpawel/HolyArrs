@@ -631,7 +631,8 @@ func movieRatings(votes int, score float64) map[string]any {
 }
 
 // addOMDbRatings fills imdb from the kept OMDb score, and adds metacritic
-// and rottenTomatoes as Radarr does: only when known, with no votes.
+// and rottenTomatoes as Radarr does: only when known, with no votes. trakt
+// comes from the kept Trakt rating, with its votes, when known.
 func addOMDbRatings(r map[string]any, t mediafiles.Title) {
 	if t.IMDbRating != nil {
 		r["imdb"] = map[string]any{"votes": t.IMDbVotes, "value": *t.IMDbRating, "type": "user"}
@@ -641,6 +642,9 @@ func addOMDbRatings(r map[string]any, t mediafiles.Title) {
 	}
 	if t.RottenTomatoes != nil {
 		r["rottenTomatoes"] = map[string]any{"votes": 0, "value": *t.RottenTomatoes, "type": "user"}
+	}
+	if t.TraktRating != nil {
+		r["trakt"] = map[string]any{"votes": t.TraktVotes, "value": *t.TraktRating, "type": "user"}
 	}
 }
 

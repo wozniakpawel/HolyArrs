@@ -791,7 +791,7 @@ func TestPlanOutsideLists(t *testing.T) {
 	if *favs.OutsideList != (OutsideListPlan{Kind: "trakt_list", Ref: "Sean/my-favs", Library: "/data/movies", ReleaseGate: "released", SyncEveryHours: 12}) {
 		t.Fatalf("trakt list %+v", favs.OutsideList)
 	}
-	if !strings.Contains(favs.Detail, "(was off there)") || !strings.Contains(favs.Detail, "Keep up to date off") || !strings.HasSuffix(favs.Detail, "needs your Trakt key, and the list must be public") {
+	if !strings.Contains(favs.Detail, "(was off there)") || !strings.Contains(favs.Detail, "Keep up to date off") || !strings.HasSuffix(favs.Detail, "needs your Trakt key, and Sign in with Trakt if the list is private") {
 		t.Errorf("trakt detail %q", favs.Detail)
 	}
 	watch := item(t, p, GroupLists, "outside_list:trakt_list:luis/watchlist")
@@ -866,7 +866,7 @@ func TestPlanSonarrOutsideLists(t *testing.T) {
 		Preset: "Standard", KeepUpToDate: true, SearchOnAdd: true, SyncEveryHours: 12}) || shows.Name != "Pawel watchlist (sonarr)" {
 		t.Fatalf("show watchlist %q %+v", shows.Name, shows.OutsideList)
 	}
-	if want := "Trakt list pawel/watchlist into /data/tv; added paused (was on there), every 12 hours; seasons: all, new seasons: all; needs your Trakt key, and the list must be public"; shows.Detail != want {
+	if want := "Trakt list pawel/watchlist into /data/tv; added paused (was on there), every 12 hours; seasons: all, new seasons: all; needs your Trakt key, and Sign in with Trakt if the list is private"; shows.Detail != want {
 		t.Errorf("detail %q", shows.Detail)
 	}
 	if a := item(t, p, GroupLists, "outside_list:trakt_list:show:kim/anime-2026").OutsideList; a.Seasons != "first" || a.NewSeasons != "none" || !a.KeepUpToDate || a.SearchOnAdd {

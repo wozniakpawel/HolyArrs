@@ -86,5 +86,21 @@
 	"settings.outsideLists.addNever": "Dodaj na popis za nikad dodati",
 	"settings.outsideLists.showDot": "serija ·",
 	"settings.outsideLists.takeOff": "Skini {name}",
-	"settings.outsideLists.empty": "Na ovom popisu još nema ničega"
+	"settings.outsideLists.empty": "Na ovom popisu još nema ničega",
+	"settings.outsideLists.traktSignInTitle": "Prijava u Trakt",
+	"settings.outsideLists.traktSignInInfo": "Prijavi se da se čitaju tvoji privatni Trakt popisi i popis za gledanje te da se ono što si gledao na Traktu doda u povijest gledanja.",
+	"settings.outsideLists.traktSignedInAs": "Prijavljen kao {name}.",
+	"settings.outsideLists.traktNotSignedIn": "Nisi prijavljen. Čitaju se samo javni popisi.",
+	"settings.outsideLists.traktSignIn": "Prijava putem Trakta",
+	"settings.outsideLists.traktPasteCode": "Odobri HolyArrs na Trakt stranici koja se otvorila, a zatim ovdje zalijepi kod koji Trakt prikazuje.",
+	"settings.outsideLists.traktCode": "Kod s Trakta",
+	"settings.outsideLists.traktFinish": "Dovrši prijavu",
+	"settings.outsideLists.traktDeviceInstead": "Umjesto toga koristi kod uređaja",
+	"settings.outsideLists.traktDeviceSteps": "Na bilo kojem uređaju otvori {url} i upiši {code}. Ova stranica čeka dok ne odobriš.",
+	"settings.outsideLists.traktDenied": "Prijava u Trakt je odbijena.",
+	"settings.outsideLists.traktExpired": "Kod je istekao. Počni ispočetka.",
+	"settings.outsideLists.traktSignOut": "Odjavi se s Trakta",
+	"settings.outsideLists.traktSignedIn": "Prijavljen u Trakt",
+	"settings.outsideLists.traktSignedOut": "Odjavljen s Trakta",
+	"settings.outsideLists.traktSecret": "Client secret (samo starije Trakt aplikacije; nove ga nemaju)"
 }
