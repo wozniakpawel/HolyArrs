@@ -335,6 +335,7 @@ func (h *handler) lookupMovieOf(m metadata.Movie) movie {
 		RemotePoster: m.Poster, Year: m.Year, MinimumAvailability: "tba", IsAvailable: true, Runtime: m.Runtime, TmdbID: sourceID(m.IDs, "tmdb"),
 		ImdbID: m.IDs["imdb"], TitleSlug: m.IDs["tmdb"], Genres: nonNil(m.Genres), Tags: []int64{}, Added: zeroDate}
 	out.OriginalTitle, out.CleanTitle, out.Certification, out.Studio = m.Name, cleanTitle(m.Name), m.Rating, m.Studio
+	out.OriginalLanguage = ptr(originalLanguage(&m.OriginalLanguage))
 	out.Keywords, out.Ratings, out.ReleaseDate = []string{}, movieRatings(m.Votes, m.Score), utcPtr(m.CinemaDate)
 	if m.Collection != nil {
 		out.Collection = &movieCollection{Title: m.Collection.Name, TmdbID: atoi64(m.Collection.ID)}
