@@ -66,8 +66,6 @@
 	"frame.theater.of": "{time} із {total}",
 	"frame.theater.soundOn": "Увімкнути звук",
 	"frame.theater.soundOff": "Вимкнути звук",
-	"frame.theater.fullScreen": "На весь екран",
-	"frame.theater.leaveFullScreen": "Вийти з повноекранного режиму",
 	"frame.layout.search": "Пошук",
 	"frame.layout.more": "Ще",
 	"frame.layout.owner": "Власник",

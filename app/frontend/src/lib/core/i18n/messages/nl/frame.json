@@ -66,8 +66,6 @@
 	"frame.theater.of": "{time} van {total}",
 	"frame.theater.soundOn": "Geluid aanzetten",
 	"frame.theater.soundOff": "Geluid uitzetten",
-	"frame.theater.fullScreen": "Volledig scherm",
-	"frame.theater.leaveFullScreen": "Volledig scherm verlaten",
 	"frame.layout.search": "Zoeken",
 	"frame.layout.more": "Meer",
 	"frame.layout.owner": "Eigenaar",

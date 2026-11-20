@@ -66,8 +66,6 @@
 	"frame.theater.of": "{time} / {total}",
 	"frame.theater.soundOn": "Lülita heli sisse",
 	"frame.theater.soundOff": "Lülita heli välja",
-	"frame.theater.fullScreen": "Täisekraan",
-	"frame.theater.leaveFullScreen": "Välju täisekraanist",
 	"frame.layout.search": "Otsing",
 	"frame.layout.more": "Rohkem",
 	"frame.layout.owner": "Omanik",
