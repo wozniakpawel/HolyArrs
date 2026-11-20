@@ -1579,5 +1579,10 @@
 	"server.suggest.trending-shows-on-streaming": "Vinsælir þættir á streymi",
 	"server.suggest.trending-on-streaming": "Vinsælt á streymi",
 	"server.discover.popular": "Vinsælt",
-	"server.metadata.creator": "Höfundur"
+	"server.metadata.creator": "Höfundur",
+	"server.migrate.sizes-from-the-old-app": "{why}; stærðir úr gamla forritinu: {body}",
+	"server.migrate.becomes-pick-rules-a-copy-of": "verður að Valreglunum {name}, afriti af {preset} með stærðum gamla forritsins",
+	"server.migrate.no-holyarrs-quality-step-matches-it": "ekkert gæðaþrep í HolyArrs passar við það",
+	"server.migrate.no-quality-profile-came-over-to-2": "ekkert gæðasnið kom yfir til að bera það",
+	"server.migrate.you-left-size-limits-behind-titles": "þú skildir stærðarmörkin eftir; titlar fá stærðirnar úr Valreglum sínum"
 }

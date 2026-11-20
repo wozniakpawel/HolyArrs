@@ -35,6 +35,9 @@ type arrSet struct {
 	table  string
 	only   []Kind // nil: every arr app
 	needed bool   // a failure fails the read (else a note)
+	// soft makes any failure a note, for a list that may be too large to
+	// read and is not worth failing the whole read for.
+	soft bool
 }
 
 func (r arrReader) apiBase() string {
@@ -112,6 +115,8 @@ func (r arrReader) sets() []arrSet {
 		{name: "folders", api: []string{"/rootfolder"}, table: "RootFolders"},
 		{name: "profiles", api: []string{"/qualityprofile"}, table: "QualityProfiles"},
 		{name: "formats", api: []string{"/customformat"}, table: "CustomFormats"},
+		// The size table; a backup's QualityDefinitions are read below (fromBackup).
+		{name: "qualitydefs", api: []string{"/qualitydefinition"}, only: []Kind{Sonarr, Radarr}, soft: true},
 		// Language names, so language tests are brought by name (the ids differ per app).
 		{name: "languages", api: []string{"/language"}, only: []Kind{Sonarr, Radarr}},
 		{name: "releasewords", api: []string{"/releaseprofile"}, table: "ReleaseProfiles"},
@@ -238,7 +243,7 @@ func (r arrReader) fromAPI(ctx context.Context, src Source) (*arrRows, error) {
 			got, lastErr = r.albumsByArtist(ctx, c, out.sets["titles"])
 		}
 		if lastErr != nil {
-			if s.needed || !errors.Is(lastErr, ErrBadAnswer) {
+			if s.needed || !s.soft && !errors.Is(lastErr, ErrBadAnswer) {
 				return nil, lastErr
 			}
 			out.notes = append(out.notes, "the app has no "+s.name+" list; skipped")
@@ -259,7 +264,7 @@ func (r arrReader) fromAPI(ctx context.Context, src Source) (*arrRows, error) {
 			if _, paged := lower(x)["records"]; paged {
 				if rows, err = r.pages(ctx, c, used); err != nil {
 					// A later page that fails is skipped like a missing route.
-					if s.needed || !errors.Is(err, ErrBadAnswer) {
+					if s.needed || !s.soft && !errors.Is(err, ErrBadAnswer) {
 						return nil, err
 					}
 					out.notes = append(out.notes, "the app has no "+s.name+" list; skipped")

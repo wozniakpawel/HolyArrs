@@ -1579,5 +1579,10 @@
 	"server.suggest.trending-shows-on-streaming": "Serien im Trend beim Streaming",
 	"server.suggest.trending-on-streaming": "Im Trend beim Streaming",
 	"server.discover.popular": "Beliebt",
-	"server.metadata.creator": "Schöpfer"
+	"server.metadata.creator": "Schöpfer",
+	"server.migrate.sizes-from-the-old-app": "{why}; Größen aus der alten App: {body}",
+	"server.migrate.becomes-pick-rules-a-copy-of": "wird zu den Auswahlregeln {name}, einer Kopie von {preset} mit den Größen der alten App",
+	"server.migrate.no-holyarrs-quality-step-matches-it": "keine Qualitätsstufe in HolyArrs passt dazu",
+	"server.migrate.no-quality-profile-came-over-to-2": "kein Qualitätsprofil kam herüber, das sie tragen könnte",
+	"server.migrate.you-left-size-limits-behind-titles": "du hast die Größengrenzen zurückgelassen; Titel nehmen die Größen ihrer Auswahlregeln"
 }

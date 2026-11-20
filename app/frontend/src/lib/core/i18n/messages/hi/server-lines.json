@@ -1579,5 +1579,10 @@
 	"server.suggest.trending-shows-on-streaming": "स्ट्रीमिंग पर ट्रेंडिंग टीवी शो",
 	"server.suggest.trending-on-streaming": "स्ट्रीमिंग पर ट्रेंडिंग",
 	"server.discover.popular": "लोकप्रिय",
-	"server.metadata.creator": "क्रिएटर"
+	"server.metadata.creator": "क्रिएटर",
+	"server.migrate.sizes-from-the-old-app": "{why}; पुराने ऐप से आकार: {body}",
+	"server.migrate.becomes-pick-rules-a-copy-of": "चुनाव के नियम {name} बनता है, पुराने ऐप के आकारों के साथ {preset} की कॉपी",
+	"server.migrate.no-holyarrs-quality-step-matches-it": "HolyArrs का कोई क्वालिटी स्टेप इससे मेल नहीं खाता",
+	"server.migrate.no-quality-profile-came-over-to-2": "इसे ले जाने के लिए कोई क्वालिटी प्रोफ़ाइल नहीं आई",
+	"server.migrate.you-left-size-limits-behind-titles": "आपने आकार की सीमाएं पीछे छोड़ दीं; टाइटल अपने चुनाव के नियमों के आकार लेते हैं"
 }

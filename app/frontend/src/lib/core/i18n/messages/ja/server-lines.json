@@ -1579,5 +1579,10 @@
 	"server.suggest.trending-shows-on-streaming": "配信でトレンドの番組",
 	"server.suggest.trending-on-streaming": "配信でトレンド",
 	"server.discover.popular": "人気",
-	"server.metadata.creator": "原作者"
+	"server.metadata.creator": "原作者",
+	"server.migrate.sizes-from-the-old-app": "{why}。旧アプリのサイズ: {body}",
+	"server.migrate.becomes-pick-rules-a-copy-of": "選定ルール {name} になります（旧アプリのサイズを持つ {preset} のコピー）",
+	"server.migrate.no-holyarrs-quality-step-matches-it": "一致する HolyArrs の画質ステップがありません",
+	"server.migrate.no-quality-profile-came-over-to-2": "引き継ぐ画質プロファイルがありませんでした",
+	"server.migrate.you-left-size-limits-behind-titles": "サイズ制限は持ってきませんでした。タイトルは選定ルールのサイズを使います"
 }

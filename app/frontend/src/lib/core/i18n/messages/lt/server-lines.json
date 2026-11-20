@@ -1579,5 +1579,10 @@
 	"server.suggest.trending-shows-on-streaming": "Populiarūs serialai srautinėse platformose",
 	"server.suggest.trending-on-streaming": "Populiaru srautinėse platformose",
 	"server.discover.popular": "Populiaru",
-	"server.metadata.creator": "Kūrėjas"
+	"server.metadata.creator": "Kūrėjas",
+	"server.migrate.sizes-from-the-old-app": "{why}; dydžiai iš senos programos: {body}",
+	"server.migrate.becomes-pick-rules-a-copy-of": "tampa Pasirinkimo taisyklėmis {name} – {preset} kopija su senos programos dydžiais",
+	"server.migrate.no-holyarrs-quality-step-matches-it": "neatitinka jokia HolyArrs kokybės pakopa",
+	"server.migrate.no-quality-profile-came-over-to-2": "neatkeliavo joks kokybės profilis, kuris jį nešiotų",
+	"server.migrate.you-left-size-limits-behind-titles": "dydžio ribas palikote; pavadinimai ima savo Pasirinkimo taisyklių dydžius"
 }

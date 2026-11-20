@@ -1579,5 +1579,10 @@
 	"server.suggest.trending-shows-on-streaming": "Tendencēs seriāli straumēšanā",
 	"server.suggest.trending-on-streaming": "Tendences straumēšanā",
 	"server.discover.popular": "Populārs",
-	"server.metadata.creator": "Veidotājs"
+	"server.metadata.creator": "Veidotājs",
+	"server.migrate.sizes-from-the-old-app": "{why}; izmēri no vecās lietotnes: {body}",
+	"server.migrate.becomes-pick-rules-a-copy-of": "kļūst par Izvēles noteikumiem {name} – {preset} kopiju ar vecās lietotnes izmēriem",
+	"server.migrate.no-holyarrs-quality-step-matches-it": "neviens HolyArrs kvalitātes pakāpiens tam neatbilst",
+	"server.migrate.no-quality-profile-came-over-to-2": "nepārnāca neviens kvalitātes profils, kas to nestu",
+	"server.migrate.you-left-size-limits-behind-titles": "tu atstāji izmēra ierobežojumus; nosaukumi ņem savu Izvēles noteikumu izmērus"
 }

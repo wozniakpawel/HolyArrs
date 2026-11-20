@@ -1579,5 +1579,10 @@
 	"server.suggest.trending-shows-on-streaming": "Phim bộ đang thịnh hành trên các dịch vụ phát trực tuyến",
 	"server.suggest.trending-on-streaming": "Đang thịnh hành trên các dịch vụ phát trực tuyến",
 	"server.discover.popular": "Phổ biến",
-	"server.metadata.creator": "Người sáng tạo"
+	"server.metadata.creator": "Người sáng tạo",
+	"server.migrate.sizes-from-the-old-app": "{why}; dung lượng từ ứng dụng cũ: {body}",
+	"server.migrate.becomes-pick-rules-a-copy-of": "trở thành Quy tắc chọn {name}, bản sao của {preset} với dung lượng của ứng dụng cũ",
+	"server.migrate.no-holyarrs-quality-step-matches-it": "không có bậc chất lượng nào của HolyArrs khớp với nó",
+	"server.migrate.no-quality-profile-came-over-to-2": "không có hồ sơ chất lượng nào được chuyển sang để mang nó",
+	"server.migrate.you-left-size-limits-behind-titles": "bạn đã để lại giới hạn dung lượng; các tựa dùng dung lượng theo Quy tắc chọn của chúng"
 }

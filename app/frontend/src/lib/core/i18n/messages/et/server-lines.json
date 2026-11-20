@@ -1579,5 +1579,10 @@
 	"server.suggest.trending-shows-on-streaming": "Menukad sarjad voogedastuses",
 	"server.suggest.trending-on-streaming": "Menukas voogedastuses",
 	"server.discover.popular": "Populaarsed",
-	"server.metadata.creator": "Looja"
+	"server.metadata.creator": "Looja",
+	"server.migrate.sizes-from-the-old-app": "{why}; suurused vanast rakendusest: {body}",
+	"server.migrate.becomes-pick-rules-a-copy-of": "saab Valikureegliteks {name}, {preset} koopiaks vana rakenduse suurustega",
+	"server.migrate.no-holyarrs-quality-step-matches-it": "ükski HolyArrsi kvaliteediaste sellele ei vasta",
+	"server.migrate.no-quality-profile-came-over-to-2": "ükski kvaliteediprofiil ei tulnud seda kandma",
+	"server.migrate.you-left-size-limits-behind-titles": "jätsid suuruspiirangud maha; pealkirjad võtavad suurused oma Valikureeglitest"
 }

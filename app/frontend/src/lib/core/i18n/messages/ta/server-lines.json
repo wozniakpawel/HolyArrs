@@ -1579,5 +1579,10 @@
 	"server.suggest.trending-shows-on-streaming": "ஸ்ட்ரீமிங்கில் டிரெண்டிங் தொடர்கள்",
 	"server.suggest.trending-on-streaming": "ஸ்ட்ரீமிங்கில் டிரெண்டிங்",
 	"server.discover.popular": "பிரபலமானவை",
-	"server.metadata.creator": "படைப்பாளர்"
+	"server.metadata.creator": "படைப்பாளர்",
+	"server.migrate.sizes-from-the-old-app": "{why}; பழைய செயலியின் அளவுகள்: {body}",
+	"server.migrate.becomes-pick-rules-a-copy-of": "தேர்வு விதிகள் {name} ஆகிறது, பழைய செயலியின் அளவுகளுடன் {preset} இன் நகல்",
+	"server.migrate.no-holyarrs-quality-step-matches-it": "HolyArrs இன் எந்தத் தரப் படியும் இதற்குப் பொருந்தவில்லை",
+	"server.migrate.no-quality-profile-came-over-to-2": "இதைச் சுமக்க எந்தத் தரச் சுயவிவரமும் வரவில்லை",
+	"server.migrate.you-left-size-limits-behind-titles": "அளவு வரம்புகளை விட்டுவிட்டீர்கள்; தலைப்புகள் தங்கள் தேர்வு விதிகளின் அளவுகளை எடுக்கும்"
 }

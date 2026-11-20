@@ -1579,5 +1579,10 @@
 	"server.suggest.trending-shows-on-streaming": "Nousussa olevat sarjat suoratoistossa",
 	"server.suggest.trending-on-streaming": "Nousussa suoratoistossa",
 	"server.discover.popular": "Suosittua",
-	"server.metadata.creator": "Tekijä"
+	"server.metadata.creator": "Tekijä",
+	"server.migrate.sizes-from-the-old-app": "{why}; koot vanhasta sovelluksesta: {body}",
+	"server.migrate.becomes-pick-rules-a-copy-of": "muuttuu Valintasäännöiksi {name}, kopioksi kohteesta {preset} vanhan sovelluksen koilla",
+	"server.migrate.no-holyarrs-quality-step-matches-it": "mikään HolyArrsin laatuporras ei vastaa sitä",
+	"server.migrate.no-quality-profile-came-over-to-2": "laatuprofiilia sen kantamiseksi ei tullut mukaan",
+	"server.migrate.you-left-size-limits-behind-titles": "jätit kokorajat pois; nimikkeet käyttävät Valintasääntöjensä kokoja"
 }

@@ -1579,5 +1579,10 @@
 	"server.suggest.trending-shows-on-streaming": "Trendy seriály ve streamování",
 	"server.suggest.trending-on-streaming": "Trendy ve streamování",
 	"server.discover.popular": "Oblíbené",
-	"server.metadata.creator": "Tvůrce"
+	"server.metadata.creator": "Tvůrce",
+	"server.migrate.sizes-from-the-old-app": "{why}; velikosti ze staré aplikace: {body}",
+	"server.migrate.becomes-pick-rules-a-copy-of": "stane se Pravidly výběru {name}, kopií {preset} s velikostmi ze staré aplikace",
+	"server.migrate.no-holyarrs-quality-step-matches-it": "neodpovídá mu žádný stupeň kvality HolyArrs",
+	"server.migrate.no-quality-profile-came-over-to-2": "nepřišel žádný profil kvality, který by to nesl",
+	"server.migrate.you-left-size-limits-behind-titles": "limity velikosti jste nechali za sebou; tituly berou velikosti ze svých Pravidel výběru"
 }

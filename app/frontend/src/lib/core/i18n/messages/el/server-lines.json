@@ -1579,5 +1579,10 @@
 	"server.suggest.trending-shows-on-streaming": "Σειρές που κάνουν τάση στο streaming",
 	"server.suggest.trending-on-streaming": "Τάσεις στο streaming",
 	"server.discover.popular": "Δημοφιλή",
-	"server.metadata.creator": "Δημιουργός"
+	"server.metadata.creator": "Δημιουργός",
+	"server.migrate.sizes-from-the-old-app": "{why}· μεγέθη από την παλιά εφαρμογή: {body}",
+	"server.migrate.becomes-pick-rules-a-copy-of": "γίνεται Κανόνες επιλογής {name}, αντίγραφο του {preset} με τα μεγέθη της παλιάς εφαρμογής",
+	"server.migrate.no-holyarrs-quality-step-matches-it": "κανένα βήμα ποιότητας του HolyArrs δεν του ταιριάζει",
+	"server.migrate.no-quality-profile-came-over-to-2": "δεν μεταφέρθηκε προφίλ ποιότητας για να το φέρει",
+	"server.migrate.you-left-size-limits-behind-titles": "άφησες πίσω τα όρια μεγέθους· οι τίτλοι παίρνουν τα μεγέθη των Κανόνων επιλογής τους"
 }

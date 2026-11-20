@@ -1579,5 +1579,10 @@
 	"server.suggest.trending-shows-on-streaming": "Seriale în trend pe streaming",
 	"server.suggest.trending-on-streaming": "În trend pe streaming",
 	"server.discover.popular": "Populare",
-	"server.metadata.creator": "Creator"
+	"server.metadata.creator": "Creator",
+	"server.migrate.sizes-from-the-old-app": "{why}; mărimi din aplicația veche: {body}",
+	"server.migrate.becomes-pick-rules-a-copy-of": "devine Regulile de alegere {name}, o copie a {preset} cu mărimile aplicației vechi",
+	"server.migrate.no-holyarrs-quality-step-matches-it": "nicio treaptă de calitate HolyArrs nu i se potrivește",
+	"server.migrate.no-quality-profile-came-over-to-2": "niciun profil de calitate nu a venit să-l poarte",
+	"server.migrate.you-left-size-limits-behind-titles": "ai lăsat în urmă limitele de mărime; titlurile iau mărimile din Regulile lor de alegere"
 }

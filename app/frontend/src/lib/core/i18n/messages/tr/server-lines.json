@@ -1579,5 +1579,10 @@
 	"server.suggest.trending-shows-on-streaming": "Yayın servislerinde öne çıkan diziler",
 	"server.suggest.trending-on-streaming": "Yayın servislerinde öne çıkanlar",
 	"server.discover.popular": "Popüler",
-	"server.metadata.creator": "Yaratıcı"
+	"server.metadata.creator": "Yaratıcı",
+	"server.migrate.sizes-from-the-old-app": "{why}; eski uygulamadan boyutlar: {body}",
+	"server.migrate.becomes-pick-rules-a-copy-of": "{name} Seçim kuralları olur; eski uygulamanın boyutlarıyla {preset} kopyası",
+	"server.migrate.no-holyarrs-quality-step-matches-it": "HolyArrs'ta buna uyan bir kalite adımı yok",
+	"server.migrate.no-quality-profile-came-over-to-2": "bunu taşıyacak bir kalite profili gelmedi",
+	"server.migrate.you-left-size-limits-behind-titles": "boyut sınırlarını geride bıraktın; başlıklar kendi Seçim kurallarının boyutlarını alır"
 }

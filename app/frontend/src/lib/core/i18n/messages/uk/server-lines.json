@@ -1579,5 +1579,10 @@
 	"server.suggest.trending-shows-on-streaming": "Серіали в тренді на стрімінгу",
 	"server.suggest.trending-on-streaming": "У тренді на стрімінгу",
 	"server.discover.popular": "Популярне",
-	"server.metadata.creator": "Автор"
+	"server.metadata.creator": "Автор",
+	"server.migrate.sizes-from-the-old-app": "{why}; розміри зі старого застосунку: {body}",
+	"server.migrate.becomes-pick-rules-a-copy-of": "стає Правилами вибору {name}, копією {preset} з розмірами старого застосунку",
+	"server.migrate.no-holyarrs-quality-step-matches-it": "жоден щабель якості HolyArrs йому не відповідає",
+	"server.migrate.no-quality-profile-came-over-to-2": "жоден профіль якості не прийшов, щоб це нести",
+	"server.migrate.you-left-size-limits-behind-titles": "ти залишив обмеження розміру; тайтли беруть розміри своїх Правил вибору"
 }

@@ -1579,5 +1579,10 @@
 	"server.suggest.trending-shows-on-streaming": "Seriale na topie w streamingu",
 	"server.suggest.trending-on-streaming": "Na topie w streamingu",
 	"server.discover.popular": "Popularne",
-	"server.metadata.creator": "Twórca"
+	"server.metadata.creator": "Twórca",
+	"server.migrate.sizes-from-the-old-app": "{why}; rozmiary ze starej aplikacji: {body}",
+	"server.migrate.becomes-pick-rules-a-copy-of": "staje się Regułami wyboru {name}, kopią {preset} z rozmiarami starej aplikacji",
+	"server.migrate.no-holyarrs-quality-step-matches-it": "nie pasuje do niej żaden stopień jakości HolyArrs",
+	"server.migrate.no-quality-profile-came-over-to-2": "żaden profil jakości nie został przeniesiony, żeby to objąć",
+	"server.migrate.you-left-size-limits-behind-titles": "limity rozmiaru zostały pominięte; tytuły biorą rozmiary ze swoich Reguł wyboru"
 }

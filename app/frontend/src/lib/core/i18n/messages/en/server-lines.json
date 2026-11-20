@@ -1579,5 +1579,10 @@
 	"server.suggest.trending-shows-on-streaming": "Trending shows on streaming",
 	"server.suggest.trending-shows-this-week": "Trending shows this week",
 	"server.suggest.trending-this-week-everywhere": "Trending this week everywhere",
-	"server.suggest.what-people-watch-this-week": "What people watch this week"
+	"server.suggest.what-people-watch-this-week": "What people watch this week",
+	"server.migrate.sizes-from-the-old-app": "{why}; sizes from the old app: {body}",
+	"server.migrate.becomes-pick-rules-a-copy-of": "becomes Pick rules {name}, a copy of {preset} with the old app's sizes",
+	"server.migrate.no-holyarrs-quality-step-matches-it": "no HolyArrs quality step matches it",
+	"server.migrate.no-quality-profile-came-over-to-2": "no quality profile came over to carry it",
+	"server.migrate.you-left-size-limits-behind-titles": "you left size limits behind; titles take the sizes of their Pick rules"
 }

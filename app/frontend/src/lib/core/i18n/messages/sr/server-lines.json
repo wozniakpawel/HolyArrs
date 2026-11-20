@@ -1579,5 +1579,10 @@
 	"server.suggest.trending-shows-on-streaming": "Серије у тренду на стримингу",
 	"server.suggest.trending-on-streaming": "У тренду на стримингу",
 	"server.discover.popular": "Популарно",
-	"server.metadata.creator": "Аутор"
+	"server.metadata.creator": "Аутор",
+	"server.migrate.sizes-from-the-old-app": "{why}; величине из старе апликације: {body}",
+	"server.migrate.becomes-pick-rules-a-copy-of": "постаје Правила избора {name}, копија {preset} са величинама старе апликације",
+	"server.migrate.no-holyarrs-quality-step-matches-it": "ниједан корак квалитета у HolyArrs-у му не одговара",
+	"server.migrate.no-quality-profile-came-over-to-2": "ниједан профил квалитета није пренет да га носи",
+	"server.migrate.you-left-size-limits-behind-titles": "оставио си ограничења величине; наслови узимају величине својих Правила избора"
 }

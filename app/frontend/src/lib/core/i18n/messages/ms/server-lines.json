@@ -1579,5 +1579,10 @@
 	"server.suggest.trending-shows-on-streaming": "Siri sedang tren di strim",
 	"server.suggest.trending-on-streaming": "Sedang tren di strim",
 	"server.discover.popular": "Popular",
-	"server.metadata.creator": "Pencipta"
+	"server.metadata.creator": "Pencipta",
+	"server.migrate.sizes-from-the-old-app": "{why}; saiz daripada aplikasi lama: {body}",
+	"server.migrate.becomes-pick-rules-a-copy-of": "menjadi Peraturan pilihan {name}, salinan {preset} dengan saiz aplikasi lama",
+	"server.migrate.no-holyarrs-quality-step-matches-it": "tiada langkah kualiti HolyArrs yang sepadan",
+	"server.migrate.no-quality-profile-came-over-to-2": "tiada profil kualiti dibawa masuk untuk membawanya",
+	"server.migrate.you-left-size-limits-behind-titles": "anda meninggalkan had saiz; tajuk mengambil saiz daripada Peraturan pilihannya"
 }

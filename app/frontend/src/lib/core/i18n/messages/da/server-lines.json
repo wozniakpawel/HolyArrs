@@ -1579,5 +1579,10 @@
 	"server.suggest.trending-shows-on-streaming": "Serier, der trender på streaming",
 	"server.suggest.trending-on-streaming": "Trender på streaming",
 	"server.discover.popular": "Populære",
-	"server.metadata.creator": "Skaber"
+	"server.metadata.creator": "Skaber",
+	"server.migrate.sizes-from-the-old-app": "{why}; størrelser fra den gamle app: {body}",
+	"server.migrate.becomes-pick-rules-a-copy-of": "bliver Valgregler {name}, en kopi af {preset} med den gamle apps størrelser",
+	"server.migrate.no-holyarrs-quality-step-matches-it": "intet kvalitetstrin i HolyArrs passer til den",
+	"server.migrate.no-quality-profile-came-over-to-2": "ingen kvalitetsprofil kom med til at bære den",
+	"server.migrate.you-left-size-limits-behind-titles": "du lod størrelsesgrænserne blive tilbage; titler bruger størrelserne fra deres Valgregler"
 }

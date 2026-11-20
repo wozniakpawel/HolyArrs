@@ -1579,5 +1579,10 @@
 	"server.suggest.trending-shows-on-streaming": "Trending na show sa streaming",
 	"server.suggest.trending-on-streaming": "Trending sa streaming",
 	"server.discover.popular": "Sikat",
-	"server.metadata.creator": "Creator"
+	"server.metadata.creator": "Creator",
+	"server.migrate.sizes-from-the-old-app": "{why}; mga laki mula sa lumang app: {body}",
+	"server.migrate.becomes-pick-rules-a-copy-of": "nagiging Mga panuntunan sa pagpili {name}, kopya ng {preset} na may mga laki ng lumang app",
+	"server.migrate.no-holyarrs-quality-step-matches-it": "walang quality step ng HolyArrs na tugma rito",
+	"server.migrate.no-quality-profile-came-over-to-2": "walang quality profile na dumating para dalhin ito",
+	"server.migrate.you-left-size-limits-behind-titles": "iniwan mo ang mga limit sa laki; ginagamit ng mga title ang mga laki ng kanilang Mga panuntunan sa pagpili"
 }
