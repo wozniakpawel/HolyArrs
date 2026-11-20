@@ -31,7 +31,7 @@ Old apps often run in other containers and see folders under other names. A rule
 | Library folders | Library folders for movies and shows. |
 | Movies and shows | Titles, matched by TMDB or TVDB id. Folders and files stay where they are. A watched title gets **Keep up to date**; seasons that were not watched stay off. Nothing is searched for during the move. |
 | Quality profiles | Each one matched to the closest **Pick rules** preset (Standard, 4K). The **Import** step shows why. Titles use the preset of their profile. See [What changes with a preset](#what-changes-with-a-preset). |
-| The size table (smallest and largest size per quality) | When it differs from the matched preset, each profile becomes its own Pick rules: a copy of that preset named after the profile, for that app's movies or shows only, with the old sizes per quality step. Titles of that profile use them. See [Size limits](#size-limits). |
+| The size table (smallest and largest size per quality) | When it differs from the matched preset, each profile a title or list uses becomes its own Pick rules: a copy of that preset named after the profile, for that app's movies or shows only, with the old sizes per quality step. Titles of that profile use them. See [Size limits](#size-limits). |
 | Exclusions | The **Never-add** list. |
 | Blocklist | The **Turned down** list of each title that comes over, so those releases are never taken again. A show's release is turned down for the episodes its name gives. Each one is kept under the Source with the old indexer's name, or else the first Source of its protocol, so add or link your Sources first. |
 | Radarr's release stage per movie, and its availability delay | Each movie's **Release gate** and gate delay, up to 365 days. Your default for new movies stays. |
@@ -62,7 +62,7 @@ The old default wait rule comes over only when it differs from that app's own de
 
 **Bring size limits** sits under **Pick rules** in **What to import** and is on by default. It shows when an app's size table would change any Pick rules: it differs from a matched preset on a step that preset takes, or a profile brings its formats and scores.
 
-- Each profile becomes its own Pick rules, a copy of Standard or 4K with the app's sizes per quality step. Sonarr's copies are for shows and Radarr's for movies, so each app keeps its own sizes. A name that is taken gets the app added, such as `HD-1080p (sonarr)`.
+- Each profile a title or list uses becomes its own Pick rules, a copy of Standard or 4K with the app's sizes per quality step. A profile nothing uses keeps its preset, so no unused Pick rules are made. Sonarr's copies are for shows and Radarr's for movies, so each app keeps its own sizes. A name that is taken gets the app added, such as `HD-1080p (sonarr)`.
 - Sizes are per minute of runtime, as in the old apps. A quality with no largest size has no upper limit. When several old qualities fall on one step, such as WEBDL-1080p and WEBRip-1080p, the widest limits win.
 - A profile that also brings its formats and scores gets the sizes on those same Pick rules, not on a second copy.
 - The **Import** step shows each step's range in GB an hour.

@@ -80,7 +80,7 @@ func (b *builder) profiles(s *Snapshot) {
 	scored := map[string]bool{}
 	leftOut := map[string]string{}
 	b.snapRules = nil
-	sizes := b.appSizes(s)
+	sizes, used := b.appSizes(s), usedProfiles(s)
 	for i, p := range s.QualityProfiles {
 		preset, why := matchPreset(s.Kind, p)
 		key := fmt.Sprintf("pick_rules:%d:%s:%d", b.snapID, s.Kind, p.ID)
@@ -103,7 +103,7 @@ func (b *builder) profiles(s *Snapshot) {
 				Detail: fmt.Sprintf("becomes Pick rules %s · %d traits", rp.Name, len(rp.Traits)), Why: why, Rules: rp})
 			continue
 		}
-		if sizes != nil && sizesDiffer(presetBody(preset), sizes) {
+		if sizes != nil && used[p.ID] && sizesDiffer(presetBody(preset), sizes) {
 			b.sizedItem(s, p, i, key, preset, why, sizes, leftOut)
 			continue
 		}
