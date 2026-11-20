@@ -614,6 +614,7 @@ func movieDetails(m *movie, t mediafiles.Title) {
 		score = *t.Score
 	}
 	m.Ratings = movieRatings(t.Votes, score)
+	addOMDbRatings(m.Ratings, t)
 	for _, d := range []*time.Time{t.CinemaDate, t.DigitalDate, t.PhysicalDate} {
 		if d != nil {
 			m.ReleaseDate = utcPtr(d)
@@ -623,10 +624,24 @@ func movieDetails(m *movie, t mediafiles.Title) {
 }
 
 // movieRatings has the two sources Radarr always sends, imdb and tmdb;
-// HolyArrs knows TMDB's score only, so imdb stands at zero.
+// imdb stands at zero until OMDb's score is known (addOMDbRatings).
 func movieRatings(votes int, score float64) map[string]any {
 	return map[string]any{"imdb": map[string]any{"votes": 0, "value": 0, "type": "user"},
 		"tmdb": map[string]any{"votes": votes, "value": score, "type": "user"}}
+}
+
+// addOMDbRatings fills imdb from the kept OMDb score, and adds metacritic
+// and rottenTomatoes as Radarr does: only when known, with no votes.
+func addOMDbRatings(r map[string]any, t mediafiles.Title) {
+	if t.IMDbRating != nil {
+		r["imdb"] = map[string]any{"votes": t.IMDbVotes, "value": *t.IMDbRating, "type": "user"}
+	}
+	if t.Metacritic != nil {
+		r["metacritic"] = map[string]any{"votes": 0, "value": *t.Metacritic, "type": "user"}
+	}
+	if t.RottenTomatoes != nil {
+		r["rottenTomatoes"] = map[string]any{"votes": 0, "value": *t.RottenTomatoes, "type": "user"}
+	}
 }
 
 // cleanTitle is the old apps' clean title: lower case letters and digits.
