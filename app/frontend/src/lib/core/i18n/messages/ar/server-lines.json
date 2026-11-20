@@ -1579,5 +1579,9 @@
 	"server.suggest.trending-shows-on-streaming": "المسلسلات الرائجة على منصات البث",
 	"server.suggest.trending-on-streaming": "رائج على منصات البث",
 	"server.discover.popular": "الرائج",
-	"server.metadata.creator": "المبتكر"
+	"server.metadata.creator": "المبتكر",
+	"server.migrate.its-seasons": "{name}: مواسمها",
+	"server.migrate.holyarrs-cannot-keep-only-the-first": "لا يستطيع HolyArrs الاحتفاظ بالحلقة الأولى وحدها؛ تحتفظ القائمة بالموسم الأول",
+	"server.migrate.holyarrs-reads-tmdb-lists-and-public-3": "يقرأ HolyArrs قوائم TMDB وقوائم Trakt العامة فقط؛ تبقى هذه القائمة في Sonarr",
+	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "يقرأ HolyArrs قوائم Trakt وقوائم المشاهدة؛ تبقى قائمة المشاهَد أو المجموعة في Sonarr"
 }

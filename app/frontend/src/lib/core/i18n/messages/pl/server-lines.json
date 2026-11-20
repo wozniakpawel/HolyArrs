@@ -1579,5 +1579,9 @@
 	"server.suggest.trending-shows-on-streaming": "Seriale na topie w streamingu",
 	"server.suggest.trending-on-streaming": "Na topie w streamingu",
 	"server.discover.popular": "Popularne",
-	"server.metadata.creator": "Twórca"
+	"server.metadata.creator": "Twórca",
+	"server.migrate.its-seasons": "{name}: jego sezony",
+	"server.migrate.holyarrs-cannot-keep-only-the-first": "HolyArrs nie może zachować tylko pierwszego odcinka; lista zachowuje pierwszy sezon",
+	"server.migrate.holyarrs-reads-tmdb-lists-and-public-3": "HolyArrs czyta tylko listy TMDB i publiczne listy Trakt; ta lista zostaje w Sonarr",
+	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs czyta listy Trakt i listy do obejrzenia; lista obejrzanych lub kolekcji zostaje w Sonarr"
 }

@@ -1579,5 +1579,9 @@
 	"server.suggest.trending-shows-on-streaming": "Seriale în trend pe streaming",
 	"server.suggest.trending-on-streaming": "În trend pe streaming",
 	"server.discover.popular": "Populare",
-	"server.metadata.creator": "Creator"
+	"server.metadata.creator": "Creator",
+	"server.migrate.its-seasons": "{name}: sezoanele lui",
+	"server.migrate.holyarrs-cannot-keep-only-the-first": "HolyArrs nu poate păstra doar primul episod; lista păstrează primul sezon",
+	"server.migrate.holyarrs-reads-tmdb-lists-and-public-3": "HolyArrs citește doar listele TMDB și listele Trakt publice; această listă rămâne în Sonarr",
+	"server.migrate.holyarrs-reads-trakt-lists-and-watchlists-2": "HolyArrs citește listele și listele de urmărire Trakt; o listă de vizionate sau de colecție rămâne în Sonarr"
 }
