@@ -1338,6 +1338,7 @@ plain
 plan
 plan_hash
 plans
+play_count
 playabilityStatus
 playerStoryboardSpecRenderer
 plays
