@@ -110,15 +110,27 @@ func originalLanguage(code *string) language {
 }
 
 // alternateTitle is one other name of a title.
+// alternateTitle carries the fields each side sends with one: Sonarr a
+// season number (-1: every season), Radarr where it came from and ids.
 type alternateTitle struct {
-	Title string `json:"title"`
+	Title           string `json:"title"`
+	SeasonNumber    *int   `json:"seasonNumber,omitempty"`
+	SourceType      string `json:"sourceType,omitempty"`
+	MovieMetadataID int64  `json:"movieMetadataId,omitempty"`
+	ID              int64  `json:"id,omitempty"`
 }
 
-func alternateTitles(names []string) []alternateTitle {
+func alternateTitles(side string, titleID int64, names []string) []alternateTitle {
 	out := []alternateTitle{}
 	for _, n := range names {
 		if n = strings.TrimSpace(n); n != "" {
-			out = append(out, alternateTitle{Title: n})
+			a := alternateTitle{Title: n}
+			if side == "sonarr" {
+				a.SeasonNumber = ptr(-1)
+			} else {
+				a.SourceType, a.MovieMetadataID, a.ID = "tmdb", titleID, titleID*1000+int64(len(out))+1
+			}
+			out = append(out, a)
 		}
 	}
 	return out

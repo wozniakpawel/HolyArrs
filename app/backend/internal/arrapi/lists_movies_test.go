@@ -365,11 +365,11 @@ func TestRadarrQueueDetailsAndStatus(t *testing.T) {
 		t.Fatalf("no such movie: %s", b)
 	}
 	for side, b := range r.both("queue/status") {
-		var s map[string]int
+		var s map[string]any
 		if err := json.Unmarshal(b, &s); err != nil {
 			t.Fatalf("%s: %v %s", side, err, b)
 		}
-		if side == "radarr" && (s["totalCount"] != 3 || s["count"] != 3 || s["warnings"] != 1 || s["errors"] != 0) {
+		if side == "radarr" && (s["totalCount"] != 3.0 || s["count"] != 3.0 || s["warnings"] != true || s["errors"] != false || s["unknownErrors"] != false) {
 			t.Fatalf("%s: %s", side, b)
 		}
 		for _, k := range []string{"totalCount", "count", "unknownCount", "errors", "warnings", "unknownErrors", "unknownWarnings"} {

@@ -79,7 +79,7 @@ func TestFileShape_BazarrFields(t *testing.T) {
 		t.Errorf("media info: %v", mf.MediaInfo)
 	}
 	f.Quality.Codec, f.Quality.Audio, f.MediaInfo = "h265", "", map[string]any{}
-	if mf := mediaFileOf("sonarr", f, "/tv", "Lab Show"); mf.MediaInfo["videoCodec"] != "h265" || mf.MediaInfo["audioCodec"] != nil {
+	if mf := mediaFileOf("sonarr", f, "/tv", "Lab Show"); mf.MediaInfo["videoCodec"] != "h265" || mf.MediaInfo["audioCodec"] != "" {
 		t.Errorf("parsed codec first: %v", mf.MediaInfo)
 	}
 	for src, want := range map[string]string{"remux": "Bluray-1080p Remux", "disc_image": "BR-DISK-1080p", "tv": "HDTV-1080p", "odd": "odd-1080p"} {
@@ -91,7 +91,7 @@ func TestFileShape_BazarrFields(t *testing.T) {
 	if l := originalLanguage(nil); l.Name != "Unknown" {
 		t.Errorf("no original language: %+v", l)
 	}
-	if got := alternateTitles([]string{" Lab ", ""}); len(got) != 1 || got[0].Title != "Lab" {
+	if got := alternateTitles("sonarr", 1, []string{" Lab ", ""}); len(got) != 1 || got[0].Title != "Lab" || *got[0].SeasonNumber != -1 {
 		t.Errorf("alternate titles: %+v", got)
 	}
 }

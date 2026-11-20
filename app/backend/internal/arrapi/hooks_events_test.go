@@ -2,6 +2,7 @@ package arrapi
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"testing"
@@ -127,4 +128,28 @@ func TestHookEvents_AllKinds(t *testing.T) {
 	if n != 1 {
 		t.Fatalf("warning sent %d times to the hook that takes warnings", n)
 	}
+}
+
+// With forceSave, as Helmarr sends it, a hook is saved without the test
+// call, so a push server that refuses test events does not block it; a
+// change with forceSave is saved the same way.
+func TestHooks_ForceSaveSkipsTest(t *testing.T) {
+	h := newHookRig(t)
+	rc := newReceiver(t)
+	rc.answer(401)
+	st, body := h.do("radarr", "POST", "notification?forceSave=true", pulsarrHook(0, "Helmarr (Radarr)", rc.srv.URL+"/push", ""))
+	if st != 201 || len(rc.got()) != 0 {
+		t.Fatalf("forced add: %d %s, %d calls", st, body, len(rc.got()))
+	}
+	var added map[string]any
+	_ = json.Unmarshal([]byte(body), &added)
+	id := fmt.Sprint(int64(added["id"].(float64)))
+	added["onGrab"] = true
+	b, _ := json.Marshal(added)
+	if st, body := h.do("radarr", "PUT", "notification/"+id+"?forceSave=true", string(b)); st != 202 || len(rc.got()) != 0 {
+		t.Fatalf("forced change: %d %s, %d calls", st, body, len(rc.got()))
+	}
+	// Without forceSave the test still runs and a refusal still stops it.
+	st, body = h.do("radarr", "POST", "notification", pulsarrHook(0, "other", rc.srv.URL+"/push", ""))
+	failedOn(t, st, body, "Url")
 }

@@ -183,10 +183,21 @@ func (h *handler) serve(mux *http.ServeMux) http.Handler {
 			inner, ok = rest[1:], true
 		}
 		if !ok {
-			// The old apps answer anything outside their API with a bare
-			// 404. Bazarr's first probe (/api/system/status) then falls
-			// back to /api/v3. A JSON body would be read as a version.
-			w.WriteHeader(http.StatusNotFound)
+			switch rest {
+			case "/ping": // phone apps such as Helmarr check the server is up here
+				writeJSON(w, http.StatusOK, map[string]string{"status": "OK"})
+			case "/api": // the API versions on offer
+				writeJSON(w, http.StatusOK, map[string]any{"current": "v3", "deprecated": []string{}})
+			case "/system/status":
+				// A page of the old app's own site: it sends the caller to
+				// sign in. Helmarr asks for it while it works out the address.
+				http.Redirect(w, r, "/login", http.StatusFound) // the URL base layer adds the base
+			default:
+				// The old apps answer anything else outside their API with a
+				// bare 404. Bazarr's first probe (/api/system/status) then
+				// falls back to /api/v3. A JSON body would be read as a version.
+				w.WriteHeader(http.StatusNotFound)
+			}
 			return
 		}
 		// Bazarr lists with "series/", which means "series".

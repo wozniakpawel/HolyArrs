@@ -3,6 +3,8 @@ package arrapi
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"net/http/httptest"
 	"strings"
 	"testing"
 
@@ -119,5 +121,25 @@ func TestHookSchema(t *testing.T) {
 	}
 	if strings.Join(names, ",") != "url,method,username,password,headers" {
 		t.Fatalf("fields: %v", names)
+	}
+}
+
+// The addresses outside the API a phone app checks first answer as in
+// Sonarr, and Bazarr's probe still gets a bare 404.
+func TestOutsideAPIAddresses(t *testing.T) {
+	r := newPinRig(t)
+	for path, want := range map[string]string{
+		"/sonarr/ping": `{"status":"OK"}`, "/sonarr/api": `{"current":"v3","deprecated":[]}`,
+		"/sonarr/system/status": "302 /login", "/sonarr/api/system/status": "404 ",
+	} {
+		rec := httptest.NewRecorder()
+		r.son.ServeHTTP(rec, httptest.NewRequest("GET", path, nil))
+		got := strings.TrimSpace(rec.Body.String())
+		if rec.Code != 200 {
+			got = fmt.Sprint(rec.Code, " ", rec.Header().Get("Location"))
+		}
+		if got != want {
+			t.Errorf("%s: got %q, want %q", path, got, want)
+		}
 	}
 }

@@ -5,7 +5,9 @@
     {
       "customFormatScore": "number",
       "customFormats": [],
-      "data": {},
+      "data": {
+        "releaseGroup": "string"
+      },
       "date": "string",
       "episodeId": "number",
       "eventType": "string",

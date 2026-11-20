@@ -21,6 +21,7 @@ import (
 	"github.com/HolyArrs/holyarrs/app/backend/internal/core/database"
 	domain "github.com/HolyArrs/holyarrs/app/backend/internal/core/model"
 	"github.com/HolyArrs/holyarrs/app/backend/internal/library"
+	"github.com/HolyArrs/holyarrs/app/backend/internal/shows"
 )
 
 // The other apps that read the arr API: Bazarr
@@ -229,6 +230,11 @@ func TestOldAppBazarrSync(t *testing.T) {
 	}
 	if !scanned {
 		t.Fatal("no scan Job for the show")
+	}
+	// Helmarr refreshes with an empty seriesIds list: every show.
+	f.arrOK(son, "POST", s+"command", `{"name":"RefreshSeries","seriesIds":[]}`, 201)
+	if len(f.jobs(shows.KindRefreshShows)) == 0 {
+		t.Fatal("no refresh Job for every show")
 	}
 
 	// The Radarr side: every movie carries hasFile, and one with a file

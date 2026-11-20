@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"slices"
 	"strings"
 	"time"
 	"unicode"
@@ -30,6 +31,7 @@ const doneID = 2147483647
 type commandIn struct {
 	Name         string  `json:"name"`
 	SeriesID     int64   `json:"seriesId"`
+	SeriesIDs    []int64 `json:"seriesIds"`
 	SeasonNumber *int    `json:"seasonNumber"`
 	EpisodeIDs   []int64 `json:"episodeIds"`
 	MovieIDs     []int64 `json:"movieIds"`
@@ -186,11 +188,20 @@ func (h *handler) runCommand(ctx context.Context, name string, in commandIn, by 
 		if strings.HasPrefix(name, "Rescan") {
 			word = library.KindScanTitle
 		}
-		targets := in.MovieIDs
+		targets := append(slices.Clone(in.MovieIDs), in.SeriesIDs...)
 		for _, id := range []int64{in.SeriesID, in.MovieID} {
 			if id != 0 {
 				targets = append(targets, id)
 			}
+		}
+		// A refresh with no title refreshes them all, as in the old apps;
+		// Helmarr sends one with an empty seriesIds list.
+		if len(targets) == 0 && word == library.KindRefreshTitle {
+			all := library.KindRefreshTitles
+			if kind == "show" {
+				all = shows.KindRefreshShows
+			}
+			return ids, enqueue(all, nil, map[string]any{"by_hand": true}, all)
 		}
 		for _, id := range targets {
 			if _, err := h.title(ctx, id, kind); err != nil {

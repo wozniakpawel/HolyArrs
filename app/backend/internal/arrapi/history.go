@@ -196,6 +196,27 @@ func (h *handler) historyRows(ctx context.Context) ([]historyRow, error) {
 			return nil
 		})
 	}
+	// The release each send came from, for the details Sonarr keeps.
+	rels := map[int64]historyRelease{}
+	var relIDs []int64
+	for _, e := range evs {
+		if id := int64Of(e.Data["release_id"]); id > 0 {
+			relIDs = append(relIDs, id)
+		}
+	}
+	if len(relIDs) > 0 {
+		_ = eachRow(ctx, db, `SELECT r.id, r.size, r.protocol, COALESCE(r.published_at, ''), COALESCE(r.info_hash, ''), COALESCE(s.name, '')
+			FROM releases r LEFT JOIN sources s ON s.id = r.source_id WHERE r.id IN `+idList(relIDs), func(rs *sql.Rows) error {
+			var id, size int64
+			var ri historyRelease
+			if err := rs.Scan(&id, &size, &ri.protocol, &ri.published, &ri.hash, &ri.indexer); err != nil {
+				return err
+			}
+			ri.size = strconv.FormatInt(size, 10)
+			rels[id] = ri
+			return nil
+		})
+	}
 	out := []historyRow{}
 	for _, e := range evs {
 		if kinds[*e.TitleID] != kind {
@@ -220,14 +241,43 @@ func (h *handler) historyRows(ctx context.Context) ([]historyRow, error) {
 		if e.DownloadID != nil {
 			row.DownloadID = downloads[*e.DownloadID]
 		}
-		for k, v := range map[string]string{"downloadClient": "downloader", "reason": "reason"} {
-			if s, ok := e.Data[v].(string); ok && s != "" {
-				row.Data[k] = s
-			}
-		}
+		historyData(row.Data, e, name, rels[int64Of(e.Data["release_id"])])
 		out = append(out, row)
 	}
 	return out, nil
+}
+
+// historyRelease is what History tells of the release a send came from.
+type historyRelease struct{ size, protocol, published, hash, indexer string }
+
+// historyData fills a row's data the way the old apps do: every value is
+// text, and only what HolyArrs knows is there.
+func historyData(d map[string]any, e database.Event, release string, r historyRelease) {
+	set := func(k, v string) {
+		if v != "" {
+			d[k] = v
+		}
+	}
+	str := func(k string) string { s, _ := e.Data[k].(string); return s }
+	set("downloadClient", str("downloader"))
+	set("downloadClientName", str("downloader"))
+	set("reason", str("reason"))
+	set("releaseGroup", releasename.Parse(release, releasename.Hints{}).Group.Value)
+	set("size", r.size)
+	set("protocol", r.protocol)
+	set("publishedDate", r.published)
+	set("torrentInfoHash", r.hash)
+	set("indexer", r.indexer)
+	switch e.Kind {
+	case "import_done", "import_partly_done":
+		set("droppedPath", str("from"))
+		if ps, ok := e.Data["paths"].([]any); ok && len(ps) > 0 {
+			p, _ := ps[0].(string)
+			set("importedPath", p)
+		}
+	case "download_failed", "import_failed":
+		set("message", e.Summary)
+	}
 }
 
 // qualityOfRelease names a release's quality the way mediaFileOf names a
@@ -373,16 +423,7 @@ func (h *handler) episodeFiles(w http.ResponseWriter, r *http.Request) {
 		internalError(w, err)
 		return
 	}
-	// The fields Sonarr always sends with a file stand at their neutral values.
-	type episodeFile struct {
-		mediaFile
-		CustomFormats       []any  `json:"customFormats"`
-		CustomFormatScore   int    `json:"customFormatScore"`
-		IndexerFlags        int    `json:"indexerFlags"`
-		ReleaseType         string `json:"releaseType"`
-		QualityCutoffNotMet bool   `json:"qualityCutoffNotMet"`
-	}
-	out := []episodeFile{}
+	out := []mediaFile{}
 	seen := map[int64]bool{}
 	for _, e := range eps {
 		if e.EpisodeFile == nil || seen[e.EpisodeFile.ID] {
@@ -394,7 +435,7 @@ func (h *handler) episodeFiles(w http.ResponseWriter, r *http.Request) {
 		if f.SeasonNumber == nil {
 			f.SeasonNumber = ptr(e.SeasonNumber)
 		}
-		out = append(out, episodeFile{mediaFile: f, CustomFormats: []any{}, ReleaseType: "singleEpisode"})
+		out = append(out, f)
 	}
 	writeJSON(w, http.StatusOK, out)
 }
