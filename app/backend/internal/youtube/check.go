@@ -62,6 +62,10 @@ func (s *Service) HandleCheck(ctx context.Context, r *jobs.Run) error {
 		if ctx.Err() != nil {
 			return ctx.Err()
 		}
+		var listing listingError
+		if err != nil && !errors.As(err, &listing) {
+			return err
+		}
 		checked++
 		queued += n
 		if err != nil {
@@ -129,11 +133,13 @@ func (s *Service) checkFollow(ctx context.Context, run Runner, f Follow) (int, e
 	entries, err := run.Entries(ctx, Link{Kind: f.Kind, ID: f.YTID}, f.Kind == KindChannel && f.IncludeShorts)
 	if err != nil {
 		if ctx.Err() == nil {
-			if werr := s.Store.Write(ctx, func(tx *sql.Tx) error { return MarkChecked(tx, f.ID, now, err.Error()) }); werr != nil {
+			// Only the error: the 7-day window and the first-check backfill
+			// count from the last listing that worked.
+			if werr := s.Store.Write(ctx, func(tx *sql.Tx) error { return MarkCheckFailed(tx, f.ID, err.Error()) }); werr != nil {
 				return 0, werr
 			}
 		}
-		return 0, err
+		return 0, listingError{err}
 	}
 	entries = slices.DeleteFunc(entries, func(e Entry) bool {
 		return e.LiveStatus == "is_live" || e.LiveStatus == "is_upcoming" || e.LiveStatus == "post_live"
@@ -170,11 +176,18 @@ func (s *Service) checkFollow(ctx context.Context, run Runner, f Follow) (int, e
 	return queued, err
 }
 
-// plan sorts entries newest first on a follow's first check and says, per
+// listingError is a follow whose listing failed: kept on the follow, and
+// the check goes on with the next one.
+type listingError struct{ error }
+
+func (e listingError) Unwrap() error { return e.error }
+
+// plan sorts entries in place, newest first, on a follow's first check (the
+// caller pairs entries[i] with the returned states[i]) and says, per
 // entry, whether a new one is queued or skipped. The first check takes the
 // follow's backfill (nil takes all) and skips the rest. Later checks queue
 // what is new, except channel videos dated more than lateGrace before the
-// previous check: the back catalogue, such as Shorts once they are turned
+// previous listing that worked: the back catalogue, such as Shorts once they are turned
 // on. Entries with no date are queued.
 func plan(f Follow, entries []Entry) []string {
 	states := make([]string, len(entries))

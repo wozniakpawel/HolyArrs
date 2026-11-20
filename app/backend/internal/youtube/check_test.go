@@ -105,7 +105,8 @@ func newRig(t *testing.T, mode string) *rig {
 	}
 	// The wrapper points the fake at this rig's JSON, answers a video lookup
 	// from info-<id>.json when there is one, fails anything about a video
-	// with a gone-<id> file, and fails -U when update-fails exists.
+	// with a gone-<id> file, fails -U when update-fails exists and every
+	// listing when list-fails exists.
 	wrap := filepath.Join(r.fake.Dir, "yt-dlp-wrap")
 	script := fmt.Sprintf(`#!/bin/sh
 DATA=%[1]q
@@ -116,6 +117,11 @@ if [ $upd = 1 ] && [ -e "$DATA/update-fails" ]; then
 	echo "ERROR: Unable to write to the yt-dlp program" >&2; exit 1
 fi
 case "$last" in
+*/videos|*/streams|*/shorts|*"playlist?list="*)
+	if [ -e "$DATA/list-fails" ]; then
+		printf '%%s\n' "$@" '=end=' >> %[3]q
+		echo "ERROR: [youtube:tab] listing broke" >&2; exit 1
+	fi ;;
 *"watch?v="*)
 	id="${last##*watch?v=}"
 	if [ -e "$DATA/gone-$id" ]; then
@@ -523,5 +529,75 @@ func TestPlanBackfillAndLateGrace(t *testing.T) {
 	}
 	if got := plan(Follow{Kind: KindChannel}, es); strings.Count(strings.Join(got, ","), StateQueued) != 4 {
 		t.Fatalf("backfill nil takes all: %v", got)
+	}
+}
+
+func TestFailedFirstCheckStillTakesBackfill(t *testing.T) {
+	t.Parallel()
+	r := newRig(t, "ok")
+	r.svc.FreeSpace = func(string) int64 { return 1 << 30 }
+	base := r.now.Add(-400 * 24 * time.Hour).Unix()
+	var videos []tabEntry
+	for i := range 30 {
+		videos = append(videos, entry(vid('v', i), "Video", base+int64(i)*1000, ""))
+	}
+	r.putJSON("channel_videos.json", channelTab(videos...))
+	r.putJSON("channel_streams.json", channelTab())
+	f := r.follow(anna, veritasium())
+
+	r.put("list-fails", nil)
+	r.check(f.ID)
+	got, _ := FollowOf(context.Background(), r.s.Read(), anna, f.ID)
+	if got.LastCheckedAt != nil || got.LastError != "ERROR: [youtube:tab] listing broke" || len(r.videos(anna)) != 0 {
+		t.Fatalf("after a failed first listing: %+v, %d rows", got, len(r.videos(anna)))
+	}
+	if err := os.Remove(filepath.Join(r.data, "list-fails")); err != nil {
+		t.Fatal(err)
+	}
+	r.setNow(r.now.Add(6 * time.Hour))
+	r.check(f.ID)
+	if c := countStates(r.videos(anna)); c[StateQueued] != 20 || c[StateSkipped] != 10 {
+		t.Fatalf("first good listing after a failed one: %v", c)
+	}
+	if got, _ := FollowOf(context.Background(), r.s.Read(), anna, f.ID); got.LastError != "" || got.LastCheckedAt == nil {
+		t.Fatalf("follow after a good listing %+v", got)
+	}
+}
+
+func TestLongOutageKeepsUploadsFromIt(t *testing.T) {
+	t.Parallel()
+	r := newRig(t, "ok")
+	r.svc.FreeSpace = func(string) int64 { return 1 << 30 }
+	t0 := r.now
+	day := 24 * time.Hour
+	r.putJSON("channel_videos.json", channelTab(entry(vid('v', 1), "Before", t0.Add(-day).Unix(), "")))
+	r.putJSON("channel_streams.json", channelTab())
+	f := r.follow(anna, veritasium())
+	r.check(f.ID)
+
+	// yt-dlp is broken for ten days; checks keep failing.
+	r.put("list-fails", nil)
+	for _, d := range []time.Duration{3, 6, 10} {
+		r.setNow(t0.Add(d * day))
+		r.check(f.ID)
+	}
+	if got, _ := FollowOf(context.Background(), r.s.Read(), anna, f.ID); !got.LastCheckedAt.Equal(t0) || got.LastError == "" {
+		t.Fatalf("during the outage %+v", got)
+	}
+	if err := os.Remove(filepath.Join(r.data, "list-fails")); err != nil {
+		t.Fatal(err)
+	}
+	r.setNow(t0.Add(12 * day))
+	r.putJSON("channel_videos.json", channelTab(
+		entry(vid('v', 2), "Early in the outage", t0.Add(day).Unix(), ""),
+		entry(vid('v', 3), "Late in the outage", t0.Add(9*day).Unix(), ""),
+		entry(vid('v', 4), "Back catalogue", t0.Add(-30*day).Unix(), ""),
+		entry(vid('v', 1), "Before", t0.Add(-day).Unix(), "")))
+	r.check(f.ID)
+	got := r.videos(anna)
+	for id, want := range map[string]string{vid('v', 2): StateQueued, vid('v', 3): StateQueued, vid('v', 4): StateSkipped} {
+		if got[id].State != want {
+			t.Errorf("%s: %q, want %s", id, got[id].State, want)
+		}
 	}
 }

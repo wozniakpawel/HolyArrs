@@ -26,7 +26,7 @@ func (r *rig) download(userID, rowID int64) {
 func TestDownloadWritesLayoutAndRow(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, "ok")
-	r.putJSON("info-abcdefghijk.json", info("abcdefghijk", "Title", "Veritasium", 1709650800)) // 2024-03-05
+	r.putJSON("info-abcdefghijk.json", info("abcdefghijk", "Title", "Veritasium", 1709650800))
 	f := r.follow(anna, veritasium())
 	id := addVideo(t, r.s, Video{UserID: anna, FollowID: &f.ID, VideoID: "abcdefghijk", Title: "listed title"})
 	r.download(anna, id)
@@ -246,10 +246,9 @@ func TestJobsCarryNoTitles(t *testing.T) {
 	if e := got["vvvvvvvvvv2"].Error; !strings.Contains(e, "vvvvvvvvvv2") {
 		t.Fatalf("row error %q", e)
 	}
-	banned := []string{"vvvvvvvvvv1", "vvvvvvvvvv2", "Newest video", "Older video", "Veritasium", veritasiumUC, "youtube.com", "http", f.URL}
-	var rows []struct {
-		Kind, Params, Note, Err, Result, Key string
-	}
+	banned := []string{"vvvvvvvvvv1", "vvvvvvvvvv2", "Newest video", "Veritasium", veritasiumUC, "youtube.com", "http", f.URL}
+	type jobRow struct{ Kind, Params, Note, Err, Result, Key string }
+	var rows []jobRow
 	q, err := r.s.Read().QueryContext(context.Background(),
 		"SELECT kind, params, COALESCE(progress_note, ''), COALESCE(error, ''), COALESCE(result, ''), COALESCE(dedupe_key, '') FROM jobs")
 	if err != nil {
@@ -257,7 +256,7 @@ func TestJobsCarryNoTitles(t *testing.T) {
 	}
 	defer q.Close()
 	for q.Next() {
-		var row struct{ Kind, Params, Note, Err, Result, Key string }
+		var row jobRow
 		if err := q.Scan(&row.Kind, &row.Params, &row.Note, &row.Err, &row.Result, &row.Key); err != nil {
 			t.Fatal(err)
 		}

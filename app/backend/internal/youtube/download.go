@@ -126,7 +126,7 @@ func (s *Service) HandleDownload(ctx context.Context, r *jobs.Run) error {
 		r.SetResult(map[string]any{"skipped": "gone"})
 		return nil
 	} else if err != nil {
-		return err
+		return s.attemptFailed(ctx, r, v, err)
 	}
 	return s.keepLast(ctx, set.Folder, v.ID)
 }

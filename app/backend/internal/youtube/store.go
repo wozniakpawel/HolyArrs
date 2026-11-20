@@ -79,6 +79,13 @@ func MarkChecked(tx *sql.Tx, id int64, at time.Time, errText string) error {
 	return err
 }
 
+// MarkCheckFailed keeps why a follow's listing failed, leaving when it was
+// last listed as it was.
+func MarkCheckFailed(tx *sql.Tx, id int64, errText string) error {
+	_, err := tx.Exec("UPDATE youtube_follows SET last_error = ? WHERE id = ?", errText, id)
+	return err
+}
+
 // DeleteFollow removes one of a person's follows; its videos stay, with no
 // follow. sql.ErrNoRows when it is not theirs.
 func DeleteFollow(tx *sql.Tx, userID, id int64) error {
