@@ -1,0 +1,32 @@
+# The holyarrs service as added to /volume2/docker/media/compose.yaml on the
+# NAS (kept here for reference; the NAS file is the live one). It shares the
+# VPN container's network like qBittorrent and Prowlarr did, so searches go
+# out through NordVPN and qBittorrent / FlareSolverr are on localhost.
+# The vpn service also publishes - 6262:6262.
+  holyarrs:
+    image: alpine:3.22
+    container_name: holyarrs
+    entrypoint: ["/holyarrs"]
+    command: ["-config", "/config"]
+    environment:
+      - PUID=1034
+      - PGID=100
+      - TZ=Europe/London
+      - HOLYARRS_ALLOWED_HOSTS=primary,primary.bee-eagle.ts.net,100.111.0.1
+      - HOLYARRS_TRUSTED_PROXIES=172.22.2.1
+    volumes:
+      - ./holyarrs/config:/config
+      - ./holyarrs/bin/holyarrs:/holyarrs:ro
+      - /volume1/shared:/data
+    restart: unless-stopped
+    network_mode: service:vpn
+    healthcheck:
+      test: ["CMD", "/holyarrs", "-healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      vpn:
+        condition: service_healthy
+        restart: true
