@@ -571,6 +571,7 @@ episodes_changed
 episodes_dropped
 episodes_removed
 eps
+errmsg
 error
 errorCode
 errorDescription
@@ -602,6 +603,7 @@ externals
 extra
 extra_folders
 extract
+f
 f14
 f60
 f7
@@ -627,6 +629,7 @@ file_ids
 file_name
 file_path
 file_pattern
+filelist
 filename
 files
 files_stay
@@ -880,6 +883,7 @@ l
 label
 labels
 lang
+langlist
 language
 languageProfileId
 language_profiles
@@ -1762,6 +1766,7 @@ studios
 sub
 subdl
 subject
+subs
 subtitle
 subtitleId
 subtitles
@@ -2005,6 +2010,7 @@ version_label
 versions
 via
 videoDetails
+videoname
 videos
 view
 vip

@@ -99,7 +99,6 @@ Remove the name and restart to turn it off. Hidden settings come back when you t
 |---|---|
 | `ai_apps` | Connect AI apps: **Settings > AI apps**, the `/ai` page and its routes |
 | `row_title_stats` | Explore row title statistics in Appearance |
-| `subtitle_sites` | Subtitle sites and subtitle search. Your subtitle language stays on |
 | `emby_signin` | Sign in with Emby. Emby library refresh still works |
 | `go_back` | The **Go back** panel on the Status page. The steps in [Go back](#go-back-to-the-older-version) work without it |
 

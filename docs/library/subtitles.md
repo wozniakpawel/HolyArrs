@@ -9,17 +9,13 @@ Pick your subtitle languages once. HolyArrs reads what your files already have a
 
 Only staff see subtitles. Changing settings needs the **Change settings** permission. Music has no subtitles.
 
-:::note
-Subtitle sites and subtitle search are held back in the first release. They stay hidden unless the `subtitle_sites` switch is on, see [Held-back features](../run/updates.md#held-back-features). Languages and the Missing subtitles list work without it.
-:::
-
 ## Set your languages
 
 1. Open **Settings > Subtitles**.
 2. Under the default languages, add each language you want, such as English and Spanish.
 3. For each language, set **Hearing-impaired** and **Forced only** (see [Languages](#languages)).
 4. Click **Save**. You should see **Library > Missing subtitles** fill in. HolyArrs reads every file you have and asks no site.
-5. If Subtitle sites are on for you, click **Add a Subtitle site**, pick the site, fill in **Your account** if it asks, and save. You should see the result of a test search right away.
+5. Click **Add a Subtitle site**, pick the site, fill in **Your account** if it asks, and save. You should see the result of a test search right away.
 
 Files brought in with **Import a library** are read the same way.
 
@@ -74,6 +70,7 @@ Movie (2020).fr.forced.ass
 - A subtitle HolyArrs replaces goes to the holding folder first.
 - **Rename files** moves subtitles with their video. If the new name is taken, that subtitle stays and says why.
 - Deleting a title with its files sends its subtitles to the holding folder too.
+- Every saved subtitle is UTF-8. A file in an older encoding is read in the one that suits its language, such as Windows-1250 or ISO-8859-2 for Polish, GBK or Big5 for Chinese, and Windows-1251 or KOI8-R for Russian. A language without its own old encodings is read as Windows-1252.
 
 Portuguese (Brazil) has its own files, `Movie (2020).pt-BR.srt`. Older `.pt` files stay where they are, so both can sit next to the video.
 
@@ -99,9 +96,6 @@ How scoring works, when HolyArrs searches, and the sites it uses are in [Subtitl
 **Symptom:** nothing is listed as missing.
 **Cause:** no language was saved, or the title has an empty own list.
 **Fix:** add a language and click **Save**.
-
-**Symptom:** you can't see Subtitle sites or **Look for subtitles**.
-**Cause:** they are held back, see [Held-back features](../run/updates.md#held-back-features).
 
 **Symptom:** subtitles are out of time.
 **Fix:** use **Sync fix**, or raise the Pass mark so only closer matches are saved. HolyArrs does not listen to the sound to line subtitles up.
@@ -137,4 +131,3 @@ Every subtitle route is in `http://your-server:6262/api/v1/openapi.json`, under 
 
 - [Subtitle scoring and sites](subtitle-scoring.md)
 - [Audio versions](audio-versions.md)
-- [Held-back features](../run/updates.md#held-back-features)

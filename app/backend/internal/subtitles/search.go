@@ -1,6 +1,7 @@
 package subtitles
 
 import (
+	"cmp"
 	"context"
 	"crypto/sha256"
 	"database/sql"
@@ -122,6 +123,9 @@ func (s *Service) Search(ctx context.Context, fileID int64, opt SearchOptions, b
 	v := fc.videoFacts()
 	q := sites.Query{Kind: fc.item.Kind, Title: v.Title, Year: v.Year, Season: v.Season, Episode: v.Episode, ReleaseName: v.ReleaseName,
 		IMDb: fc.title.SourceIDs["imdb"], TMDB: fc.title.SourceIDs["tmdb"], TVDB: fc.title.SourceIDs["tvdb"]}
+	if _, err := os.Stat(fc.video()); err == nil {
+		q.File = fc.video() // for sites that hash the file their own way
+	}
 	if h, err := s.videoHash(ctx, fc, set); err == nil && h != "" {
 		q.Hash = h // hash-matching sites use it and the rest ignore it
 		if st, err := os.Stat(fc.video()); err == nil {
@@ -296,7 +300,8 @@ func (s *Service) fetchAndSave(ctx context.Context, fc *fileCtx, t target, c Sco
 		return "", err
 	}
 	e := pickEntry(entries)
-	text, err := subtext.Clean(e.Data, e.Format)
+	// The language picks the old encodings to try on a file that is not Unicode.
+	text, err := subtext.CleanFor(e.Data, e.Format, cmp.Or(c.Language, t.want.Language))
 	if err != nil {
 		s.failed(ctx, fc, t.want, c.Site, err, by)
 		return "", err

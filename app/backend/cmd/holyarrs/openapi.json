@@ -6516,7 +6516,10 @@
               "addic7ed",
               "yifysubtitles",
               "tvsubtitles",
-              "bsplayer"
+              "bsplayer",
+              "napiprojekt",
+              "napisy24",
+              "assrt"
             ],
             "type": "string"
           },
