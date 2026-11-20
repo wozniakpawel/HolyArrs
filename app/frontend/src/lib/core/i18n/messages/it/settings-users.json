@@ -116,5 +116,7 @@
 	"settings.users.couldntDelete": "Impossibile eliminare",
 	"settings.users.confirmDeleteKeys": "Le chiavi Seerr che ha creato smettono di funzionare per tutti finché non se ne crea una nuova.",
 	"settings.users.qualities": "Qualità",
-	"settings.users.qualitiesHint": "Possono scegliere solo quelle attive. Con tutte attive, vengono offerte anche le nuove."
+	"settings.users.qualitiesHint": "Possono scegliere solo quelle attive. Con tutte attive, vengono offerte anche le nuove.",
+	"settings.users.permYouTube": "Usare la libreria YouTube",
+	"settings.users.permSaveFiles": "Salvare file sul proprio dispositivo"
 }

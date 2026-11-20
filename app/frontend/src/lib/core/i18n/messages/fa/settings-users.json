@@ -116,5 +116,7 @@
 	"settings.users.couldntDelete": "حذف ممکن نشد",
 	"settings.users.confirmDeleteKeys": "کلیدهای Seerr که ساخته است برای همه از کار می‌افتند تا کلید تازه‌ای ساخته شود.",
 	"settings.users.qualities": "کیفیت‌ها",
-	"settings.users.qualitiesHint": "فقط موارد روشن را می‌توانند انتخاب کنند. وقتی همه روشن باشند، موارد تازه هم پیشنهاد می‌شوند."
+	"settings.users.qualitiesHint": "فقط موارد روشن را می‌توانند انتخاب کنند. وقتی همه روشن باشند، موارد تازه هم پیشنهاد می‌شوند.",
+	"settings.users.permYouTube": "استفاده از کتابخانه YouTube",
+	"settings.users.permSaveFiles": "ذخیره فایل‌ها روی دستگاه خود"
 }

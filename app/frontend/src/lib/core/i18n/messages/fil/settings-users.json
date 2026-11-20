@@ -116,5 +116,7 @@
 	"settings.users.couldntDelete": "Hindi nabura",
 	"settings.users.confirmDeleteKeys": "Hihinto sa paggana para sa lahat ang mga Seerr key na ginawa niya hanggang may gumawa ng bago.",
 	"settings.users.qualities": "Mga kalidad",
-	"settings.users.qualitiesHint": "Ang mga naka-on lang ang mapipili nila. Kapag naka-on lahat, iaalok din ang mga bago."
+	"settings.users.qualitiesHint": "Ang mga naka-on lang ang mapipili nila. Kapag naka-on lahat, iaalok din ang mga bago.",
+	"settings.users.permYouTube": "Gamitin ang YouTube library",
+	"settings.users.permSaveFiles": "Mag-save ng mga file sa kanilang device"
 }

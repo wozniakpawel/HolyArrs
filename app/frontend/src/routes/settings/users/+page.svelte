@@ -63,7 +63,9 @@
 		auto_approve_four_k: t('settings.users.permAuto4k'),
 		approve: t('settings.users.permApprove'),
 		manage_library: t('settings.users.permLibrary'),
-		settings: t('settings.users.permSettings')
+		settings: t('settings.users.permSettings'),
+		youtube: t('settings.users.permYouTube'),
+		save_files: t('settings.users.permSaveFiles')
 	});
 	const defaults: Record<'admin' | 'member', Perm[]> = {
 		admin: ['ask', 'auto_approve', 'approve', 'manage_library'],

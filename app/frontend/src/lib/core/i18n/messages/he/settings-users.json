@@ -116,5 +116,7 @@
 	"settings.users.couldntDelete": "המחיקה נכשלה",
 	"settings.users.confirmDeleteKeys": "מפתחות Seerr שיצר יפסיקו לעבוד לכולם עד שייווצר מפתח חדש.",
 	"settings.users.qualities": "איכויות",
-	"settings.users.qualitiesHint": "אפשר לבחור רק את המופעלות. כשכולן מופעלות, גם חדשות מוצעות."
+	"settings.users.qualitiesHint": "אפשר לבחור רק את המופעלות. כשכולן מופעלות, גם חדשות מוצעות.",
+	"settings.users.permYouTube": "שימוש בספריית YouTube",
+	"settings.users.permSaveFiles": "שמירת קבצים במכשיר שלהם"
 }

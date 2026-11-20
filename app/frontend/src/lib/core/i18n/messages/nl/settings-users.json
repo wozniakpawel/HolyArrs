@@ -116,5 +116,7 @@
 	"settings.users.couldntDelete": "Verwijderen mislukt",
 	"settings.users.confirmDeleteKeys": "Seerr-sleutels die diegene heeft gemaakt werken voor niemand meer tot er een nieuwe is gemaakt.",
 	"settings.users.qualities": "Kwaliteiten",
-	"settings.users.qualitiesHint": "Ze kunnen alleen de ingeschakelde kiezen. Staan ze allemaal aan, dan worden nieuwe ook aangeboden."
+	"settings.users.qualitiesHint": "Ze kunnen alleen de ingeschakelde kiezen. Staan ze allemaal aan, dan worden nieuwe ook aangeboden.",
+	"settings.users.permYouTube": "De YouTube-bibliotheek gebruiken",
+	"settings.users.permSaveFiles": "Bestanden op hun apparaat opslaan"
 }
