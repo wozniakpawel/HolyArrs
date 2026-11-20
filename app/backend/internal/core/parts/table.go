@@ -129,6 +129,9 @@ var routeOwners = map[string]Owner{
 	"PUT /api/v1/youtube/follows/{id}":         youtube,
 	"DELETE /api/v1/youtube/follows/{id}":      youtube,
 
+	// Saving a movie or episode file goes with the title's part.
+	"GET /api/v1/files/{id}/download": ByTitle,
+
 	"GET /api/v1/plugins":                               Core,
 	"POST /api/v1/plugins/{id}/install":                 Core,
 	"POST /api/v1/plugins/{id}/start":                   Core,

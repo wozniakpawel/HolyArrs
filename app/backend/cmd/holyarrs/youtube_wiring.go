@@ -66,11 +66,13 @@ func youtubeForgets(au *accounts.Auth, st *database.Store, q *jobs.Queue, live *
 	})
 }
 
-// youtubeRoutes registers the YouTube routes while the youtube feature
-// switch is on; with it off they are not there at all.
+// youtubeRoutes registers the YouTube routes, and saving a movie or
+// episode file to a device, while the youtube feature switch is on; with it
+// off they are not there at all.
 func (a *handlers) youtubeRoutes(rt *webserver.Router) {
 	if !startup.FeatureOn(startup.YouTube) {
 		return
 	}
 	(&ytlib.Handlers{Svc: a.youtubeService()}).Routes(rt)
+	(&library.FileDownloadHandlers{Store: a.s.Store}).Routes(rt.Mux())
 }

@@ -14,7 +14,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/HolyArrs/holyarrs/app/backend/internal/core/database"
+	domain "github.com/HolyArrs/holyarrs/app/backend/internal/core/model"
 	"github.com/HolyArrs/holyarrs/app/backend/internal/core/parts"
+	"github.com/HolyArrs/holyarrs/app/backend/internal/mediafiles"
 	ytlib "github.com/HolyArrs/holyarrs/app/backend/internal/youtube"
 	"github.com/HolyArrs/holyarrs/app/backend/internal/youtube/youtubetest"
 )
@@ -490,4 +493,79 @@ func TestDeletingAPersonForgetsTheirYouTube(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(root, itoa(r.bo.id)+"-p", "Chan", "b.mp4")); err != nil {
 		t.Fatalf("another person's file: %v", err)
 	}
+}
+
+// route: GET /api/v1/files/{id}/download
+// Saving a movie file needs save_files; a kid is denied even ticked, and
+// with the youtube feature switch off the route is not there.
+func TestFileDownloadRoute(t *testing.T) {
+	r := newAskRig(t)
+	ctx := context.Background()
+	var add struct {
+		Title struct {
+			Slots []struct {
+				ID        int64 `json:"id"`
+				VersionID int64 `json:"version_id"`
+			} `json:"slots"`
+		} `json:"title"`
+	}
+	decodeJSON(t, r.owner.call("POST", "/api/v1/titles", `{"id":"tmdb:900002"}`, 201), &add)
+	slot := add.Title.Slots[0]
+	root, err := mediafiles.LibraryPathOfVersion(ctx, r.st.Read(), slot.VersionID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rel := "Paper Harbour (2023)/Paper Harbour.mkv"
+	if err := os.MkdirAll(filepath.Join(root, "Paper Harbour (2023)"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, filepath.FromSlash(rel)), []byte("movie bytes"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	f := &mediafiles.File{SlotIDs: []int64{slot.ID}, VersionID: slot.VersionID, RelativePath: rel, Size: 11, AddedAt: time.Now().UTC(),
+		Languages: []string{}, MediaInfo: map[string]any{}, Origin: "imported", PlacedBy: "copy", Role: "main", State: "present"}
+	if err := r.st.Write(ctx, func(tx *sql.Tx) error {
+		_, err := database.Insert(tx, "files", f, domain.System)
+		return err
+	}); err != nil {
+		t.Fatal(err)
+	}
+	p := "/api/v1/files/" + itoa(f.ID) + "/download"
+
+	resp, b := r.owner.raw("GET", p, nil)
+	if resp.StatusCode != 200 || string(b) != "movie bytes" || resp.Header.Get("Content-Disposition") != `attachment; filename="Paper Harbour.mkv"` {
+		t.Fatalf("owner %d %v", resp.StatusCode, resp.Header)
+	}
+	if resp, _ = r.ana.raw("GET", p, nil); resp.StatusCode != 403 {
+		t.Fatalf("member without save_files %d", resp.StatusCode)
+	}
+	r.owner.call("PUT", "/api/v1/users/"+itoa(r.ana.id), `{"perms":["ask","save_files"]}`, 200)
+	if resp, b = r.ana.raw("GET", p, map[string]string{"Range": "bytes=0-4"}); resp.StatusCode != 206 || string(b) != "movie" {
+		t.Fatalf("member with save_files %d %q", resp.StatusCode, b)
+	}
+
+	kai := ytJoin(t, r, "kai", `{"max_rating":"PG"}`)
+	if err := r.st.Write(ctx, func(tx *sql.Tx) error {
+		_, err := tx.Exec(`UPDATE users SET perms = '["ask","save_files"]' WHERE id = ?`, kai.id)
+		return err
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if resp, b = kai.raw("GET", p, nil); resp.StatusCode == 200 || strings.Contains(string(b), "movie bytes") {
+		t.Fatalf("kid %d", resp.StatusCode)
+	}
+}
+
+func TestFileDownloadAbsentWhenFlagOff(t *testing.T) {
+	t.Setenv("HOLYARRS_FLAGS", "")
+	addr, _, _, stop := runApp(t, config{ConfigDir: t.TempDir()})
+	defer func() { _ = stop() }()
+	jar, _ := cookiejar.New(nil)
+	own := &signedIn{t: t, base: "http://" + addr, c: &http.Client{Jar: jar}}
+	var x struct {
+		CSRF string `json:"csrf"`
+	}
+	decodeJSON(t, own.call("POST", "/api/v1/auth/setup", `{"name":"luis","password":"a long test passphrase"}`, 201), &x)
+	own.csrf = x.CSRF
+	own.call("GET", "/api/v1/files/1/download", "", 404)
 }

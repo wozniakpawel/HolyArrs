@@ -205,6 +205,9 @@ var RoutePerms = map[string]webserver.Perm{
 	"PUT /api/v1/youtube/follows/{id}":         webserver.PermYouTube,
 	"DELETE /api/v1/youtube/follows/{id}":      webserver.PermYouTube,
 
+	// Saving a movie or episode file to the person's own device.
+	"GET /api/v1/files/{id}/download": webserver.PermSaveFiles,
+
 	// AI app sign-in (ai_signin.go): the app's own calls are public; allowing it
 	// needs the person's browser session.
 	"GET /.well-known/oauth-protected-resource":           webserver.NeedPublic,
