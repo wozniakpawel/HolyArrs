@@ -1,0 +1,33 @@
+{
+  "page": "number",
+  "pageSize": "number",
+  "records": [
+    {
+      "customFormatScore": "number",
+      "customFormats": [],
+      "data": {},
+      "date": "string",
+      "episodeId": "number",
+      "eventType": "string",
+      "id": "number",
+      "languages": [],
+      "quality": {
+        "quality": {
+          "name": "string",
+          "resolution": "number"
+        },
+        "revision": {
+          "isRepack": "bool",
+          "real": "number",
+          "version": "number"
+        }
+      },
+      "qualityCutoffNotMet": "bool",
+      "seriesId": "number",
+      "sourceTitle": "string"
+    }
+  ],
+  "sortDirection": "string",
+  "sortKey": "string",
+  "totalRecords": "number"
+}

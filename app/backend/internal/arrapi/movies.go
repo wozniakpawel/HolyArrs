@@ -138,21 +138,9 @@ func mediaFileOf(f mediafiles.File, root, folder string) *mediaFile {
 		mf.ReleaseGroup = *f.Group
 	}
 	info := map[string]any{}
-	name := f.Quality.Source
-	if n, ok := sourceNames[name]; ok {
-		name = n
-	}
-	if f.Quality.Resolution > 0 {
-		if name != "" {
-			name += "-"
-		}
-		name += strconv.Itoa(f.Quality.Resolution) + "p"
-		if w := fileWidths[f.Quality.Resolution]; w > 0 {
-			info["resolution"] = strconv.Itoa(w) + "x" + strconv.Itoa(f.Quality.Resolution)
-		}
-	}
-	if f.Quality.Source == "remux" {
-		name += " Remux"
+	name := qualityName(f.Quality.Source, f.Quality.Resolution)
+	if w := fileWidths[f.Quality.Resolution]; w > 0 {
+		info["resolution"] = strconv.Itoa(w) + "x" + strconv.Itoa(f.Quality.Resolution)
 	}
 	video := f.Quality.Codec
 	if video == "" {
@@ -169,6 +157,25 @@ func mediaFileOf(f mediafiles.File, root, folder string) *mediaFile {
 	}
 	mf.Quality = map[string]any{"quality": map[string]any{"name": name, "resolution": f.Quality.Resolution}}
 	return mf
+}
+
+// qualityName is the old apps' quality name for a parser source and a
+// vertical resolution, such as WEBDL-1080p or Bluray-2160p Remux.
+func qualityName(source string, resolution int) string {
+	name := source
+	if n, ok := sourceNames[name]; ok {
+		name = n
+	}
+	if resolution > 0 {
+		if name != "" {
+			name += "-"
+		}
+		name += strconv.Itoa(resolution) + "p"
+	}
+	if source == "remux" {
+		name += " Remux"
+	}
+	return name
 }
 
 // loadMovies reads the Library movies that match where, each with the
