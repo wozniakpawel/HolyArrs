@@ -149,6 +149,7 @@ func (h *handler) common(mux *http.ServeMux) {
 	mux.HandleFunc("GET /queue/details", h.queueDetails)
 	mux.HandleFunc("GET /queue/status", h.queueStatus)
 	mux.HandleFunc("POST /command", h.command)
+	mux.HandleFunc("GET /command", h.listCommands)
 	mux.HandleFunc("GET /command/{id}", h.getCommand)
 	mux.HandleFunc("GET /mediacover/{id}/{file}", h.cover)
 	mux.HandleFunc("GET /indexer", h.listIndexers)
