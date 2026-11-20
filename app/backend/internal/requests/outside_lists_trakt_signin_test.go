@@ -18,8 +18,11 @@ import (
 
 // fakePrivateTrakt serves kim's private watchlist only with the access
 // token it handed out at sign-in; good says whether Trakt still takes it.
-func fakePrivateTrakt(t *testing.T, good *atomic.Bool) *httptest.Server {
+func fakePrivateTrakt(t *testing.T, good *atomic.Bool, auths *[]string) *httptest.Server {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, "/users/kim/") {
+			*auths = append(*auths, r.Header.Get("Authorization"))
+		}
 		switch r.URL.Path {
 		case "/oauth/device/code":
 			_ = json.NewEncoder(w).Encode(map[string]any{"device_code": "dev", "user_code": "CODE", "verification_url": "https://trakt.tv/activate", "expires_in": 600, "interval": 1})
@@ -63,7 +66,8 @@ func TestSync_PrivateTraktListWithSignIn(t *testing.T) {
 	ctx := context.Background()
 	good := &atomic.Bool{}
 	good.Store(true)
-	srv := fakePrivateTrakt(t, good)
+	var auths []string
+	srv := fakePrivateTrakt(t, good, &auths)
 	v, err := secrets.Open(ctx, e.s, make([]byte, secrets.KeySize))
 	if err != nil {
 		t.Fatal(err)
@@ -77,12 +81,13 @@ func TestSync_PrivateTraktListWithSignIn(t *testing.T) {
 		t.Fatal(err)
 	}
 	e.svc.TraktBase, e.svc.TraktAuth = srv.URL, auth
-	l, _ := AddOutsideList(ctx, e.s, OutsideListInput{Name: "Mine", Kind: ListTrakt, Ref: "kim/watchlist"}, domain.System)
+	owner := domain.Actor{Kind: "user", ID: 1}
+	l, _ := AddOutsideList(ctx, e.s, OutsideListInput{Name: "Mine", Kind: ListTrakt, Ref: "kim/watchlist"}, owner)
 	// Not signed in: the private watchlist is not there.
 	if _, err := e.svc.Sync(ctx, l.ID, domain.System); err == nil || !strings.Contains(err.Error(), "private") {
 		t.Fatalf("public read of a private list: %v", err)
 	}
-	if _, err := auth.StartSignIn(ctx, 1, by); err != nil {
+	if _, err := auth.StartSignIn(ctx, 1, by); err != nil { // the owner (person 1) signs in
 		t.Fatal(err)
 	}
 	if s, err := auth.CheckSignIn(ctx); s != metadata.TraktSignedIn || err != nil {
@@ -90,6 +95,29 @@ func TestSync_PrivateTraktListWithSignIn(t *testing.T) {
 	}
 	if res, err := e.svc.Sync(ctx, l.ID, domain.System); err != nil || res.Added != 1 {
 		t.Fatalf("signed-in read %+v %v", res, err)
+	}
+	if auths[len(auths)-1] != "Bearer tok-ok" {
+		t.Fatalf("the owner's list was read without the sign-in: %q", auths)
+	}
+	// Someone else's list, or the owner's list last changed by someone
+	// else, is read with the key alone: never with the owner's sign-in.
+	other := domain.Actor{Kind: "user", ID: 2}
+	theirs, _ := AddOutsideList(ctx, e.s, OutsideListInput{Name: "Theirs", Kind: ListTrakt, Ref: "kim/watchlist"}, other)
+	n := len(auths)
+	if _, err := e.svc.Sync(ctx, theirs.ID, domain.System); err == nil || !strings.Contains(err.Error(), "private") {
+		t.Fatalf("another person's list read the private list: %v", err)
+	}
+	mine2, _ := AddOutsideList(ctx, e.s, OutsideListInput{Name: "Mine 2", Kind: ListTrakt, Ref: "kim/favourites"}, owner)
+	if _, err := EditOutsideList(ctx, e.s, mine2.ID, OutsideListInput{Name: "Mine 2", Kind: ListTrakt, Ref: "kim/watchlist"}, other); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := e.svc.Sync(ctx, mine2.ID, domain.System); err == nil {
+		t.Fatal("a list changed by someone else was read with the sign-in")
+	}
+	for _, a := range auths[n:] {
+		if a != "" {
+			t.Fatalf("a list not the signed-in person's sent %q", a)
+		}
 	}
 	good.Store(false)
 	if _, err := e.svc.Sync(ctx, l.ID, domain.System); !errors.Is(err, metadata.ErrTraktSignedOut) {
