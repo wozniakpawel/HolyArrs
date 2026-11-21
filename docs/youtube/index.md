@@ -74,7 +74,7 @@ To check a follow now, use **Run now** on **Check YouTube follows** in **Setting
 
 ## Keep only the newest
 
-Turn on **Keep only the newest** and pick how many. When a new video arrives, HolyArrs deletes the oldest beyond that number, file first. Deleted videos never download again.
+Turn on **Keep only the newest** and pick how many. When a new video arrives, HolyArrs deletes the oldest beyond that number, file first. The follow never downloads them again.
 
 Off by default: every video stays.
 
@@ -90,7 +90,7 @@ Select a video to play it. HolyArrs saves where you stopped every 10 seconds and
 
 Use **Show** to filter by follow or channel, or turn on **Unwatched only**.
 
-**Remove** in a video's menu deletes its file. Nobody else sees your videos or follows, not even the owner. **Settings > YouTube** shows only totals for everyone together.
+**Remove** in a video's menu deletes its file. A follow never downloads a removed video again. Paste the video's link on the YouTube page to download it once more. Nobody else sees your videos or follows, not even the owner. **Settings > YouTube** shows only totals for everyone together.
 
 ## Where files live
 
@@ -124,12 +124,20 @@ The owner can copy videos already on disk, for example a yt-dlp or Pinchflat fol
 - A video already in the library, or twice in the folder, is skipped.
 - Thumbnails come from a `.jpg` or `-thumb.jpg` next to the video. HolyArrs converts a `.webp` or `.png`, or takes a frame from the video.
 - Subtitle files such as `.en.srt` are copied too.
-- No follows are made, unless you name a playlist link for a folder. That follow takes only videos added after it.
+- No follows are made, unless `playlists` names a playlist link for a folder. The key is the name of the folder that holds the videos, not a path. That follow takes only videos added after it.
 
 ```sh
 curl -X POST http://holyarrs:6262/api/v1/youtube/adopt \
   -H "X-Api-Key: <key>" -H "Content-Type: application/json" \
   -d '{"user_id": 1, "path": "/data/old-videos", "dry_run": true}'
+```
+
+To follow a playlist for one folder:
+
+```sh
+curl -X POST http://holyarrs:6262/api/v1/youtube/adopt \
+  -H "X-Api-Key: <key>" -H "Content-Type: application/json" \
+  -d '{"user_id": 1, "path": "/data/old-videos", "playlists": {"Crash Course": "https://www.youtube.com/playlist?list=<id>"}, "dry_run": true}'
 ```
 
 `"dry_run": true` lists what would be copied, where to and why anything is skipped. Send it again without `dry_run` to start the copy as a job.
@@ -176,7 +184,7 @@ curl -X POST http://holyarrs:6262/api/v1/youtube/adopt \
 |---|---|
 | Switch | `youtube` in `HOLYARRS_FLAGS` |
 | Programs | `HOLYARRS_YTDLP`, `HOLYARRS_FFMPEG`, else `PATH` |
-| Settings | **Settings > YouTube**, owner only. Stored in the `this_app` group as `youtube_folder` and `youtube_min_free_gb` |
+| Settings | **Settings > YouTube**. Admins can view it; only the owner changes it. Stored in the `this_app` group as `youtube_folder` and `youtube_min_free_gb` |
 | Free space to keep | 10 GB by default |
 | Check YouTube follows | Every 6 h, 1 h to 7 days in **Settings > Schedules** |
 | yt-dlp self-update | At most once a day, during a check |
