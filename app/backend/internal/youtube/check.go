@@ -171,10 +171,23 @@ func (s *Service) checkFollow(ctx context.Context, run Runner, f Follow) (int, e
 			}
 			seen[e.ID] = true
 			if k, ok := known[e.ID]; ok {
-				_, linked := links[k.ID]
+				holds, linked := links[k.ID]
 				if !linked {
 					if err := LinkVideo(tx, f.UserID, k.ID, f.ID, now); err != nil {
 						return err
+					}
+				} else if !holds && f.Mirror {
+					// A mirror takes back what keep-last let go, and
+					// fetches again what it deleted then.
+					if err := TakeBackVideo(tx, f.UserID, k.ID, f.ID); err != nil {
+						return err
+					}
+					if k.State == StateRemoved {
+						if err := RequeueVideo(tx, f.UserID, k.ID, f.MaxHeight); err != nil {
+							return err
+						}
+						queued++
+						continue
 					}
 				}
 				// A video another follow passed over is taken when this
@@ -207,26 +220,46 @@ func (s *Service) checkFollow(ctx context.Context, run Runner, f Follow) (int, e
 	if err != nil || !f.Mirror || f.Kind != KindPlaylist || !listing.Complete {
 		return queued, err
 	}
-	return queued, s.mirror(ctx, f, listed)
+	if err := s.mirror(ctx, f, listed); err != nil {
+		if ctx.Err() != nil {
+			return queued, err
+		}
+		// Kept on the follow like a failed listing, so the check goes on
+		// with the next follow; the next check tries again.
+		text := "a video that left the playlist could not be removed: " + err.Error()
+		if werr := s.Store.Write(ctx, func(tx *sql.Tx) error { return MarkCheckFailed(tx, f.ID, text) }); werr != nil {
+			return queued, werr
+		}
+		return queued, listingError{err}
+	}
+	return queued, nil
 }
 
 // mirror lets a mirrored playlist go of every video it holds that is no
-// longer in the playlist. Only a complete listing gets here.
+// longer in the playlist. Only a complete listing gets here. A video that
+// cannot be removed does not stop the others; the first failure is
+// returned.
 func (s *Service) mirror(ctx context.Context, f Follow, listed map[string]bool) error {
 	held, err := VideosOfFollow(ctx, s.Store.Read(), f.UserID, f.ID)
 	if err != nil {
 		return err
 	}
 	root := LoadSettings(ctx, s.Store.Read()).Folder
+	var first error
 	for _, v := range held {
 		if listed[v.VideoID] {
 			continue
 		}
 		if err := s.letGo(ctx, root, v, f.ID, true); err != nil {
-			return err
+			if ctx.Err() != nil {
+				return err
+			}
+			if first == nil {
+				first = err
+			}
 		}
 	}
-	return nil
+	return first
 }
 
 // letGo takes a video away from one of its follows. With unlink the follow

@@ -39,6 +39,14 @@ func LetGoVideo(tx *sql.Tx, userID, rowID, followID int64) error {
 	return err
 }
 
+// TakeBackVideo undoes LetGoVideo: the follow holds the video again. A
+// playlist that starts being mirrored takes back what keep-last let go.
+func TakeBackVideo(tx *sql.Tx, userID, rowID, followID int64) error {
+	_, err := tx.Exec(`UPDATE youtube_video_follows SET let_go = 0 WHERE video_row_id = ? AND follow_id = ?
+		AND video_row_id IN (SELECT id FROM youtube_videos WHERE user_id = ?)`, rowID, followID, userID)
+	return err
+}
+
 // SetManual marks one of a person's videos as added by its own link.
 // sql.ErrNoRows when it is not theirs.
 func SetManual(tx *sql.Tx, userID, rowID int64) error {

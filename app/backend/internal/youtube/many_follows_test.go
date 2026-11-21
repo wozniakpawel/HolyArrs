@@ -299,6 +299,65 @@ func TestMirrorTurnedOnLater(t *testing.T) {
 	}
 }
 
+// A playlist that kept only its newest and is then mirrored downloads again
+// what keep-last deleted, and holds it.
+func TestMirrorTakesBackWhatKeepLastLetGo(t *testing.T) {
+	t.Parallel()
+	r := newRig(t, "ok")
+	ctx := context.Background()
+	f := playlistFollow("PLtestlist01")
+	f.KeepLast = intp(2)
+	fl := r.follow(anna, f)
+	r.listPlaylist(3, "aaaaaaaaaa1", "aaaaaaaaaa2", "aaaaaaaaaa3")
+	r.check(fl.ID)
+	if c := countStates(r.videos(anna)); c[StateDone] != 2 || c[StateRemoved] != 1 {
+		t.Fatalf("with keep-last: %v", c)
+	}
+	if _, err := r.svc.UpdateFollow(ctx, anna, fl.ID, FollowChange{Mirror: ptr(true)}); err != nil {
+		t.Fatal(err)
+	}
+	r.drain()
+	for id, v := range r.videos(anna) {
+		if v.State != StateDone || !slices.Equal(v.FollowIDs, []int64{fl.ID}) {
+			t.Fatalf("%s after mirroring: state %s follows %v", id, v.State, v.FollowIDs)
+		}
+	}
+	if n := len(r.mp4s()); n != 3 {
+		t.Fatalf("%d files, want every video of the playlist", n)
+	}
+}
+
+// A video that cannot be deleted is kept on the follow as its error; the
+// check itself goes on and the video stays linked for the next try.
+func TestMirrorRemovalFailureStaysOnTheFollow(t *testing.T) {
+	t.Parallel()
+	r := newRig(t, "ok")
+	ctx := context.Background()
+	f := playlistFollow("PLtestlist01")
+	f.Mirror = true
+	fl := r.follow(anna, f)
+	r.listPlaylist(2, "aaaaaaaaaa1", "aaaaaaaaaa2")
+	r.check(fl.ID)
+	gone := r.videos(anna)["aaaaaaaaaa2"]
+	// A row whose path leaves the YouTube folder is refused, not deleted.
+	write(t, r.s, func(tx *sql.Tx) error {
+		_, err := tx.Exec("UPDATE youtube_videos SET relative_path = '../outside.mp4' WHERE id = ?", gone.ID)
+		return err
+	})
+	r.listPlaylist(1, "aaaaaaaaaa1")
+	r.check(fl.ID)
+	if js := r.jobs(KindCheck); js[len(js)-1].State != "done" {
+		t.Fatalf("check job %s", js[len(js)-1].State)
+	}
+	got, err := FollowOf(ctx, r.s.Read(), anna, fl.ID)
+	if err != nil || !strings.Contains(got.LastError, "could not be removed") || strings.Contains(got.LastError, "outside") {
+		t.Fatalf("follow error %q, %v", got.LastError, err)
+	}
+	if v := r.videos(anna)["aaaaaaaaaa2"]; !slices.Equal(v.FollowIDs, []int64{fl.ID}) {
+		t.Fatalf("the video was unlinked though its files stayed: %+v", v)
+	}
+}
+
 func ptr[T any](v T) *T { return &v }
 
 func TestMirrorRules(t *testing.T) {
