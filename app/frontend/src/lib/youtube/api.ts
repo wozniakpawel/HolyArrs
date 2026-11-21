@@ -1,7 +1,7 @@
 // The YouTube routes, for the person's own videos and follows.
 import { api } from '#lib/core/api.ts';
 import { to } from '#lib/core/paths.ts';
-import type { YtFollow, YtProbe, YtStatus, YtVideo } from './view.ts';
+import type { YtFollow, YtProbe, YtSettings, YtStatus, YtVideo } from './view.ts';
 
 export interface NewFollow {
 	url: string;
@@ -30,6 +30,8 @@ export const ytRemove = (id: number) => api.del(`/youtube/videos/${id}`);
 /** Saves where the person stopped; keepalive lets the save finish when the page is closed right after. */
 export const ytSavePosition = (id: number, seconds: number, duration: number) =>
 	api.request<{ watched: boolean }>(`/youtube/videos/${id}/position`, { method: 'PUT', body: { seconds, duration }, keepalive: true });
+export const ytSettings = () => api.get<YtSettings>('/settings/youtube');
+export const ytSaveSettings = (folder: string, minFreeGB: number) => api.put<YtSettings>('/settings/youtube', { folder, min_free_gb: minFreeGB });
 export const ytRetry = (id: number) => api.post<YtVideo>(`/youtube/videos/${id}/retry`);
 
 /** The thumbnail of a downloaded video. */

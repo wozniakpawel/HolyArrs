@@ -83,6 +83,7 @@ var screenOwners = map[string]Owner{
 	"/settings/music":                music,
 	"/settings/subtitles":            subtitles,
 	"/settings/requests":             wishlist,
+	"/settings/youtube":              youtube,
 }
 
 // Loops gives every supervised background loop and every other stage the

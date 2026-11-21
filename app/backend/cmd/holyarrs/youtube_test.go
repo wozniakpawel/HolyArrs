@@ -68,10 +68,12 @@ func TestYouTubeSettingsAndStatusRoutes(t *testing.T) {
 		Totals    struct {
 			Videos int `json:"videos"`
 		} `json:"totals"`
-		Version string `json:"version"`
+		Version    string `json:"version"`
+		YTDLPPath  string `json:"ytdlp_path"`
+		FFmpegPath string `json:"ffmpeg_path"`
 	}
 	decodeJSON(t, r.owner.call("GET", "/api/v1/settings/youtube", "", 200), &got)
-	if got.Folder != filepath.Clean(folder) || got.MinFreeGB != 5 || got.Totals.Videos != 0 || got.Version != "2026.10.26" {
+	if got.Folder != filepath.Clean(folder) || got.MinFreeGB != 5 || got.Totals.Videos != 0 || got.Version != "2026.10.26" || got.YTDLPPath != fake.Bin || got.FFmpegPath != fake.Bin {
 		t.Fatalf("settings %+v", got)
 	}
 	// A field left out keeps its value; a bad folder or floor is refused.
@@ -126,8 +128,8 @@ func TestYouTubeSettingsAndStatusRoutes(t *testing.T) {
 		t.Fatalf("missing %v", st.Missing)
 	}
 	decodeJSON(t, r.owner.call("GET", "/api/v1/settings/youtube", "", 200), &got)
-	if got.Version != "" {
-		t.Fatalf("version without yt-dlp: %q", got.Version)
+	if got.Version != "" || got.YTDLPPath != "" || got.FFmpegPath != fake.Bin {
+		t.Fatalf("programs without yt-dlp: %+v", got)
 	}
 }
 

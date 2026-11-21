@@ -5,6 +5,6 @@ export { default as FollowPanel } from './FollowPanel.svelte';
 export { default as NeedsPrograms } from './NeedsPrograms.svelte';
 export { default as VideoCard } from './VideoCard.svelte';
 export { default as VideoPlayer } from './VideoPlayer.svelte';
-export { ytFile, ytFollows, ytRemove, ytRetry, ytSaveLink, ytSavePosition, ytStatus, ytThumb, ytVideo, ytVideos } from './api.ts';
+export { ytFile, ytFollows, ytRemove, ytRetry, ytSaveLink, ytSavePosition, ytSaveSettings, ytSettings, ytStatus, ytThumb, ytVideo, ytVideos } from './api.ts';
 export { applyLive, channelsOf, filterVideos, isWatched, makeSaver, progressOf, resumeAt, shouldSave, shownVideos } from './view.ts';
-export type { YtFollow, YtLive, YtProbe, YtState, YtStatus, YtVideo } from './view.ts';
+export type { YtFollow, YtLive, YtProbe, YtSettings, YtState, YtStatus, YtVideo } from './view.ts';

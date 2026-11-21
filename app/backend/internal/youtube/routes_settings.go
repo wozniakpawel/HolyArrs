@@ -10,11 +10,14 @@ import (
 )
 
 // settingsView is the YouTube settings card: the settings, the library
-// total over everyone (counts only, no titles) and yt-dlp's version.
+// total over everyone (counts only, no titles), where each program was
+// found and yt-dlp's version.
 type settingsView struct {
 	Settings
-	Totals  Totals `json:"totals"`
-	Version string `json:"version"` // "" when yt-dlp is missing or does not answer
+	Totals     Totals `json:"totals"`
+	YTDLPPath  string `json:"ytdlp_path"`  // "" when yt-dlp is not found
+	FFmpegPath string `json:"ffmpeg_path"` // "" when ffmpeg is not found
+	Version    string `json:"version"`     // "" when yt-dlp is missing or does not answer
 }
 
 func (h *Handlers) view(ctx context.Context) (settingsView, error) {
@@ -24,7 +27,9 @@ func (h *Handlers) view(ctx context.Context) (settingsView, error) {
 		return v, err
 	}
 	v.Totals = t
-	if r := h.Svc.runner(); r.Tools.YTDLP != "" {
+	r := h.Svc.runner()
+	v.YTDLPPath, v.FFmpegPath = r.Tools.YTDLP, r.Tools.FFmpeg
+	if r.Tools.YTDLP != "" {
 		v.Version, _ = r.Version(ctx)
 	}
 	return v, nil

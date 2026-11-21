@@ -66,6 +66,18 @@ export interface YtStatus {
 	floor_bytes: number;
 }
 
+/** Settings > YouTube: the folder, the free space to keep, the programs and the totals over everyone (never titles). */
+export interface YtSettings {
+	folder: string;
+	min_free_gb: number;
+	ytdlp_updated_at: string;
+	ytdlp_update_error: string;
+	totals: { videos: number; bytes: number; people: number };
+	ytdlp_path: string;
+	ffmpeg_path: string;
+	version: string;
+}
+
 /** The channel choice on the confirm card: the newest 20, the newest N, or every video. */
 export type BackfillChoice = 'newest20' | 'newest' | 'all';
 

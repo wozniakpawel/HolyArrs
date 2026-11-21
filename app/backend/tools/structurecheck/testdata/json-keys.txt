@@ -634,6 +634,7 @@ feed
 feed_check_minutes
 fell_back
 fetched_at
+ffmpeg_path
 fields
 file
 file_id
@@ -2120,5 +2121,6 @@ year_to
 youTubeTrailerId
 youtube_id
 yt_id
+ytdlp_path
 ytdlp_update_error
 ytdlp_updated_at

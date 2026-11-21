@@ -27737,7 +27737,7 @@
     },
     "/api/v1/settings/youtube": {
       "get": {
-        "description": "Owner and admins. The YouTube folder, the free space to keep (min_free_gb, default 10), how the last yt-dlp self-update went, the total of downloaded videos over everyone (count, bytes, people; never titles) and yt-dlp's version (empty when it is missing). Kid accounts get 404.",
+        "description": "Owner and admins. The YouTube folder, the free space to keep (min_free_gb, default 10), how the last yt-dlp self-update went, the total of downloaded videos over everyone (count, bytes, people; never titles), where yt-dlp and ffmpeg were found (ytdlp_path, ffmpeg_path; empty when missing) and yt-dlp's version (empty when it is missing). Kid accounts get 404.",
         "responses": {
           "200": {
             "description": "OK"
