@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "Вече не следвате {name}",
 	"youtube.follows.saved": "Запазено",
 	"youtube.follows.saveFailed": "Не можа да се запази",
-	"youtube.follows.showVideos": "Покажи видеоклиповете"
+	"youtube.follows.showVideos": "Покажи видеоклиповете",
+	"youtube.video.back": "Всички видеоклипове",
+	"youtube.video.uploaded": "Качено на {date}",
+	"youtube.video.notReady": "Можете да го гледате, след като се изтегли.",
+	"youtube.video.gone": "Този видеоклип вече го няма."
 }

@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "Berhenti mengikuti {name}",
 	"youtube.follows.saved": "Disimpan",
 	"youtube.follows.saveFailed": "Tidak dapat menyimpan",
-	"youtube.follows.showVideos": "Tunjuk video"
+	"youtube.follows.showVideos": "Tunjuk video",
+	"youtube.video.back": "Semua video",
+	"youtube.video.uploaded": "Dimuat naik {date}",
+	"youtube.video.notReady": "Anda boleh menontonnya setelah ia dimuat turun.",
+	"youtube.video.gone": "Video ini sudah tiada di sini."
 }

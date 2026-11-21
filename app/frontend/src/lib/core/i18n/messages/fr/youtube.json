@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "Vous ne suivez plus {name}",
 	"youtube.follows.saved": "Enregistré",
 	"youtube.follows.saveFailed": "Impossible d’enregistrer",
-	"youtube.follows.showVideos": "Voir les vidéos"
+	"youtube.follows.showVideos": "Voir les vidéos",
+	"youtube.video.back": "Toutes les vidéos",
+	"youtube.video.uploaded": "Mise en ligne le {date}",
+	"youtube.video.notReady": "Vous pourrez la regarder une fois téléchargée.",
+	"youtube.video.gone": "Cette vidéo n’est plus là."
 }

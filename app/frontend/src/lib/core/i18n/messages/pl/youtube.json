@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "Nie obserwujesz już: {name}",
 	"youtube.follows.saved": "Zapisano",
 	"youtube.follows.saveFailed": "Nie udało się zapisać",
-	"youtube.follows.showVideos": "Pokaż filmy"
+	"youtube.follows.showVideos": "Pokaż filmy",
+	"youtube.video.back": "Wszystkie filmy",
+	"youtube.video.uploaded": "Przesłano {date}",
+	"youtube.video.notReady": "Obejrzysz go, gdy się pobierze.",
+	"youtube.video.gone": "Tego filmu już tu nie ma."
 }

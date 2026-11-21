@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "Nu mai urmărești {name}",
 	"youtube.follows.saved": "Salvat",
 	"youtube.follows.saveFailed": "Nu s-a putut salva",
-	"youtube.follows.showVideos": "Arată videoclipurile"
+	"youtube.follows.showVideos": "Arată videoclipurile",
+	"youtube.video.back": "Toate videoclipurile",
+	"youtube.video.uploaded": "Încărcat pe {date}",
+	"youtube.video.notReady": "Îl poți urmări după ce se descarcă.",
+	"youtube.video.gone": "Acest videoclip nu mai este aici."
 }

@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "Už nesledujete: {name}",
 	"youtube.follows.saved": "Uloženo",
 	"youtube.follows.saveFailed": "Nepodařilo se uložit",
-	"youtube.follows.showVideos": "Zobrazit videa"
+	"youtube.follows.showVideos": "Zobrazit videa",
+	"youtube.video.back": "Všechna videa",
+	"youtube.video.uploaded": "Nahráno {date}",
+	"youtube.video.notReady": "Přehrát ho můžete, až se stáhne.",
+	"youtube.video.gone": "Toto video už tu není."
 }

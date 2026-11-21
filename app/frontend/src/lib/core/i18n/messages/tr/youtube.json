@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "{name} artık takip edilmiyor",
 	"youtube.follows.saved": "Kaydedildi",
 	"youtube.follows.saveFailed": "Kaydedilemedi",
-	"youtube.follows.showVideos": "Videoları göster"
+	"youtube.follows.showVideos": "Videoları göster",
+	"youtube.video.back": "Tüm videolar",
+	"youtube.video.uploaded": "{date} tarihinde yüklendi",
+	"youtube.video.notReady": "İndirildikten sonra izleyebilirsin.",
+	"youtube.video.gone": "Bu video artık burada değil."
 }

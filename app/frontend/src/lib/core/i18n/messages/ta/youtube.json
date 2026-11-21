@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "{name}-ஐப் பின்தொடர்வது நிறுத்தப்பட்டது",
 	"youtube.follows.saved": "சேமிக்கப்பட்டது",
 	"youtube.follows.saveFailed": "சேமிக்க முடியவில்லை",
-	"youtube.follows.showVideos": "காணொளிகளைக் காட்டு"
+	"youtube.follows.showVideos": "காணொளிகளைக் காட்டு",
+	"youtube.video.back": "எல்லா வீடியோக்களும்",
+	"youtube.video.uploaded": "{date} அன்று பதிவேற்றப்பட்டது",
+	"youtube.video.notReady": "பதிவிறக்கம் முடிந்ததும் இதைப் பார்க்கலாம்.",
+	"youtube.video.gone": "இந்த வீடியோ இனி இங்கே இல்லை."
 }

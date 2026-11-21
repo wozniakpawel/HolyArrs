@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "ألغيت متابعة {name}",
 	"youtube.follows.saved": "تم الحفظ",
 	"youtube.follows.saveFailed": "تعذّر الحفظ",
-	"youtube.follows.showVideos": "عرض الفيديوهات"
+	"youtube.follows.showVideos": "عرض الفيديوهات",
+	"youtube.video.back": "كل الفيديوهات",
+	"youtube.video.uploaded": "رُفع في {date}",
+	"youtube.video.notReady": "يمكنك مشاهدته بعد اكتمال تنزيله.",
+	"youtube.video.gone": "هذا الفيديو لم يعد موجودًا."
 }

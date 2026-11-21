@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "Ya no sigues {name}",
 	"youtube.follows.saved": "Guardado",
 	"youtube.follows.saveFailed": "No se pudo guardar",
-	"youtube.follows.showVideos": "Ver vídeos"
+	"youtube.follows.showVideos": "Ver vídeos",
+	"youtube.video.back": "Todos los vídeos",
+	"youtube.video.uploaded": "Subido el {date}",
+	"youtube.video.notReady": "Podrás verlo cuando se haya descargado.",
+	"youtube.video.gone": "Este vídeo ya no está aquí."
 }

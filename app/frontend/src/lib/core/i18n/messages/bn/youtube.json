@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "{name} আনফলো করা হয়েছে",
 	"youtube.follows.saved": "সংরক্ষিত",
 	"youtube.follows.saveFailed": "সংরক্ষণ করা গেল না",
-	"youtube.follows.showVideos": "ভিডিও দেখান"
+	"youtube.follows.showVideos": "ভিডিও দেখান",
+	"youtube.video.back": "সব ভিডিও",
+	"youtube.video.uploaded": "আপলোড {date}",
+	"youtube.video.notReady": "ডাউনলোড হয়ে গেলে আপনি এটি দেখতে পারবেন।",
+	"youtube.video.gone": "এই ভিডিওটি আর এখানে নেই।"
 }

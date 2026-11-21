@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "Ja no segueixes {name}",
 	"youtube.follows.saved": "Desat",
 	"youtube.follows.saveFailed": "No s’ha pogut desar",
-	"youtube.follows.showVideos": "Mostra els vídeos"
+	"youtube.follows.showVideos": "Mostra els vídeos",
+	"youtube.video.back": "Tots els vídeos",
+	"youtube.video.uploaded": "Penjat el {date}",
+	"youtube.video.notReady": "El podràs veure quan s’hagi baixat.",
+	"youtube.video.gone": "Aquest vídeo ja no hi és."
 }

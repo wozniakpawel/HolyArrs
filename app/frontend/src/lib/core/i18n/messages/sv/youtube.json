@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "Du följer inte längre {name}",
 	"youtube.follows.saved": "Sparat",
 	"youtube.follows.saveFailed": "Kunde inte spara",
-	"youtube.follows.showVideos": "Visa videor"
+	"youtube.follows.showVideos": "Visa videor",
+	"youtube.video.back": "Alla videor",
+	"youtube.video.uploaded": "Uppladdad {date}",
+	"youtube.video.notReady": "Du kan titta på den när den har laddats ner.",
+	"youtube.video.gone": "Den här videon finns inte längre här."
 }

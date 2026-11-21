@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "{name} 팔로우를 해제했습니다",
 	"youtube.follows.saved": "저장했습니다",
 	"youtube.follows.saveFailed": "저장할 수 없습니다",
-	"youtube.follows.showVideos": "동영상 보기"
+	"youtube.follows.showVideos": "동영상 보기",
+	"youtube.video.back": "모든 동영상",
+	"youtube.video.uploaded": "{date} 업로드",
+	"youtube.video.notReady": "다운로드가 끝나면 볼 수 있어요.",
+	"youtube.video.gone": "이 동영상은 더 이상 없어요."
 }

@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "Nebesekate: {name}",
 	"youtube.follows.saved": "Įrašyta",
 	"youtube.follows.saveFailed": "Nepavyko įrašyti",
-	"youtube.follows.showVideos": "Rodyti vaizdo įrašus"
+	"youtube.follows.showVideos": "Rodyti vaizdo įrašus",
+	"youtube.video.back": "Visi vaizdo įrašai",
+	"youtube.video.uploaded": "Įkelta {date}",
+	"youtube.video.notReady": "Galėsite žiūrėti, kai jis bus atsisiųstas.",
+	"youtube.video.gone": "Šio vaizdo įrašo čia nebėra."
 }

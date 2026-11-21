@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "Sa ei jälgi enam: {name}",
 	"youtube.follows.saved": "Salvestatud",
 	"youtube.follows.saveFailed": "Salvestamine ebaõnnestus",
-	"youtube.follows.showVideos": "Näita videoid"
+	"youtube.follows.showVideos": "Näita videoid",
+	"youtube.video.back": "Kõik videod",
+	"youtube.video.uploaded": "Üles laaditud {date}",
+	"youtube.video.notReady": "Saad seda vaadata, kui see on alla laaditud.",
+	"youtube.video.gone": "Seda videot pole enam siin."
 }

@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "دیگر {name} را دنبال نمی‌کنید",
 	"youtube.follows.saved": "ذخیره شد",
 	"youtube.follows.saveFailed": "ذخیره ممکن نشد",
-	"youtube.follows.showVideos": "نمایش ویدیوها"
+	"youtube.follows.showVideos": "نمایش ویدیوها",
+	"youtube.video.back": "همه ویدیوها",
+	"youtube.video.uploaded": "بارگذاری‌شده در {date}",
+	"youtube.video.notReady": "پس از کامل شدن دانلود می‌توانید آن را تماشا کنید.",
+	"youtube.video.gone": "این ویدیو دیگر اینجا نیست."
 }

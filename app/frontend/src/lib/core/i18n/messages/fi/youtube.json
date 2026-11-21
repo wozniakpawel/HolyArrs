@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "Et enää seuraa: {name}",
 	"youtube.follows.saved": "Tallennettu",
 	"youtube.follows.saveFailed": "Tallennus epäonnistui",
-	"youtube.follows.showVideos": "Näytä videot"
+	"youtube.follows.showVideos": "Näytä videot",
+	"youtube.video.back": "Kaikki videot",
+	"youtube.video.uploaded": "Ladattu palveluun {date}",
+	"youtube.video.notReady": "Voit katsoa sen, kun se on ladattu.",
+	"youtube.video.gone": "Tätä videota ei enää ole täällä."
 }

@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "Више не пратите: {name}",
 	"youtube.follows.saved": "Сачувано",
 	"youtube.follows.saveFailed": "Чување није успело",
-	"youtube.follows.showVideos": "Прикажи видео снимке"
+	"youtube.follows.showVideos": "Прикажи видео снимке",
+	"youtube.video.back": "Сви видео снимци",
+	"youtube.video.uploaded": "Отпремљено {date}",
+	"youtube.video.notReady": "Моћи ћете да га гледате када се преузме.",
+	"youtube.video.gone": "Овог видео снимка више нема."
 }

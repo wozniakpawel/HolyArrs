@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "Вы отписались: {name}",
 	"youtube.follows.saved": "Сохранено",
 	"youtube.follows.saveFailed": "Не удалось сохранить",
-	"youtube.follows.showVideos": "Показать видео"
+	"youtube.follows.showVideos": "Показать видео",
+	"youtube.video.back": "Все видео",
+	"youtube.video.uploaded": "Загружено {date}",
+	"youtube.video.notReady": "Его можно будет посмотреть, когда он скачается.",
+	"youtube.video.gone": "Этого видео здесь больше нет."
 }

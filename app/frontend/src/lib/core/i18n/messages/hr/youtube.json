@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "Više ne pratite: {name}",
 	"youtube.follows.saved": "Spremljeno",
 	"youtube.follows.saveFailed": "Spremanje nije uspjelo",
-	"youtube.follows.showVideos": "Prikaži videozapise"
+	"youtube.follows.showVideos": "Prikaži videozapise",
+	"youtube.video.back": "Svi videozapisi",
+	"youtube.video.uploaded": "Preneseno {date}",
+	"youtube.video.notReady": "Moći ćete ga gledati kad se preuzme.",
+	"youtube.video.gone": "Ovog videozapisa više nema."
 }

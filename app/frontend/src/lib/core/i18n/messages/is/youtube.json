@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "Þú fylgir ekki lengur {name}",
 	"youtube.follows.saved": "Vistað",
 	"youtube.follows.saveFailed": "Ekki tókst að vista",
-	"youtube.follows.showVideos": "Sýna myndbönd"
+	"youtube.follows.showVideos": "Sýna myndbönd",
+	"youtube.video.back": "Öll myndbönd",
+	"youtube.video.uploaded": "Sett inn {date}",
+	"youtube.video.notReady": "Þú getur horft á það þegar það hefur verið sótt.",
+	"youtube.video.gone": "Þetta myndband er ekki lengur hér."
 }

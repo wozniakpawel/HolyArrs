@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "Δεν ακολουθείτε πια: {name}",
 	"youtube.follows.saved": "Αποθηκεύτηκε",
 	"youtube.follows.saveFailed": "Δεν ήταν δυνατή η αποθήκευση",
-	"youtube.follows.showVideos": "Εμφάνιση βίντεο"
+	"youtube.follows.showVideos": "Εμφάνιση βίντεο",
+	"youtube.video.back": "Όλα τα βίντεο",
+	"youtube.video.uploaded": "Ανέβηκε {date}",
+	"youtube.video.notReady": "Μπορείς να το δεις μόλις κατέβει.",
+	"youtube.video.gone": "Αυτό το βίντεο δεν υπάρχει πια εδώ."
 }

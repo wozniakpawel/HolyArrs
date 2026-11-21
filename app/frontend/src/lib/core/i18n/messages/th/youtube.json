@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "เลิกติดตาม {name} แล้ว",
 	"youtube.follows.saved": "บันทึกแล้ว",
 	"youtube.follows.saveFailed": "บันทึกไม่ได้",
-	"youtube.follows.showVideos": "แสดงวิดีโอ"
+	"youtube.follows.showVideos": "แสดงวิดีโอ",
+	"youtube.video.back": "วิดีโอทั้งหมด",
+	"youtube.video.uploaded": "อัปโหลดเมื่อ {date}",
+	"youtube.video.notReady": "ดูได้เมื่อดาวน์โหลดเสร็จแล้ว",
+	"youtube.video.gone": "วิดีโอนี้ไม่อยู่ที่นี่แล้ว"
 }

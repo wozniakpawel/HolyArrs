@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "{name} ontvolgd",
 	"youtube.follows.saved": "Opgeslagen",
 	"youtube.follows.saveFailed": "Kon niet opslaan",
-	"youtube.follows.showVideos": "Video’s tonen"
+	"youtube.follows.showVideos": "Video’s tonen",
+	"youtube.video.back": "Alle video’s",
+	"youtube.video.uploaded": "Geüpload op {date}",
+	"youtube.video.notReady": "Je kunt hem bekijken zodra hij is gedownload.",
+	"youtube.video.gone": "Deze video is er niet meer."
 }

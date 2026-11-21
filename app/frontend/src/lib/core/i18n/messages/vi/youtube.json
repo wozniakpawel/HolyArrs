@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "Đã bỏ theo dõi {name}",
 	"youtube.follows.saved": "Đã lưu",
 	"youtube.follows.saveFailed": "Không thể lưu",
-	"youtube.follows.showVideos": "Xem video"
+	"youtube.follows.showVideos": "Xem video",
+	"youtube.video.back": "Tất cả video",
+	"youtube.video.uploaded": "Tải lên ngày {date}",
+	"youtube.video.notReady": "Bạn có thể xem khi video đã tải xuống xong.",
+	"youtube.video.gone": "Video này không còn ở đây nữa."
 }

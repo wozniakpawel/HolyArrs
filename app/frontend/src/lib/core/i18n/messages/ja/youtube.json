@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "{name} のフォローを解除しました",
 	"youtube.follows.saved": "保存しました",
 	"youtube.follows.saveFailed": "保存できませんでした",
-	"youtube.follows.showVideos": "動画を表示"
+	"youtube.follows.showVideos": "動画を表示",
+	"youtube.video.back": "すべての動画",
+	"youtube.video.uploaded": "{date}にアップロード",
+	"youtube.video.notReady": "ダウンロードが終わると再生できます。",
+	"youtube.video.gone": "この動画はもうありません。"
 }

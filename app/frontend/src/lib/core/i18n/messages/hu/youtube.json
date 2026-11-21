@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "Már nem követed: {name}",
 	"youtube.follows.saved": "Mentve",
 	"youtube.follows.saveFailed": "Nem sikerült menteni",
-	"youtube.follows.showVideos": "Videók mutatása"
+	"youtube.follows.showVideos": "Videók mutatása",
+	"youtube.video.back": "Minden videó",
+	"youtube.video.uploaded": "Feltöltve: {date}",
+	"youtube.video.notReady": "Akkor nézheted meg, ha letöltődött.",
+	"youtube.video.gone": "Ez a videó már nincs itt."
 }

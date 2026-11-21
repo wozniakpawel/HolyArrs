@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "Du følger ikke lenger {name}",
 	"youtube.follows.saved": "Lagret",
 	"youtube.follows.saveFailed": "Kunne ikke lagre",
-	"youtube.follows.showVideos": "Vis videoer"
+	"youtube.follows.showVideos": "Vis videoer",
+	"youtube.video.back": "Alle videoer",
+	"youtube.video.uploaded": "Lastet opp {date}",
+	"youtube.video.notReady": "Du kan se den når den er lastet ned.",
+	"youtube.video.gone": "Denne videoen er ikke her lenger."
 }

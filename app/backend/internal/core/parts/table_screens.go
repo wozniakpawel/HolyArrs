@@ -46,6 +46,7 @@ var screenOwners = map[string]Owner{
 	"/music/album/[mbid]":            music,
 	"/calendar":                      Media,
 	"/youtube":                       youtube,
+	"/youtube/[id]":                  youtube,
 	"/requests":                      wishlist,
 	"/requests/reports":              Core,
 	"/settings":                      Core,

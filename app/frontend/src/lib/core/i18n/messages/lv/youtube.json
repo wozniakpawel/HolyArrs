@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "Jūs vairs nesekojat: {name}",
 	"youtube.follows.saved": "Saglabāts",
 	"youtube.follows.saveFailed": "Neizdevās saglabāt",
-	"youtube.follows.showVideos": "Rādīt video"
+	"youtube.follows.showVideos": "Rādīt video",
+	"youtube.video.back": "Visi video",
+	"youtube.video.uploaded": "Augšupielādēts {date}",
+	"youtube.video.notReady": "To varēsi skatīties, kad tas būs lejupielādēts.",
+	"youtube.video.gone": "Šī video šeit vairs nav."
 }

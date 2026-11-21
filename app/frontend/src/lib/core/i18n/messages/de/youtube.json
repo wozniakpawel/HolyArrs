@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "{name} entfolgt",
 	"youtube.follows.saved": "Gespeichert",
 	"youtube.follows.saveFailed": "Konnte nicht speichern",
-	"youtube.follows.showVideos": "Videos zeigen"
+	"youtube.follows.showVideos": "Videos zeigen",
+	"youtube.video.back": "Alle Videos",
+	"youtube.video.uploaded": "Hochgeladen am {date}",
+	"youtube.video.notReady": "Du kannst es ansehen, sobald es heruntergeladen ist.",
+	"youtube.video.gone": "Dieses Video ist nicht mehr da."
 }

@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "המעקב אחרי {name} הופסק",
 	"youtube.follows.saved": "נשמר",
 	"youtube.follows.saveFailed": "לא ניתן היה לשמור",
-	"youtube.follows.showVideos": "הצגת סרטונים"
+	"youtube.follows.showVideos": "הצגת סרטונים",
+	"youtube.video.back": "כל הסרטונים",
+	"youtube.video.uploaded": "הועלה ב־{date}",
+	"youtube.video.notReady": "אפשר לצפות בו אחרי שההורדה תסתיים.",
+	"youtube.video.gone": "הסרטון הזה כבר לא כאן."
 }

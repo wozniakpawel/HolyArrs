@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "Ви більше не стежите: {name}",
 	"youtube.follows.saved": "Збережено",
 	"youtube.follows.saveFailed": "Не вдалося зберегти",
-	"youtube.follows.showVideos": "Показати відео"
+	"youtube.follows.showVideos": "Показати відео",
+	"youtube.video.back": "Усі відео",
+	"youtube.video.uploaded": "Завантажено {date}",
+	"youtube.video.notReady": "Його можна буде переглянути, коли він завантажиться.",
+	"youtube.video.gone": "Цього відео тут більше немає."
 }

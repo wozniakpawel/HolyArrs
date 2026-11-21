@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "Na-unfollow si {name}",
 	"youtube.follows.saved": "Na-save",
 	"youtube.follows.saveFailed": "Hindi na-save",
-	"youtube.follows.showVideos": "Ipakita ang mga video"
+	"youtube.follows.showVideos": "Ipakita ang mga video",
+	"youtube.video.back": "Lahat ng video",
+	"youtube.video.uploaded": "In-upload noong {date}",
+	"youtube.video.notReady": "Mapapanood mo ito kapag na-download na.",
+	"youtube.video.gone": "Wala na rito ang video na ito."
 }

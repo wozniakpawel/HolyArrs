@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "已取消关注 {name}",
 	"youtube.follows.saved": "已保存",
 	"youtube.follows.saveFailed": "无法保存",
-	"youtube.follows.showVideos": "查看视频"
+	"youtube.follows.showVideos": "查看视频",
+	"youtube.video.back": "所有视频",
+	"youtube.video.uploaded": "上传于 {date}",
+	"youtube.video.notReady": "下载完成后即可观看。",
+	"youtube.video.gone": "这个视频已不在这里。"
 }

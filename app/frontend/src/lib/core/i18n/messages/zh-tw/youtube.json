@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "已取消追蹤 {name}",
 	"youtube.follows.saved": "已儲存",
 	"youtube.follows.saveFailed": "無法儲存",
-	"youtube.follows.showVideos": "查看影片"
+	"youtube.follows.showVideos": "查看影片",
+	"youtube.video.back": "所有影片",
+	"youtube.video.uploaded": "上傳於 {date}",
+	"youtube.video.notReady": "下載完成後即可觀看。",
+	"youtube.video.gone": "這部影片已不在這裡。"
 }

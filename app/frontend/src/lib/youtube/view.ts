@@ -149,3 +149,27 @@ function later(a: string | null, b: string | null): number {
 	const tb = b ? Date.parse(b) : NaN;
 	return (Number.isNaN(tb) ? -Infinity : tb) - (Number.isNaN(ta) ? -Infinity : ta) || 0;
 }
+
+/** Saves where the person is: every ten seconds while playing, on pause and on leaving. A second already saved last is not sent again. */
+export function makeSaver(
+	send: (s: number, d: number) => void,
+	now = () => Date.now()
+): { tick(s: number, d: number): void; pause(s: number, d: number): void; leave(s: number, d: number): void } {
+	let lastAt = now();
+	let lastSecond = -1;
+	const save = (s: number, d: number) => {
+		if (!(d > 0) || !(s >= 0)) return;
+		const second = Math.floor(s);
+		if (second === lastSecond) return;
+		lastSecond = second;
+		lastAt = now();
+		send(second, Math.round(d));
+	};
+	return {
+		tick: (s, d) => {
+			if (shouldSave(lastAt, now())) save(s, d);
+		},
+		pause: save,
+		leave: save
+	};
+}

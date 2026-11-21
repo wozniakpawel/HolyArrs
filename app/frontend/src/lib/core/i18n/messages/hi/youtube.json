@@ -78,5 +78,9 @@
 	"youtube.follows.unfollowed": "{name} को अनफ़ॉलो किया",
 	"youtube.follows.saved": "सहेजा गया",
 	"youtube.follows.saveFailed": "सहेजा नहीं जा सका",
-	"youtube.follows.showVideos": "वीडियो दिखाएँ"
+	"youtube.follows.showVideos": "वीडियो दिखाएँ",
+	"youtube.video.back": "सभी वीडियो",
+	"youtube.video.uploaded": "{date} को अपलोड हुआ",
+	"youtube.video.notReady": "डाउनलोड होने के बाद आप इसे देख सकते हैं।",
+	"youtube.video.gone": "यह वीडियो अब यहाँ नहीं है।"
 }

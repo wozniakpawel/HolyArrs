@@ -27,9 +27,14 @@ export const ytAddFollow = (f: NewFollow) => api.post<YtFollow>('/youtube/follow
 export const ytEditFollow = (id: number, edit: FollowEdit) => api.put<YtFollow>(`/youtube/follows/${id}`, edit);
 export const ytUnfollow = (id: number, files: 'keep' | 'delete') => api.del(`/youtube/follows/${id}?files=${files}`);
 export const ytRemove = (id: number) => api.del(`/youtube/videos/${id}`);
+/** Saves where the person stopped; keepalive lets the save finish when the page is closed right after. */
+export const ytSavePosition = (id: number, seconds: number, duration: number) =>
+	api.request<{ watched: boolean }>(`/youtube/videos/${id}/position`, { method: 'PUT', body: { seconds, duration }, keepalive: true });
 export const ytRetry = (id: number) => api.post<YtVideo>(`/youtube/videos/${id}/retry`);
 
 /** The thumbnail of a downloaded video. */
 export const ytThumb = (id: number) => to(`/api/v1/youtube/videos/${id}/thumb`);
+/** The file of a downloaded video, to play. */
+export const ytFile = (id: number) => to(`/api/v1/youtube/videos/${id}/file`);
 /** The file of a downloaded video, saved to the device under its own name. */
 export const ytSaveLink = (id: number) => to(`/api/v1/youtube/videos/${id}/file?download=1`);
