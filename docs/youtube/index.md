@@ -1,0 +1,201 @@
+---
+title: YouTube
+description: Download YouTube videos, playlists and channels to your server, watch them in HolyArrs and save files to your device.
+level: Start
+---
+
+Paste a YouTube link and HolyArrs downloads the video to your server. Follow a playlist or channel and new videos arrive by themselves. Each person sees only their own videos.
+
+YouTube is held back in this release. It needs the `youtube` switch and two programs on the server.
+
+## Turn it on
+
+1. Add `youtube` to `HOLYARRS_FLAGS` and restart the container. See [Held-back features](../run/updates.md#held-back-features).
+2. Put yt-dlp and ffmpeg on the server. See [Programs](#programs).
+3. The owner opens **Settings > YouTube** and sets the **YouTube folder**, for example `/data/youtube`. Videos download only once it is set.
+4. Give people the **Use the YouTube library** permission in **Settings > Users and roles**. The owner always has it.
+
+You should see **YouTube** in the menu.
+
+### Programs
+
+yt-dlp downloads the videos. ffmpeg joins sound and picture. The HolyArrs image does not include them, so bring your own: mount the binaries into the container or build your own image.
+
+HolyArrs looks for them in this order:
+
+1. `HOLYARRS_YTDLP` and `HOLYARRS_FFMPEG`, full paths to the programs.
+2. `yt-dlp` and `ffmpeg` on the container's `PATH`.
+
+Keep yt-dlp in a folder HolyArrs can write to, such as `/config/bin/yt-dlp`. HolyArrs then lets it update itself once a day. YouTube changes often, and an old yt-dlp stops working.
+
+**Settings > YouTube** shows where each program was found, its version and the last self-update.
+
+### The YouTube folder
+
+- It must exist and HolyArrs must be able to write to it.
+- It must not be inside a Library folder or a downloads folder.
+- It cannot change once it holds videos.
+- Only the owner changes it. Admins see it.
+
+## Add a link
+
+1. Open **YouTube**.
+2. Paste a link to a video, playlist or channel and select **Add**.
+3. Check the card that opens: title, channel and how many videos.
+4. Select **Download** for a video, **Download all and follow** for a playlist, or **Follow** for a channel.
+
+You should see the video in the grid as **Queued**, then **Downloading** with a percentage.
+
+Links from `youtube.com`, `www.youtube.com`, `m.youtube.com`, `music.youtube.com` and `youtu.be` work. Channel links work as `@name`, `/channel/...`, `/c/...` or `/user/...`, with or without a tab such as `/videos`.
+
+Following something you already follow shows **You already follow this**, with a link to it.
+
+## Follows and the first download
+
+A follow checks for new videos every 6 hours and downloads them.
+
+| Follow | What it covers | First download |
+|---|---|---|
+| Playlist | Every video in the playlist | All of it |
+| Channel | Videos and past live streams. Shorts only with **Include Shorts** | **Newest 20**, **Newest…** (you pick how many) or **All** |
+
+**All** on a channel downloads every video it has. On a big channel this takes days and a lot of space.
+
+After the first check, only new videos download. Live streams and premieres wait until they end, then download.
+
+Manage your follows under **Following > Manage**:
+
+- Change quality, **Keep only the newest** and **Include Shorts**.
+- **Pause** stops checks; **Resume** starts them again.
+- **Unfollow** asks whether to keep or delete the videos already downloaded.
+- See when the follow was last checked and why the last check failed.
+
+To check a follow now, use **Run now** on **Check YouTube follows** in **Settings > Schedules**. That checks everyone's follows.
+
+## Keep only the newest
+
+Turn on **Keep only the newest** and pick how many. When a new video arrives, HolyArrs deletes the oldest beyond that number, file first. Deleted videos never download again.
+
+Off by default: every video stays.
+
+## Quality
+
+Each follow downloads up to a height you pick: 2160p, 1440p, 1080p, 720p, 480p or 360p. The default is 1080p. HolyArrs takes H.264 with AAC sound at or below it first, so every browser plays the file. Without that, it takes the best picture at or below the height. It never re-encodes.
+
+A single video downloads at 1080p.
+
+## Watch
+
+Select a video to play it. HolyArrs saves where you stopped every 10 seconds and when you pause or leave. At 90% it counts as **Watched**.
+
+Use **Show** to filter by follow or channel, or turn on **Unwatched only**.
+
+**Remove** in a video's menu deletes its file. Nobody else sees your videos or follows, not even the owner. **Settings > YouTube** shows only totals for everyone together.
+
+## Where files live
+
+Each person gets their own folder inside the YouTube folder:
+
+```
+<YouTube folder>/<user id>-<name>/<channel or playlist>/<YYYY-MM-DD> <title> [<video id>].mp4
+```
+
+A `.jpg` thumbnail with the same name sits next to each video. A followed video goes in a folder named after the playlist, or after the channel as it was named when followed. Any other video goes in a folder named after its channel.
+
+Deleting a person deletes their YouTube videos and follows too.
+
+## Save to your device
+
+With the **Save files to their device** permission, a person saves a copy of a movie or an episode to their own device:
+
+- On a movie's page, select **Save to device** next to its file.
+- On a show's page, select the download button next to an episode.
+
+The owner always has this permission. Admins and members get it only when ticked. Kid accounts never do.
+
+Your own YouTube videos save from the video's menu or its page with **Save to device**. That needs only the YouTube permission.
+
+## Bring in videos you already have
+
+The owner can copy videos already on disk, for example a yt-dlp or Pinchflat folder, into a person's YouTube library. There is no page for it yet; use the API below.
+
+- Files are copied, never moved. The source folder stays as it was.
+- The YouTube id comes from a `.nfo` file next to the video, an `.info.json` file, or `[<id>]` in the file name.
+- A video already in the library, or twice in the folder, is skipped.
+- Thumbnails come from a `.jpg` or `-thumb.jpg` next to the video. HolyArrs converts a `.webp` or `.png`, or takes a frame from the video.
+- Subtitle files such as `.en.srt` are copied too.
+- No follows are made, unless you name a playlist link for a folder. That follow takes only videos added after it.
+
+```sh
+curl -X POST http://holyarrs:6262/api/v1/youtube/adopt \
+  -H "X-Api-Key: <key>" -H "Content-Type: application/json" \
+  -d '{"user_id": 1, "path": "/data/old-videos", "dry_run": true}'
+```
+
+`"dry_run": true` lists what would be copied, where to and why anything is skipped. Send it again without `dry_run` to start the copy as a job.
+
+## If it does not work
+
+**Symptom:** the YouTube page says it needs yt-dlp and ffmpeg.
+**Cause:** HolyArrs cannot find one of them. The panel names which.
+**Fix:** set `HOLYARRS_YTDLP` or `HOLYARRS_FFMPEG` to the full path, or put the program on `PATH`. Restart the container. **Settings > YouTube** shows where each was found.
+
+**Symptom:** videos stay **Queued** and the page says downloads are paused.
+**Cause:** the disk holding the YouTube folder has less free space than **Free space to keep (GB)**, 10 GB by default.
+**Fix:** free some space, or lower the number in **Settings > YouTube**. Downloads go on by themselves.
+
+**Symptom:** the page says **Choose a YouTube folder**.
+**Cause:** the owner has not set the YouTube folder.
+**Fix:** the owner sets it in **Settings > YouTube**. Queued videos then download.
+
+**Symptom:** videos stay **Queued** with no message.
+**Cause:** the `youtube` part is off in **Settings > Parts**.
+**Fix:** turn it on. See [Parts and safe mode](../run/parts-safe-mode.md).
+
+**Symptom:** a video shows **Failed**.
+**Cause:** it failed 3 times. The card shows yt-dlp's reason, for example a private, removed or age-checked video.
+**Fix:** select **Retry**. If many videos fail at once, check the yt-dlp version in **Settings > YouTube**; an old one stops working when YouTube changes.
+
+**Symptom:** a follow says the last check failed.
+**Cause:** yt-dlp could not list it, for example a deleted playlist. Other follows still run.
+**Fix:** open the link in a browser. If it is gone, unfollow it.
+
+**Symptom:** **Skipped** videos on a channel.
+**Cause:** older than the first download you picked, or older Shorts when **Include Shorts** was turned on later.
+**Fix:** none needed.
+
+**Symptom:** someone cannot see **YouTube**.
+**Cause:** the `youtube` switch is off, they lack the permission, or it is a Kid account. Kid accounts never use YouTube.
+**Fix:** add the switch, or tick **Use the YouTube library** in **Settings > Users and roles**.
+
+## For experts
+
+<details class="ha-more"><summary>Settings and schedule</summary>
+
+| Item | Value |
+|---|---|
+| Switch | `youtube` in `HOLYARRS_FLAGS` |
+| Programs | `HOLYARRS_YTDLP`, `HOLYARRS_FFMPEG`, else `PATH` |
+| Settings | **Settings > YouTube**, owner only. Stored in the `this_app` group as `youtube_folder` and `youtube_min_free_gb` |
+| Free space to keep | 10 GB by default |
+| Check YouTube follows | Every 6 h, 1 h to 7 days in **Settings > Schedules** |
+| yt-dlp self-update | At most once a day, during a check |
+| Download attempts | 3 |
+| Permissions | `youtube`, `save_files`. Owner always; admins and members when ticked; Kid accounts never |
+
+</details>
+
+<details class="ha-more"><summary>Privacy</summary>
+
+- Every video and follow belongs to one person. No route shows them to anyone else.
+- Jobs, History and the log carry row ids only, never titles, channels, links or video ids. The one exception is a folder copy the owner starts: its job holds the folder path and any playlist links.
+- yt-dlp only ever gets a link HolyArrs rebuilt from a checked id, never the pasted text.
+
+</details>
+
+## Related
+
+- [Held-back features](../run/updates.md#held-back-features)
+- [Users and roles](../users/roles.md)
+- [Schedules](../run/schedules.md)
+- [Environment variables](../reference/env-vars.md)
