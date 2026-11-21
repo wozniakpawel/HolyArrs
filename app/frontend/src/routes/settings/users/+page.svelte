@@ -658,7 +658,7 @@
 <Sheet bind:open={inviteOpen} title={t('settings.users.invite')} size="md">
 	<div id="invite-card">
 		<p class="small muted" style="margin-bottom: var(--s-4)">{t('settings.users.oneTime')}</p>
-		<form class="invite" onsubmit={makeInvite}>
+		<form id="invite-form" class="invite" onsubmit={makeInvite}>
 			<div class="field">
 				{#if roleOptions.length > 1}
 					<span class="label" aria-hidden="true">{t('settings.users.role')}</span>
@@ -688,9 +688,12 @@
 					<input id="inv-days" class="input" type="number" min="1" max="30" bind:value={days} style="max-width: 120px" />
 				</Field>
 			</div>
-			<Button icon="plus" variant="primary" type="submit" disabled={making} aria-busy={making}>{t('settings.users.makeInvite')}</Button>
 		</form>
 	</div>
+	{#snippet footer()}
+		<!-- In the footer so it stays on screen on a phone however many permissions there are to tick. -->
+		<Button icon="plus" variant="primary" type="submit" form="invite-form" disabled={making} aria-busy={making}>{t('settings.users.makeInvite')}</Button>
+	{/snippet}
 </Sheet>
 
 <style>
@@ -727,9 +730,6 @@
 	/* A legend starts where the plain labels of the bars above it start. */
 	legend {
 		padding: 0;
-	}
-	.invite :global(button[type='submit']) {
-		margin-top: var(--s-3);
 	}
 	/* A legend is not a flex child of the column, so float it to keep the label gap other rows have. */
 	.invite fieldset.field > legend {
