@@ -15,7 +15,7 @@ YouTube is held back in this release. It needs the `youtube` switch and two prog
 3. The owner opens **Settings > YouTube** and sets the **YouTube folder**, for example `/data/youtube`. Videos download only once it is set.
 4. Give people the **Use the YouTube library** permission in **Settings > Users and roles**. The owner always has it.
 
-You should see **YouTube** in the menu.
+You should see **YouTube** in the menu, under **Library**.
 
 ### Programs
 
@@ -40,11 +40,12 @@ Keep yt-dlp in a folder HolyArrs can write to, such as `/config/bin/yt-dlp`. Hol
 ## Add a link
 
 1. Open **YouTube**.
-2. Paste a link to a video, playlist or channel and select **Add**.
-3. Check the card that opens: title, channel and how many videos.
-4. Select **Download** for a video, **Download all and follow** for a playlist, or **Follow** for a channel.
+2. Select **Add** at the end of the toolbar.
+3. Paste a link to a video, playlist or channel and select **Add**.
+4. Check the card that opens: title, channel and how many videos.
+5. Select **Download** for a video, **Download all and follow** for a playlist, or **Follow** for a channel.
 
-You should see the video in the grid as **Queued**, then **Downloading** with a percentage.
+You should see the video as **Queued**, then **Downloading** with a percentage.
 
 Links from `youtube.com`, `www.youtube.com`, `m.youtube.com`, `music.youtube.com` and `youtu.be` work. Channel links work as `@name`, `/channel/...`, `/c/...` or `/user/...`, with or without a tab such as `/videos`.
 
@@ -57,6 +58,7 @@ A follow checks for new videos every 6 hours and downloads them.
 | Follow | What it covers | First download |
 |---|---|---|
 | Playlist | Every video in the playlist | All of it |
+| Mirrored playlist | Every video in the playlist, and nothing that left it. See [Mirror a playlist](#mirror-a-playlist) | All of it |
 | Channel | Videos and past live streams. Shorts only with **Include Shorts** | **Newest 20**, **Newest…** (you pick how many) or **All** |
 
 **All** on a channel downloads every video it has. On a big channel this takes days and a lot of space.
@@ -66,17 +68,52 @@ After the first check, only new videos download. Live streams and premieres wait
 Manage your follows under **Following > Manage**:
 
 - Change quality, **Keep only the newest** and **Include Shorts**.
+- Turn **Mirror this playlist** on or off for a playlist.
 - **Pause** stops checks; **Resume** starts them again.
-- **Unfollow** asks whether to keep or delete the videos already downloaded.
+- **Unfollow** asks whether to keep or delete the videos already downloaded. See [What a follow deletes](#what-a-follow-deletes).
 - See when the follow was last checked and why the last check failed.
 
 To check a follow now, use **Run now** on **Check YouTube follows** in **Settings > Schedules**. That checks everyone's follows.
+
+## A video in more than one playlist
+
+A video is stored once per person, however many of your playlists and channels have it. When a follow lists a video you already have, HolyArrs links it to that follow and does not download it again.
+
+- The list view names every playlist a video is in.
+- Filtering by a playlist or channel shows the video under each one that has it.
+- A video you added by its own link is yours to keep: no follow ever deletes it. That holds even when a follow brought the video first and you pasted its link later.
 
 ## Keep only the newest
 
 Turn on **Keep only the newest** and pick how many. When a new video arrives, HolyArrs deletes the oldest beyond that number, file first. The follow never downloads them again.
 
-Off by default: every video stays.
+Off by default: every video stays. A mirrored playlist keeps every video, so the two cannot be on together.
+
+## Mirror a playlist
+
+A mirrored playlist is kept the same as the playlist on YouTube. Turn on **Mirror this playlist** when you follow a playlist, or later under **Following > Manage**. Turning it on later asks first. It is off by default, and only playlists have it.
+
+- Every video in the playlist downloads, whatever the first download took.
+- At each check, a video that is no longer in the playlist is deleted here: file, thumbnail and its place in your list.
+- A video you added by its own link, or that another playlist or channel you follow also has, stays. It only leaves this playlist.
+- A video you removed yourself stays removed while it is still in the playlist.
+
+Nothing is deleted unless YouTube's listing is complete:
+
+- A check that fails removes nothing. That covers a playlist that went private or was deleted.
+- A listing that is empty, or shorter than the number of videos YouTube says the playlist has, removes nothing. YouTube leaves private and deleted videos out of a listing but still counts them, so a playlist holding such a video removes nothing until you take that video out of the playlist on YouTube.
+- A paused follow is not checked.
+
+Turning the mirror off deletes nothing.
+
+## What a follow deletes
+
+Three things delete videos on their own: **Unfollow** with **Delete videos**, **Keep only the newest**, and a mirrored playlist. Each deletes a video's files only when both are true:
+
+- no other playlist or channel you follow has the video, and
+- you did not add the video by its own link.
+
+Otherwise the video stays and only leaves that follow. **Unfollow** with **Keep videos** keeps every video, and no other follow deletes those later.
 
 ## Quality
 
@@ -88,7 +125,17 @@ A single video downloads at 1080p.
 
 Select a video to play it. HolyArrs saves where you stopped every 10 seconds and when you pause or leave. At 90% it counts as **Watched**.
 
-Use **Show** to filter by follow or channel, or turn on **Unwatched only**.
+## Find your videos
+
+The YouTube page works like the Library page:
+
+- **Search** finds words in a title or channel name.
+- **Grid** shows thumbnails. **List** shows a table: title, channel, playlists, uploaded, length, size and status. Select a heading to sort by it.
+- **Sort & filter** sorts by added, uploaded, title, channel, length or size, and filters by status, watched or unwatched, playlist and channel.
+- Filters that are on show as chips under the toolbar. **Clear** removes them all.
+- A name on the **Following** line shows that follow's videos.
+
+The view and the sort are remembered in your browser.
 
 **Remove** in a video's menu deletes its file. A follow never downloads a removed video again. Paste the video's link on the YouTube page to download it once more. Nobody else sees your videos or follows, not even the owner. **Settings > YouTube** shows only totals for everyone together.
 
@@ -100,7 +147,9 @@ Each person gets their own folder inside the YouTube folder:
 <YouTube folder>/<user id>-<name>/<channel or playlist>/<YYYY-MM-DD> <title> [<video id>].mp4
 ```
 
-A `.jpg` thumbnail with the same name sits next to each video. A followed video goes in a folder named after the playlist, or after the channel as it was named when followed. Any other video goes in a folder named after its channel.
+A `.jpg` thumbnail with the same name sits next to each video. A followed video goes in a folder named after the playlist, or after the channel as it was named when followed. A video in several follows goes in the folder of the one that had it first. Any other video goes in a folder named after its channel.
+
+When the last video in a channel or playlist folder is removed, HolyArrs removes the folder too. It never removes a person's own folder or the YouTube folder, and it leaves a folder that holds files of your own.
 
 Deleting a person deletes their YouTube videos and follows too.
 
@@ -121,10 +170,13 @@ The owner can copy videos already on disk, for example a yt-dlp or Pinchflat fol
 
 - Files are copied, never moved. The source folder stays as it was.
 - The YouTube id comes from a `.nfo` file next to the video, an `.info.json` file, or `[<id>]` in the file name.
-- A video already in the library, or twice in the folder, is skipped.
+- A video already in the library is not copied again.
+- A video that is in the folder twice is copied once. Without `playlists`, the second copy is skipped.
 - Thumbnails come from a `.jpg` or `-thumb.jpg` next to the video. HolyArrs converts a `.webp` or `.png`, or takes a frame from the video.
 - Subtitle files such as `.en.srt` are copied too.
 - No follows are made, unless `playlists` names a playlist link for a folder. The key is the name of the folder that holds the videos, not a path. That follow takes only videos added after it.
+- With `playlists`, the videos of a folder are linked to that folder's follow. A video in two such folders is copied once and linked to both follows. A video already in the library is linked too.
+- A video with no follow, or one YouTube no longer has, counts as added by its own link: no follow deletes it.
 
 ```sh
 curl -X POST http://holyarrs:6262/api/v1/youtube/adopt \
@@ -167,6 +219,10 @@ curl -X POST http://holyarrs:6262/api/v1/youtube/adopt \
 **Symptom:** a follow says the last check failed.
 **Cause:** yt-dlp could not list it, for example a deleted playlist. Other follows still run.
 **Fix:** open the link in a browser. If it is gone, unfollow it.
+
+**Symptom:** a video you took out of a mirrored playlist is still here.
+**Cause:** the follow has not been checked yet, the video is also in another follow or was added by its own link, or YouTube's listing was not complete.
+**Fix:** wait for the next check, or run **Check YouTube follows** in **Settings > Schedules**. If the playlist holds a private or deleted video, remove that one from the playlist on YouTube. See [Mirror a playlist](#mirror-a-playlist).
 
 **Symptom:** **Skipped** videos on a channel.
 **Cause:** older than the first download you picked, or older Shorts when **Include Shorts** was turned on later.
