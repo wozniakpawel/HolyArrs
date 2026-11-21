@@ -76,6 +76,9 @@ func scanAdopt(dir, rel string, out *[]adoptSource) error {
 			}
 		case e.Type().IsRegular() && videoExts[strings.ToLower(filepath.Ext(name))]:
 			src, err := readSource(full)
+			if errors.Is(err, errNotPlain) {
+				continue
+			}
 			if err != nil {
 				return err
 			}
@@ -90,9 +93,12 @@ func scanAdopt(dir, rel string, out *[]adoptSource) error {
 // then its .info.json (yt-dlp), then its name; the file's time is the
 // upload date of last resort.
 func readSource(file string) (adoptSource, error) {
-	st, err := os.Stat(file)
+	st, err := os.Lstat(file)
 	if err != nil {
 		return adoptSource{}, err
+	}
+	if !st.Mode().IsRegular() {
+		return adoptSource{}, errNotPlain
 	}
 	stem := strings.TrimSuffix(file, filepath.Ext(file))
 	src := adoptSource{file: file, size: st.Size()}
@@ -183,7 +189,7 @@ func readInfoJSON(file string) (rawInfo, bool) {
 
 // readSmall reads a side file of up to 32 MiB.
 func readSmall(file string) ([]byte, error) {
-	f, err := os.Open(file)
+	f, _, err := openPlain(file)
 	if err != nil {
 		return nil, err
 	}
@@ -227,15 +233,11 @@ func parseName(stem string) (title string, day *time.Time, id string) {
 // copyFile copies from to to through "<to>.partial", checking the size
 // before the rename. Errors carry no path: paths hold titles.
 func copyFile(ctx context.Context, from, to string) error {
-	in, err := os.Open(from)
+	in, st, err := openPlain(from)
 	if err != nil {
 		return pathFree(err)
 	}
 	defer in.Close()
-	st, err := in.Stat()
-	if err != nil {
-		return pathFree(err)
-	}
 	tmp := to + ".partial"
 	out, err := os.OpenFile(tmp, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
 	if err != nil {
@@ -313,9 +315,39 @@ func adoptThumb(ctx context.Context, ffmpeg string, src adoptSource, dst string,
 	return ffmpegJPEG(ctx, ffmpeg, dst, "-ss", at, "-i", src.file)
 }
 
+// regular reports whether file is a plain file: a symlink is not, so
+// nothing outside the source folder is read through one.
 func regular(file string) bool {
-	st, err := os.Stat(file)
+	st, err := os.Lstat(file)
 	return err == nil && st.Mode().IsRegular()
+}
+
+// errNotPlain refuses a source file that is a symlink or not a file.
+var errNotPlain = errors.New("not a plain file")
+
+// openPlain opens a source file only when it is a plain file and not a
+// symlink, and checks that what was opened is what was looked at.
+func openPlain(file string) (*os.File, os.FileInfo, error) {
+	before, err := os.Lstat(file)
+	if err != nil {
+		return nil, nil, err
+	}
+	if !before.Mode().IsRegular() {
+		return nil, nil, errNotPlain
+	}
+	f, err := os.Open(file)
+	if err != nil {
+		return nil, nil, err
+	}
+	st, err := f.Stat()
+	if err != nil || !os.SameFile(before, st) {
+		f.Close()
+		if err == nil {
+			err = errNotPlain
+		}
+		return nil, nil, err
+	}
+	return f, st, nil
 }
 
 // ffmpegJPEG writes the first frame of the input as a .jpg at dst.

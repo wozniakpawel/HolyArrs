@@ -429,3 +429,77 @@ func TestAdoptThumbsWithRealFFmpeg(t *testing.T) {
 		}
 	}
 }
+
+// Symlinks in the source folder are never followed: a linked video is not
+// found, a linked .nfo or .srt is not read and a linked thumbnail gives way
+// to a frame, so nothing outside the folder is read or copied.
+func TestAdoptIgnoresSymlinks(t *testing.T) {
+	t.Parallel()
+	r, _ := adoptRig(t)
+	outside := t.TempDir()
+	for name, body := range map[string]string{
+		"secret.jpg": "secret thumb",
+		"secret.nfo": nfo("zzzzzzzzzzz", "Secret", "Secret Channel", "2001-01-01 00:00:00Z"),
+		"secret.srt": "secret subtitles",
+		"secret.mp4": "secret video",
+	} {
+		if err := os.WriteFile(filepath.Join(outside, name), []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	src := t.TempDir()
+	course := filepath.Join(src, "Course")
+	if err := os.Mkdir(course, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	stem := filepath.Join(course, "01 - A [abcdefghijk]")
+	if err := os.WriteFile(stem+".mp4", []byte("plain video"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	for link, target := range map[string]string{
+		stem + "-thumb.jpg":                 "secret.jpg",
+		stem + ".nfo":                       "secret.nfo",
+		stem + ".en.srt":                    "secret.srt",
+		filepath.Join(course, "02 - B.mp4"): "secret.mp4",
+		filepath.Join(course, "02 - B.nfo"): "secret.nfo",
+	} {
+		if err := os.Symlink(filepath.Join(outside, target), link); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := os.Symlink(outside, filepath.Join(src, "Linked")); err != nil {
+		t.Fatal(err)
+	}
+	r.put("gone-abcdefghijk", nil)
+
+	items, err := r.svc.PlanAdopt(context.Background(), AdoptRequest{UserID: anna, Path: src})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(items) != 1 || items[0].VideoID != "abcdefghijk" || !strings.HasPrefix(items[0].To, "7-Anna/Course/") ||
+		!strings.HasSuffix(items[0].To, " A [abcdefghijk].mp4") {
+		t.Fatalf("items %+v", items)
+	}
+	res := r.adopt(AdoptRequest{UserID: anna, Path: src})
+	if fmt.Sprint(res) != "map[copied:0 failed:0 gone:1 skipped:0]" {
+		t.Fatalf("result %v", res)
+	}
+	files := snapshot(t, r.root)
+	for p, body := range files {
+		if strings.Contains(body, "secret") || strings.Contains(p, "Secret") || strings.Contains(p, ".srt") {
+			t.Fatalf("followed a symlink: %s = %q", p, body)
+		}
+	}
+	if len(files) != 2 {
+		t.Fatalf("files %v", files)
+	}
+	for p, body := range files {
+		if strings.HasSuffix(p, ".jpg") && body != "jpeg from ffmpeg" {
+			t.Fatalf("thumbnail %q", body)
+		}
+	}
+	v := r.videos(anna)["abcdefghijk"]
+	if v.Title != "A" || v.ChannelName != "" || len(r.videos(anna)) != 1 {
+		t.Fatalf("rows %+v", r.videos(anna))
+	}
+}
