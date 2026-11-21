@@ -321,15 +321,15 @@ func TestOtherPersonsRowsAre404(t *testing.T) {
 	r.ana.call("POST", "/api/v1/youtube/follows", `{"url":"https://www.youtube.com/@veritasium"}`, 201)
 }
 
-// The check and download jobs have handlers only with the youtube feature
-// switch on, and both belong to the YouTube part.
+// The check, download and adopt jobs have handlers only with the youtube
+// feature switch on, and all belong to the YouTube part.
 func TestYouTubeJobKindsOnlyWithFlag(t *testing.T) {
 	for _, flags := range []string{"", "youtube"} {
 		t.Setenv("HOLYARRS_FLAGS", flags)
 		var kinds []string
 		startApp(t, config{}, runOpts{kinds: func(k []string) { kinds = k }})
-		check, download := slices.Contains(kinds, "youtube_check"), slices.Contains(kinds, "youtube_download")
-		if on := flags == "youtube"; check != on || download != on {
+		check, download, adopt := slices.Contains(kinds, "youtube_check"), slices.Contains(kinds, "youtube_download"), slices.Contains(kinds, "youtube_adopt")
+		if on := flags == "youtube"; check != on || download != on || adopt != on {
 			t.Fatalf("flags %q: kinds %v", flags, kinds)
 		}
 		for _, k := range kinds {
@@ -568,4 +568,70 @@ func TestFileDownloadAbsentWhenFlagOff(t *testing.T) {
 	decodeJSON(t, own.call("POST", "/api/v1/auth/setup", `{"name":"luis","password":"a long test passphrase"}`, 201), &x)
 	own.csrf = x.CSRF
 	own.call("GET", "/api/v1/files/1/download", "", 404)
+}
+
+// route: POST /api/v1/youtube/adopt
+func TestYouTubeAdoptRoute(t *testing.T) {
+	r := ytRig(t)
+	var set struct {
+		Folder string `json:"folder"`
+	}
+	decodeJSON(t, r.owner.call("GET", "/api/v1/settings/youtube", "", 200), &set)
+	src := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(src, "Course"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	for name, body := range map[string]string{
+		"01 - What？ ｜ Part： One.mp4": "video",
+		"01 - What？ ｜ Part： One.nfo": `<episodedetails><title>What? | Part: One</title><showtitle>Someone</showtitle>` +
+			`<uniqueid type="youtube" default="true">abcdefghijk</uniqueid><aired>2016-08-01 00:00:00Z</aired></episodedetails>`,
+	} {
+		if err := os.WriteFile(filepath.Join(src, "Course", name), []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	req := func(uid int64, p string, dry bool) string {
+		b, _ := json.Marshal(map[string]any{"user_id": uid, "path": p, "dry_run": dry})
+		return string(b)
+	}
+
+	var plan struct {
+		Items []struct {
+			From    string `json:"from"`
+			To      string `json:"to"`
+			VideoID string `json:"video_id"`
+			Folder  string `json:"folder"`
+			Reason  string `json:"reason"`
+		} `json:"items"`
+	}
+	decodeJSON(t, r.owner.call("POST", "/api/v1/youtube/adopt", req(r.ana.id, src, true), 200), &plan)
+	if len(plan.Items) != 1 || plan.Items[0].VideoID != "abcdefghijk" || plan.Items[0].Folder != "Course" || plan.Items[0].Reason != "" ||
+		plan.Items[0].To != itoa(r.ana.id)+"-ana/Someone/2016-08-01 What_ _ Part_ One [abcdefghijk].mp4" {
+		t.Fatalf("plan %+v", plan)
+	}
+
+	// Refused: not the owner, a person without youtube, a relative path,
+	// the YouTube folder itself, a link that is not a playlist.
+	r.ana.call("POST", "/api/v1/youtube/adopt", req(r.ana.id, src, true), 403)
+	r.owner.call("POST", "/api/v1/youtube/adopt", req(r.bo.id, src, true), 400)
+	r.owner.call("POST", "/api/v1/youtube/adopt", req(r.ana.id, "Course", true), 400)
+	r.owner.call("POST", "/api/v1/youtube/adopt", req(r.ana.id, set.Folder, false), 400)
+	r.owner.call("POST", "/api/v1/youtube/adopt", `{"user_id":`+itoa(r.ana.id)+`,"path":`+jsonString(src)+
+		`,"playlists":{"Course":"https://youtu.be/dQw4w9WgXcQ"}}`, 400)
+
+	var started struct {
+		JobID int64 `json:"job_id"`
+	}
+	decodeJSON(t, r.owner.call("POST", "/api/v1/youtube/adopt", req(r.ana.id, src, false), 202), &started)
+	var kind, params string
+	if err := r.st.Read().QueryRow("SELECT kind, params FROM jobs WHERE id = ?", started.JobID).Scan(&kind, &params); err != nil {
+		t.Fatal(err)
+	}
+	var p map[string]any
+	if err := json.Unmarshal([]byte(params), &p); err != nil {
+		t.Fatal(err)
+	}
+	if kind != "youtube_adopt" || len(p) != 2 || p["path"] != src || p["user_id"] != float64(r.ana.id) {
+		t.Fatalf("job %s %s", kind, params)
+	}
 }

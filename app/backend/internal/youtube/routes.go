@@ -30,6 +30,7 @@ func (h *Handlers) Routes(m *webserver.Router) {
 	m.Handle("POST /api/v1/youtube/follows", webserver.PermYouTube, http.HandlerFunc(h.addFollow))
 	m.Handle("PUT /api/v1/youtube/follows/{id}", webserver.PermYouTube, http.HandlerFunc(h.updateFollow))
 	m.Handle("DELETE /api/v1/youtube/follows/{id}", webserver.PermYouTube, http.HandlerFunc(h.unfollow))
+	m.Handle("POST /api/v1/youtube/adopt", webserver.NeedOwner, http.HandlerFunc(h.adopt))
 }
 
 // caller is the signed-in person. A kid gets 404 on every YouTube route,

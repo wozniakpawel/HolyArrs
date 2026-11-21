@@ -731,6 +731,7 @@ genre_name
 genres
 gid
 go
+gone
 good_enough
 good_enough_at
 good_enough_changes
@@ -1358,6 +1359,7 @@ play_count
 playabilityStatus
 playerStoryboardSpecRenderer
 playlist_count
+playlists
 plays
 plex
 plex_friends

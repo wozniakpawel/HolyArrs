@@ -116,6 +116,7 @@ var routeOwners = map[string]Owner{
 	"GET /api/v1/settings/youtube":             youtube,
 	"PUT /api/v1/settings/youtube":             youtube,
 	"POST /api/v1/youtube/probe":               youtube,
+	"POST /api/v1/youtube/adopt":               youtube,
 	"GET /api/v1/youtube/videos":               youtube,
 	"POST /api/v1/youtube/videos":              youtube,
 	"GET /api/v1/youtube/videos/{id}":          youtube,

@@ -41,7 +41,7 @@ func (a *handlers) youtubeService() *ytlib.Service {
 	return newYouTubeService(a.s.Store, a.s.Queue, a.s.Live)
 }
 
-// youtubeJobs registers the check and download jobs while the youtube
+// youtubeJobs registers the check, download and adopt jobs while the youtube
 // feature switch is on; with it off the kinds have no handler.
 func youtubeJobs(st *database.Store, q *jobs.Queue, live *webserver.LiveHub) {
 	if !startup.FeatureOn(startup.YouTube) {
@@ -50,6 +50,7 @@ func youtubeJobs(st *database.Store, q *jobs.Queue, live *webserver.LiveHub) {
 	svc := newYouTubeService(st, q, live)
 	q.Handle(ytlib.KindCheck, svc.HandleCheck)
 	q.Handle(ytlib.KindDownload, svc.HandleDownload)
+	q.Handle(ytlib.KindAdopt, svc.HandleAdopt)
 }
 
 // youtubeForgets removes a deleted person's YouTube library while the

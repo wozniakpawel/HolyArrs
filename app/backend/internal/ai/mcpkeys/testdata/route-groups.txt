@@ -533,6 +533,7 @@ POST /api/v1/users/{id}/password admin
 POST /api/v1/users/{id}/sessions/end-all admin
 POST /api/v1/users/{id}/sso/unlink admin
 POST /api/v1/users/{id}/two-factor/reset admin
+POST /api/v1/youtube/adopt admin
 POST /api/v1/youtube/follows add
 POST /api/v1/youtube/probe add
 POST /api/v1/youtube/videos add

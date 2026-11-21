@@ -99,6 +99,25 @@ func KnownVideoIDs(ctx context.Context, q database.Lister, userID int64) (map[st
 	return out, rows.Err()
 }
 
+// VideoStates is the state of every video a person has a row for, by
+// YouTube video id.
+func VideoStates(ctx context.Context, q database.Lister, userID int64) (map[string]string, error) {
+	rows, err := q.QueryContext(ctx, "SELECT video_id, state FROM youtube_videos WHERE user_id = ?", userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := map[string]string{}
+	for rows.Next() {
+		var id, state string
+		if err := rows.Scan(&id, &state); err != nil {
+			return nil, err
+		}
+		out[id] = state
+	}
+	return out, rows.Err()
+}
+
 // SetVideoState moves a video to state with its error text.
 func SetVideoState(tx *sql.Tx, id int64, state, errText string) error {
 	_, err := tx.Exec("UPDATE youtube_videos SET state = ?, error = ? WHERE id = ?", state, errText, id)

@@ -433,8 +433,8 @@ func watched(seconds, duration int) bool {
 	return duration > 0 && seconds*10 >= duration*9
 }
 
-// removeFiles deletes a video file and its thumbnail under root. A file
-// already gone is fine; a path leaving root is refused.
+// removeFiles deletes a video file, its thumbnail and its subtitles under
+// root. A file already gone is fine; a path leaving root is refused.
 func removeFiles(root, rel string) error {
 	if rel == "" || root == "" {
 		return nil
@@ -444,7 +444,11 @@ func removeFiles(root, rel string) error {
 		return errors.New("a video path leaves the YouTube folder")
 	}
 	file := filepath.Join(root, local)
-	for _, f := range []string{file, thumbOf(file)} {
+	files := []string{file, thumbOf(file)}
+	for _, sub := range subtitlesOf(file) {
+		files = append(files, sub)
+	}
+	for _, f := range files {
 		if err := os.Remove(f); err != nil && !errors.Is(err, os.ErrNotExist) {
 			// The path holds the title: keep it out of errors and logs.
 			var pe *os.PathError

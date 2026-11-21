@@ -71,6 +71,20 @@ func VideoBase(uploaded *time.Time, title, videoID string) string {
 // that already starts with "<id>-" is kept even after a rename; otherwise
 // one is made.
 func UserDir(root string, userID int64, name string) (string, error) {
+	dir, err := userDirName(root, userID, name)
+	if err != nil {
+		return "", err
+	}
+	dir = filepath.Join(root, dir)
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return "", err
+	}
+	return dir, nil
+}
+
+// userDirName is the name UserDir uses for a person's folder, without
+// making anything.
+func userDirName(root string, userID int64, name string) (string, error) {
 	prefix := fmt.Sprintf("%d-", userID)
 	entries, err := os.ReadDir(root)
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
@@ -78,12 +92,8 @@ func UserDir(root string, userID int64, name string) (string, error) {
 	}
 	for _, e := range entries {
 		if e.IsDir() && strings.HasPrefix(e.Name(), prefix) {
-			return filepath.Join(root, e.Name()), nil
+			return e.Name(), nil
 		}
 	}
-	dir := filepath.Join(root, prefix+SafeName(name, NameBytes))
-	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return "", err
-	}
-	return dir, nil
+	return prefix + SafeName(name, NameBytes), nil
 }

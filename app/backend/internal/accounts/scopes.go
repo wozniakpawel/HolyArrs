@@ -192,6 +192,7 @@ var RoutePerms = map[string]webserver.Perm{
 	"GET /api/v1/settings/youtube":             webserver.NeedUsers,
 	"PUT /api/v1/settings/youtube":             webserver.NeedOwner,
 	"POST /api/v1/youtube/probe":               webserver.PermYouTube,
+	"POST /api/v1/youtube/adopt":               webserver.NeedOwner,
 	"GET /api/v1/youtube/videos":               webserver.PermYouTube,
 	"POST /api/v1/youtube/videos":              webserver.PermYouTube,
 	"GET /api/v1/youtube/videos/{id}":          webserver.PermYouTube,

@@ -74,3 +74,41 @@ func folderError(err error) bool {
 	}
 	return false
 }
+
+// adopt plans adopting a folder of videos (dry_run) or queues the job that
+// does it. Owner only.
+func (h *Handlers) adopt(w http.ResponseWriter, r *http.Request) {
+	if _, ok := h.caller(w, r); !ok {
+		return
+	}
+	var in AdoptRequest
+	if !webserver.Decode(w, r, &in, `send {"user_id": 1, "path": "/data/old-videos", "playlists": {"Folder": "https://www.youtube.com/playlist?list=..."}, "dry_run": true}`) {
+		return
+	}
+	if in.DryRun {
+		items, err := h.Svc.PlanAdopt(r.Context(), in)
+		if err != nil {
+			h.adoptFail(w, err)
+			return
+		}
+		webserver.WriteJSON(w, http.StatusOK, map[string]any{"items": items})
+		return
+	}
+	id, err := h.Svc.StartAdopt(r.Context(), in, webserver.RequestActor(r))
+	if err != nil {
+		h.adoptFail(w, err)
+		return
+	}
+	webserver.WriteJSON(w, http.StatusAccepted, map[string]any{"job_id": id})
+}
+
+func (h *Handlers) adoptFail(w http.ResponseWriter, err error) {
+	switch {
+	case IsAdoptRefusal(err):
+		webserver.Fail(w, http.StatusBadRequest, err.Error())
+	case errors.Is(err, ErrNeedsTools):
+		webserver.Fail(w, http.StatusServiceUnavailable, err.Error())
+	default:
+		webserver.Internal(w, "youtube", err)
+	}
+}

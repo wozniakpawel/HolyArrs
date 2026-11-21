@@ -33370,6 +33370,29 @@
         "x-holyarrs-scope": "read"
       }
     },
+    "/api/v1/youtube/adopt": {
+      "post": {
+        "description": "Send {\"user_id\", \"path\", \"playlists\", \"dry_run\"}. Copies the videos under path (an absolute folder apart from the YouTube folder) into that person's library; the source is never changed. The video id comes from a sibling .nfo, then an .info.json, then [id] in the file name. playlists maps a folder name to a playlist link: that folder's videos join a new follow that takes no older videos. dry_run answers {\"items\": [{\"from\", \"to\", \"video_id\", \"folder\", \"reason\", \"gone\"}]} without looking anything up or writing anything; a non-empty reason means the file is skipped. Otherwise it queues a youtube_adopt job, whose result counts copied, skipped, gone and failed videos.",
+        "responses": {
+          "200": {
+            "description": "dry_run: what would be adopted"
+          },
+          "202": {
+            "description": "Adopting; job_id is the job"
+          },
+          "400": {
+            "description": "A bad folder, a person who cannot use YouTube, a bad playlist link or no YouTube folder set"
+          },
+          "503": {
+            "description": "yt-dlp or ffmpeg is missing"
+          }
+        },
+        "summary": "Adopt videos from a folder",
+        "x-holyarrs-part": "youtube",
+        "x-holyarrs-permission": "owner",
+        "x-holyarrs-scope": "admin"
+      }
+    },
     "/api/v1/youtube/follows": {
       "get": {
         "description": "Your followed playlists and channels. Needs the youtube permission; Kid accounts get 404. Another person's row answers 404 like a missing one.",

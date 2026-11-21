@@ -533,6 +533,7 @@ POST /api/v1/users/{id}/password auth=users scope=admin assurance=true part=core
 POST /api/v1/users/{id}/sessions/end-all auth=users scope=admin assurance=false part=core
 POST /api/v1/users/{id}/sso/unlink auth=owner scope=admin assurance=true part=core
 POST /api/v1/users/{id}/two-factor/reset auth=users scope=admin assurance=true part=core
+POST /api/v1/youtube/adopt auth=owner scope=admin assurance=false part=youtube
 POST /api/v1/youtube/follows auth=youtube scope=write assurance=false part=youtube
 POST /api/v1/youtube/probe auth=youtube scope=write assurance=false part=youtube
 POST /api/v1/youtube/videos auth=youtube scope=write assurance=false part=youtube
