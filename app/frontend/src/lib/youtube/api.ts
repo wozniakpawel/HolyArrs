@@ -8,6 +8,7 @@ export interface NewFollow {
 	backfill?: number;
 	keep_last?: number | null;
 	include_shorts?: boolean;
+	mirror?: boolean;
 }
 
 export interface FollowEdit {
@@ -15,6 +16,7 @@ export interface FollowEdit {
 	enabled?: boolean;
 	keep_last?: number | null;
 	include_shorts?: boolean;
+	mirror?: boolean;
 }
 
 export const ytStatus = () => api.get<YtStatus>('/youtube/status');

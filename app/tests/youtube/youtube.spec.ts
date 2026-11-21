@@ -8,7 +8,8 @@ import { owner, signIn } from "../helpers/helpers.ts";
 
 // The YouTube library with a fake yt-dlp (tests/fakes/yt-dlp.mjs): the owner
 // sets the folder, downloads one video and watches part of it, follows a
-// channel; a member without the YouTube permission sees none of it.
+// channel, uses the list view with its sort and filters, and mirrors a
+// playlist; a member without the YouTube permission sees none of it.
 
 test.describe.configure({ mode: "serial" });
 
@@ -17,6 +18,18 @@ const videoLink = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
 const videoTitle = "Never Gonna Give You Up";
 const channelLink = "https://www.youtube.com/@veritasium";
 const channelName = "Veritasium";
+const playlistLink = "https://www.youtube.com/playlist?list=PLtestlist01";
+const playlistName = "Test playlist";
+
+// Opens the Add box at the end of the toolbar and looks a link up.
+async function paste(page: Page, link: string) {
+  await page.getByTestId("youtube-add-open").getByRole("button").click();
+  await page.getByLabel("YouTube link").fill(link);
+  await page
+    .getByTestId("youtube-add")
+    .getByRole("button", { name: "Add" })
+    .click();
+}
 const memberPw = `e2e-${Math.random().toString(36).slice(2)}-member`;
 
 async function fresh(browser: Browser): Promise<Page> {
@@ -54,18 +67,22 @@ test("the owner sets the YouTube folder in Settings > YouTube", async () => {
 
 test("a pasted video link downloads, and its card goes from downloading to done", async () => {
   await own.goto("/youtube");
+  // YouTube sits in the Library section of the nav, after the kinds.
+  const library = own
+    .getByRole("navigation", { name: "Main" })
+    .first()
+    .locator(".section")
+    .filter({ has: own.getByRole("heading", { name: "Library" }) });
   await expect(
-    own
-      .getByRole("navigation", { name: "Main" })
-      .first()
-      .getByRole("link", { name: "YouTube", exact: true }),
+    library.getByRole("link", { name: "YouTube", exact: true }),
   ).toBeVisible();
+  await expect(library.getByRole("link").last()).not.toHaveText("YouTube");
   await expect(own.getByTestId("youtube-no-folder")).toHaveCount(0);
-  await own.getByLabel("YouTube link").fill(videoLink);
-  await own
-    .getByTestId("youtube-add")
-    .getByRole("button", { name: "Add" })
-    .click();
+  // The page is shaped like the Library: a toolbar with Add at its end.
+  const bar = own.getByTestId("youtube-toolbar");
+  await expect(bar).toBeVisible();
+  await expect(bar.getByRole("radio", { name: "Grid" })).toBeChecked();
+  await paste(own, videoLink);
   const confirm = own.getByTestId("youtube-confirm");
   await expect(
     confirm.getByRole("heading", { name: videoTitle }),
@@ -154,11 +171,7 @@ test("the video plays from a file that answers ranges, and picks up where it was
 
 test("following a channel names it on the Following line", async () => {
   await own.goto("/youtube");
-  await own.getByLabel("YouTube link").fill(channelLink);
-  await own
-    .getByTestId("youtube-add")
-    .getByRole("button", { name: "Add" })
-    .click();
+  await paste(own, channelLink);
   const confirm = own.getByTestId("youtube-confirm");
   await expect(
     confirm.getByRole("heading", { name: channelName }),
@@ -169,6 +182,146 @@ test("following a channel names it on the Following line", async () => {
   await expect(
     following.getByRole("button", { name: channelName }),
   ).toBeVisible();
+});
+
+test("the list view has the Library's columns, sort and filters, and is remembered", async () => {
+  await own.goto("/youtube");
+  const bar = own.getByTestId("youtube-toolbar");
+  await bar.getByRole("radio", { name: "List" }).click();
+  const list = own.getByTestId("youtube-list");
+  await expect(list).toBeVisible();
+  for (const name of [
+    "Title",
+    "Channel",
+    "Playlists",
+    "Uploaded",
+    "Length",
+    "Size",
+    "Status",
+  ])
+    await expect(
+      list.getByRole("columnheader", { name, exact: true }),
+    ).toBeVisible();
+  const mine = list.getByTestId("youtube-row").filter({ hasText: videoTitle });
+  await expect(mine).toContainText("Rick Astley");
+  await expect(mine).toHaveAttribute("data-state", "done");
+
+  // A heading sorts by its column; a second click turns it round.
+  const titles = () =>
+    list.getByTestId("youtube-row").locator(".lt").allInnerTexts();
+  await list.getByTestId("youtube-sort-title").click();
+  await expect(
+    list.getByRole("columnheader", { name: /^Title/ }),
+  ).toHaveAttribute("aria-sort", "ascending");
+  const up = await titles();
+  expect(up).toEqual(
+    [...up].sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())),
+  );
+  await list.getByTestId("youtube-sort-title").click();
+  await expect(
+    list.getByRole("columnheader", { name: /^Title/ }),
+  ).toHaveAttribute("aria-sort", "descending");
+
+  // Search narrows the list and shows as a chip that clears it.
+  await own.getByTestId("youtube-find-input").fill("never gonna");
+  await expect(list.getByTestId("youtube-row")).toHaveCount(1);
+  const chips = own.getByTestId("youtube-active-filters");
+  await expect(chips).toContainText("Search: never gonna");
+  await chips.getByRole("button", { name: "Clear" }).click();
+  await expect(chips).toHaveCount(0);
+
+  // Sort and filter: only what is downloaded, then by the channel.
+  await own.getByTestId("youtube-sort-filter").getByRole("button").click();
+  const panel = own.getByTestId("youtube-sf");
+  await panel.getByRole("button", { name: /^Downloaded/ }).click();
+  await expect(chips).toContainText("Downloaded");
+  await expect(
+    list.locator('[data-testid="youtube-row"]:not([data-state="done"])'),
+  ).toHaveCount(0);
+  await panel
+    .getByTestId("youtube-sf-channels")
+    .getByRole("button", { name: "Rick Astley" })
+    .click();
+  await expect(list.getByTestId("youtube-row")).toHaveCount(1);
+  await own.keyboard.press("Escape");
+  await chips.getByRole("button", { name: "Clear" }).click();
+  await axe(own, "youtube list view");
+
+  // The view and the sort are still there after a reload.
+  await own.reload();
+  await expect(own.getByTestId("youtube-list")).toBeVisible();
+  await expect(
+    own
+      .getByTestId("youtube-list")
+      .getByRole("columnheader", { name: /^Title/ }),
+  ).toHaveAttribute("aria-sort", "descending");
+});
+
+test("a playlist is mirrored when it is followed, and its videos name it in the list", async () => {
+  await own.goto("/youtube");
+  await paste(own, playlistLink);
+  const confirm = own.getByTestId("youtube-confirm");
+  await expect(
+    confirm.getByRole("heading", { name: playlistName }),
+  ).toBeVisible();
+  const mirror = confirm.getByRole("switch", { name: /Mirror this playlist/ });
+  await expect(mirror).not.toBeChecked();
+  await expect(confirm).toContainText(
+    "Videos you remove from the playlist are deleted here too.",
+  );
+  await mirror.check();
+  await confirm.getByRole("button", { name: "Download all and follow" }).click();
+  await expect(
+    own.getByTestId("youtube-following").getByRole("button", {
+      name: playlistName,
+    }),
+  ).toBeVisible();
+  const follows = async () =>
+    (await (await own.request.get("/api/v1/youtube/follows")).json()) as {
+      title: string;
+      mirror: boolean;
+      keep_last: number | null;
+    }[];
+  expect((await follows()).find((f) => f.title === playlistName)).toMatchObject(
+    { mirror: true, keep_last: null },
+  );
+
+  // Its videos come in once the check has run, each naming the playlist.
+  const row = own
+    .getByTestId("youtube-list")
+    .getByTestId("youtube-row")
+    .filter({
+      has: own
+        .getByTestId("youtube-row-playlists")
+        .filter({ hasText: playlistName }),
+    });
+  await expect(row).toHaveCount(3, { timeout: 90_000 });
+  const listed = (await (
+    await own.request.get("/api/v1/youtube/videos")
+  ).json()) as { follow_ids: number[]; manual: boolean }[];
+  expect(listed.filter((v) => v.follow_ids.length > 0 && !v.manual).length).toBeGreaterThanOrEqual(3);
+
+  // Manage: a mirror has no keep-last; turning it off is one click, turning it on asks first.
+  await own.getByTestId("youtube-manage").click();
+  const item = own
+    .getByTestId("youtube-follow")
+    .filter({ hasText: playlistName });
+  const sw = item.getByTestId("youtube-follow-mirror");
+  await expect(sw).toBeChecked();
+  await expect(item.getByText("Keep every video")).toHaveCount(0);
+  await sw.uncheck();
+  await expect
+    .poll(async () => (await follows()).find((f) => f.title === playlistName)?.mirror)
+    .toBe(false);
+  await expect(item.getByText("Keep every video")).toBeVisible();
+  await sw.click();
+  const asked = own.getByRole("alertdialog").or(own.getByRole("dialog")).filter({ hasText: `Mirror ${playlistName}?` });
+  await expect(asked).toBeVisible();
+  await asked.getByRole("button", { name: "Mirror this playlist" }).click();
+  await expect
+    .poll(async () => (await follows()).find((f) => f.title === playlistName)?.mirror)
+    .toBe(true);
+  await expect(sw).toBeChecked();
 });
 
 test("a member without the YouTube permission has no YouTube item and is refused by the API", async ({

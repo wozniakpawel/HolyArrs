@@ -1,9 +1,10 @@
 <script lang="ts">
-	// The person's follows: quality, keep-last, Shorts, what the first download took, the last check, pause and unfollow (keeping or deleting the videos).
+	// The person's follows: quality, keep-last, Shorts, mirroring a playlist, what the first download took, the last check, pause and unfollow (keeping or deleting the videos).
 	import { t } from '#lib/core/i18n/i18n.svelte.ts';
 	import { message } from '#lib/core/api.ts';
 	import { ago } from '#lib/core/format.ts';
 	import { toasts } from '#lib/core/toasts.svelte.ts';
+	import { ask } from '#lib/ui/ask.svelte.ts';
 	import Button from '#lib/ui/Button.svelte';
 	import Sheet from '#lib/ui/Sheet.svelte';
 	import { ytEditFollow, ytUnfollow, type FollowEdit } from './api.ts';
@@ -37,7 +38,7 @@
 	});
 
 	function firstWords(f: YtFollow): string {
-		return f.backfill === null || f.backfill >= ALL_VIDEOS ? t('youtube.follows.firstAll') : t('youtube.follows.firstNewest', { n: f.backfill });
+		return f.mirror || f.backfill === null || f.backfill >= ALL_VIDEOS ? t('youtube.follows.firstAll') : t('youtube.follows.firstNewest', { n: f.backfill });
 	}
 
 	async function edit(f: YtFollow, change: FollowEdit) {
@@ -52,6 +53,12 @@
 		} finally {
 			busy = null;
 		}
+	}
+
+	// Turning mirroring on can delete videos at the next check, so it asks first; turning it off never deletes anything.
+	async function setMirror(f: YtFollow, on: boolean) {
+		if (on && !(await ask(t('youtube.follows.mirrorAsk', { name: f.title }), { yes: t('youtube.confirm.mirror'), danger: true }))) return onchanged({ ...f });
+		await edit(f, { mirror: on });
 	}
 
 	function keepNumber(f: YtFollow, raw: string) {
@@ -95,12 +102,14 @@
 									{#each heights as h (h)}<option value={h}>{t('youtube.follows.upTo', { p: h })}</option>{/each}
 								</select>
 							</label>
+							{#if !f.mirror}
 							<label class="checkline">
 								<input type="checkbox" checked={f.keep_last !== null} disabled={busy === f.id} onchange={(e) => edit(f, { keep_last: e.currentTarget.checked ? (f.backfill !== null && f.backfill < ALL_VIDEOS ? f.backfill : 20) : null })} />
 								<span>{f.keep_last !== null ? t('youtube.confirm.keepNewest') : t('youtube.follows.keepAll')}</span>
 							</label>
 							{#if f.keep_last !== null}
 								<input class="input num" type="number" min="1" step="1" aria-label={t('youtube.confirm.keepNewest')} value={f.keep_last} disabled={busy === f.id} onchange={(e) => keepNumber(f, e.currentTarget.value)} />
+							{/if}
 							{/if}
 							{#if f.kind === 'channel'}
 								<label class="checkline">
@@ -109,6 +118,12 @@
 								</label>
 							{/if}
 						</div>
+						{#if f.kind === 'playlist'}
+							<label class="checkline">
+								<input type="checkbox" role="switch" checked={f.mirror} disabled={busy === f.id} onchange={(e) => setMirror(f, e.currentTarget.checked)} data-testid="youtube-follow-mirror" />
+								<span>{t('youtube.confirm.mirror')}<br /><span class="hint">{t('youtube.confirm.mirrorHint')}</span></span>
+							</label>
+						{/if}
 						<dl class="facts-s small">
 							<dt class="muted">{t('youtube.follows.first')}</dt>
 							<dd>{firstWords(f)}</dd>

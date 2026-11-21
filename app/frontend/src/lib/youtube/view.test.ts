@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { applyLive, backfillOf, channelsOf, clock, filterVideos, isWatched, progressOf, resumeAt, shouldSave, shownVideos, type YtVideo } from './view.ts';
+import { applyLive, backfillOf, channelsOf, clock, isWatched, progressOf, resumeAt, shouldSave, shownVideos, type YtVideo } from './view.ts';
 
 const video = (id: number, over: Partial<YtVideo> = {}): YtVideo => ({
 	id,
-	follow_id: null,
+	follow_ids: [],
+	manual: false,
 	video_id: `vid${id}`,
 	title: `Video ${id}`,
 	channel_name: 'Channel',
@@ -36,21 +37,6 @@ describe('applyLive', () => {
 	it('leaves the list as it is for a video it does not hold', () => {
 		const list = [video(1)];
 		expect(applyLive(list, { id: 9, state: 'done', percent: 100 })).toBe(list);
-	});
-});
-
-describe('filterVideos', () => {
-	it('filterVideos by follow, channel and unwatched', () => {
-		const list = [
-			video(1, { follow_id: 5, channel_id: 'UCa' }),
-			video(2, { follow_id: 6, channel_id: 'UCb', watched_at: '2026-11-20T11:00:00Z' }),
-			video(3, { follow_id: null, channel_id: 'UCb' })
-		];
-		expect(filterVideos(list, {}).map((v) => v.id)).toEqual([1, 2, 3]);
-		expect(filterVideos(list, { followId: 6 }).map((v) => v.id)).toEqual([2]);
-		expect(filterVideos(list, { channelId: 'UCb' }).map((v) => v.id)).toEqual([2, 3]);
-		expect(filterVideos(list, { channelId: 'UCb', unwatched: true }).map((v) => v.id)).toEqual([3]);
-		expect(filterVideos(list, { unwatched: true }).map((v) => v.id)).toEqual([1, 3]);
 	});
 });
 

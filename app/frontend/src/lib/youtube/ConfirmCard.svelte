@@ -1,5 +1,5 @@
 <script lang="ts">
-	// Says what a pasted link is and asks once: Download a video, Download all and follow a playlist, Follow a channel with its choices.
+	// Says what a pasted link is and asks once: Download a video, Download all and follow a playlist (mirrored or not), Follow a channel with its choices.
 	import { t } from '#lib/core/i18n/i18n.svelte.ts';
 	import { ApiError, message } from '#lib/core/api.ts';
 	import Button from '#lib/ui/Button.svelte';
@@ -29,6 +29,7 @@
 	let keep = $state(false);
 	let keepN = $state(20);
 	let shorts = $state(false);
+	let mirror = $state(false);
 	let busy = $state(false);
 	let error = $state('');
 	let existing = $state<number | null>(null);
@@ -42,7 +43,7 @@
 		existing = null;
 		try {
 			if (probe.kind === 'video') onvideo(await ytAddVideo(url));
-			else if (probe.kind === 'playlist') onfollow(await ytAddFollow({ url }));
+			else if (probe.kind === 'playlist') onfollow(await ytAddFollow({ url, mirror }));
 			else
 				onfollow(
 					await ytAddFollow({ url, backfill: backfillOf(take, newest), keep_last: keep ? Math.max(1, Math.round(keepN || 1)) : null, include_shorts: shorts })
@@ -104,6 +105,13 @@
 				<span>{t('youtube.confirm.shorts')}</span>
 			</label>
 		</div>
+	{/if}
+
+	{#if probe.kind === 'playlist'}
+		<label class="checkline">
+			<input type="checkbox" role="switch" bind:checked={mirror} data-testid="youtube-mirror" />
+			<span>{t('youtube.confirm.mirror')}<br /><span class="hint">{t('youtube.confirm.mirrorHint')}</span></span>
+		</label>
 	{/if}
 
 	{#if existing !== null}

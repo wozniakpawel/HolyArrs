@@ -5,7 +5,10 @@ export type YtState = 'queued' | 'downloading' | 'done' | 'failed' | 'skipped' |
 /** One of the person's videos, as GET /youtube/videos answers it. `percent` comes only from live events. */
 export interface YtVideo {
 	id: number;
-	follow_id: number | null;
+	/** The follows that hold the video; a video can be in several playlists and channels. */
+	follow_ids: number[];
+	/** The person added it by its own link, so no follow deletes it. */
+	manual: boolean;
 	video_id: string;
 	title: string;
 	channel_name: string;
@@ -21,10 +24,12 @@ export interface YtVideo {
 	percent?: number;
 }
 
-/** A playlist or channel the person follows. `keep_last` null keeps every video; `backfill` null took every video. */
+/** A playlist or channel the person follows. `keep_last` null keeps every video; `backfill` null took every video. `mirror` (playlists only) also removes what leaves the playlist. */
 export interface YtFollow {
 	id: number;
 	kind: 'playlist' | 'channel';
+	yt_id: string;
+	mirror: boolean;
 	title: string;
 	url: string;
 	quality_max_height: number;
@@ -93,13 +98,6 @@ export function applyLive(list: YtVideo[], ev: { id: number; state: YtState; per
 	const out = list.slice();
 	out[at] = { ...list[at], state: ev.state, percent: ev.percent, error: ev.error ?? '' };
 	return out;
-}
-
-/** The videos of one follow or channel, and only the unwatched ones when asked. */
-export function filterVideos(list: YtVideo[], f: { followId?: number; channelId?: string; unwatched?: boolean }): YtVideo[] {
-	return list.filter(
-		(v) => (f.followId === undefined || v.follow_id === f.followId) && (!f.channelId || v.channel_id === f.channelId) && (!f.unwatched || !v.watched_at)
-	);
 }
 
 /** How far into the video the person is, 0 to 1. */

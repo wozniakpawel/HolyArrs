@@ -225,7 +225,7 @@
 		dlTop.toggle = () => void toggleSidebar();
 	});
 	// History has its own top row too (search, Live, Filter), so the shared bar steps aside there as well.
-	const topHidden = $derived(path === '/downloads' || path === '/library' || path === '/downloads/history');
+	const topHidden = $derived(path === '/downloads' || path === '/library' || path === '/downloads/history' || path === '/youtube');
 	const typingIn = (t: EventTarget | null) => t instanceof HTMLElement && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
 	function keys(e: KeyboardEvent) {
 		if (!ready || bare) return;
