@@ -133,7 +133,7 @@ func TestAddVideo(t *testing.T) {
 		t.Fatal(err)
 	}
 	if v.VideoID != "dQw4w9WgXcQ" || v.Title != "Never Gonna Give You Up" || v.ChannelName != "Rick Astley" || v.State != StateQueued ||
-		v.MaxHeight != 1080 || v.FollowID != nil || v.DurationSeconds != 212 {
+		v.MaxHeight != 1080 || len(v.FollowIDs) != 0 || !v.Manual || v.DurationSeconds != 212 {
 		t.Fatalf("video %+v", v)
 	}
 	key := "youtube:2:" + itoa(v.ID)
@@ -179,7 +179,11 @@ func TestAddVideoRefusesUpcoming(t *testing.T) {
 // under root, and returns the row id and the file path.
 func doneVideo(t *testing.T, s *database.Store, root string, userID int64, followID *int64, vid string) (int64, string) {
 	t.Helper()
-	id := addVideo(t, s, Video{UserID: userID, FollowID: followID, VideoID: vid})
+	v := Video{UserID: userID, VideoID: vid}
+	if followID != nil {
+		v.FollowIDs = []int64{*followID}
+	}
+	id := addVideo(t, s, v)
 	rel := itoa(userID) + "-p/Chan/2024-01-01 T [" + vid + "].mp4"
 	file := filepath.Join(root, filepath.FromSlash(rel))
 	if err := os.MkdirAll(filepath.Dir(file), 0o755); err != nil {
@@ -223,7 +227,7 @@ func TestUnfollowKeepOrDeleteFiles(t *testing.T) {
 		t.Fatal(err)
 	}
 	v, err := VideoOf(ctx, s.Read(), 2, kv)
-	if err != nil || v.FollowID != nil || v.State != StateDone || !exists(kfile) || !exists(thumbOf(kfile)) {
+	if err != nil || len(followsOf(t, s, v)) != 0 || !v.Manual || v.State != StateDone || !exists(kfile) || !exists(thumbOf(kfile)) {
 		t.Fatalf("keep: %+v %v files %v", v, err, exists(kfile))
 	}
 	if _, err := FollowOf(ctx, s.Read(), 2, keep); !errors.Is(err, sql.ErrNoRows) {
@@ -232,7 +236,7 @@ func TestUnfollowKeepOrDeleteFiles(t *testing.T) {
 
 	del := follow(2, "PLdeldel0001")
 	dv, dfile := doneVideo(t, s, root, 2, &del, "ddddddddddd")
-	qv := addVideo(t, s, Video{UserID: 2, FollowID: &del, VideoID: "qqqqqqqqqqq"})
+	qv := addVideo(t, s, Video{UserID: 2, FollowIDs: []int64{del}, VideoID: "qqqqqqqqqqq"})
 	oneOff, ofile := doneVideo(t, s, root, 2, nil, "ooooooooooo")
 	// Someone else's follow of their own: untouched, and not theirs to drop.
 	theirs := follow(1, "PLdeldel0001")

@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 	"sync"
 	"testing"
@@ -243,6 +244,9 @@ func (r *rig) videos(userID int64) map[string]Video {
 	if err != nil {
 		r.t.Fatal(err)
 	}
+	if err := WithFollows(context.Background(), r.s.Read(), userID, list); err != nil {
+		r.t.Fatal(err)
+	}
 	out := map[string]Video{}
 	for _, v := range list {
 		out[v.VideoID] = v
@@ -272,6 +276,7 @@ type tab struct {
 	Title     string     `json:"title"`
 	Channel   string     `json:"channel"`
 	ChannelID string     `json:"channel_id"`
+	Count     *int       `json:"playlist_count,omitempty"`
 	Entries   []tabEntry `json:"entries"`
 }
 
@@ -355,7 +360,7 @@ func TestFirstChannelCheckTakesBackfillOnly(t *testing.T) {
 		}
 	}
 	v := got[vid('v', 29)]
-	if v.FollowID == nil || *v.FollowID != f.ID || v.ChannelName != "Veritasium" || v.ChannelID != veritasiumUC ||
+	if !slices.Equal(v.FollowIDs, []int64{f.ID}) || v.Manual || v.ChannelName != "Veritasium" || v.ChannelID != veritasiumUC ||
 		v.UploadedAt == nil || v.UploadedAt.Unix() != base+29000 || v.MaxHeight != 1080 {
 		t.Fatalf("row %+v", v)
 	}

@@ -43,6 +43,9 @@ type adoptSource struct {
 	name string // slash path under the source folder
 	size int64
 	meta Meta
+	// again is set for a second copy of a video in a folder given a
+	// playlist: it is not copied, the first copy joins that playlist.
+	again bool
 }
 
 // target is the source's path under the person's folder: in folder, else

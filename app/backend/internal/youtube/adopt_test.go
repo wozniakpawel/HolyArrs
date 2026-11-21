@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -303,7 +304,7 @@ func TestAdoptCopiesNeverMoves(t *testing.T) {
 		"defghijklmn": {condor + ".mp4", "Iron Condor | Explained", "Options Guy", "2019-05-04"},
 	} {
 		v := vs[id]
-		if v.State != StateDone || v.FollowID != nil || v.RelativePath != w.rel || v.Title != w.title || v.ChannelName != w.channel ||
+		if v.State != StateDone || len(v.FollowIDs) != 0 || !v.Manual || v.RelativePath != w.rel || v.Title != w.title || v.ChannelName != w.channel ||
 			v.UploadedAt == nil || v.UploadedAt.UTC().Format("2006-01-02") != w.day || v.SizeBytes != int64(len(wantFiles[w.rel])) {
 			t.Errorf("%s: row %+v", id, v)
 		}
@@ -368,7 +369,7 @@ func TestAdoptPlaylistFollowNoBackfill(t *testing.T) {
 		"Course":  "https://www.youtube.com/playlist?list=PLtestlist01",
 		"Missing": "https://www.youtube.com/playlist?list=PLnotadopted",
 	}})
-	if fmt.Sprint(res) != "map[copied:1 failed:0 follows:1 gone:0 skipped:0]" {
+	if fmt.Sprint(res) != "map[copied:1 failed:0 follows:1 gone:0 linked:0 skipped:0]" {
 		t.Fatalf("result %v", res)
 	}
 	fs, err := FollowsOf(context.Background(), r.s.Read(), anna)
@@ -380,7 +381,7 @@ func TestAdoptPlaylistFollowNoBackfill(t *testing.T) {
 		t.Fatalf("follows %+v", fs)
 	}
 	v := r.videos(anna)["aaaaaaaaaa1"]
-	if v.FollowID == nil || *v.FollowID != fs[0].ID || v.State != StateDone || !strings.HasPrefix(v.RelativePath, "7-Anna/Test playlist/") {
+	if !slices.Equal(v.FollowIDs, []int64{fs[0].ID}) || v.Manual || v.State != StateDone || !strings.HasPrefix(v.RelativePath, "7-Anna/Test playlist/") {
 		t.Fatalf("adopted row %+v", v)
 	}
 	if n := len(r.jobs(KindCheck)); n != 0 {

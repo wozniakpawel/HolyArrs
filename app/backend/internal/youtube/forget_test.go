@@ -60,9 +60,9 @@ func TestForgetPersonRemovesRowsAndFolder(t *testing.T) {
 
 	now := time.Now()
 	fA := addFollow(t, s, Follow{UserID: 7, URL: "https://www.youtube.com/playlist?list=PLa", Kind: KindPlaylist, YTID: "PLa", Enabled: true, AddedAt: now})
-	vA := addVideo(t, s, Video{UserID: 7, FollowID: &fA, VideoID: "aaaaaaaaaaa"})
+	vA := addVideo(t, s, Video{UserID: 7, FollowIDs: []int64{fA}, VideoID: "aaaaaaaaaaa"})
 	fB := addFollow(t, s, Follow{UserID: 8, URL: "https://www.youtube.com/playlist?list=PLb", Kind: KindPlaylist, YTID: "PLb", Enabled: true, AddedAt: now})
-	vB := addVideo(t, s, Video{UserID: 8, FollowID: &fB, VideoID: "bbbbbbbbbbb"})
+	vB := addVideo(t, s, Video{UserID: 8, FollowIDs: []int64{fB}, VideoID: "bbbbbbbbbbb"})
 	vO := addVideo(t, s, Video{UserID: 70, VideoID: "ooooooooooo"})
 
 	svc := testService(s)
@@ -157,7 +157,7 @@ func TestForgetPersonStopsARunningDownloadFirst(t *testing.T) {
 	r := newRig(t, "hang")
 	r.putJSON("info-abcdefghijk.json", info("abcdefghijk", "Title", "Veritasium", 1709650800))
 	f := r.follow(anna, veritasium())
-	id := addVideo(t, r.s, Video{UserID: anna, FollowID: &f.ID, VideoID: "abcdefghijk"})
+	id := addVideo(t, r.s, Video{UserID: anna, FollowIDs: []int64{f.ID}, VideoID: "abcdefghijk"})
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	if err := r.q.Start(ctx); err != nil {

@@ -8,8 +8,9 @@ import (
 	"github.com/HolyArrs/holyarrs/app/backend/internal/core/database"
 )
 
-// InsertVideo adds a video for a person. When the person already has that
-// video it changes nothing and returns created false.
+// InsertVideo adds a video for a person, held by each of v.FollowIDs. When
+// the person already has that video it changes nothing and returns created
+// false.
 func InsertVideo(tx *sql.Tx, v Video) (id int64, created bool, err error) {
 	state := v.State
 	if state == "" {
@@ -20,18 +21,25 @@ func InsertVideo(tx *sql.Tx, v Video) (id int64, created bool, err error) {
 		uploaded = database.FormatTime(*v.UploadedAt)
 	}
 	res, err := tx.Exec(`INSERT INTO youtube_videos
-		(user_id, follow_id, video_id, title, channel_name, channel_id, uploaded_at, duration_seconds, quality_max_height, state, added_at)
+		(user_id, manual, video_id, title, channel_name, channel_id, uploaded_at, duration_seconds, quality_max_height, state, added_at)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 		ON CONFLICT (user_id, video_id) DO NOTHING`,
-		v.UserID, v.FollowID, v.VideoID, v.Title, v.ChannelName, v.ChannelID, uploaded, v.DurationSeconds, maxHeight(v.MaxHeight), state, database.FormatTime(v.AddedAt))
+		v.UserID, v.Manual, v.VideoID, v.Title, v.ChannelName, v.ChannelID, uploaded, v.DurationSeconds, maxHeight(v.MaxHeight), state, database.FormatTime(v.AddedAt))
 	if err != nil {
 		return 0, false, err
 	}
 	if n, _ := res.RowsAffected(); n == 0 {
 		return 0, false, nil
 	}
-	id, err = res.LastInsertId()
-	return id, err == nil, err
+	if id, err = res.LastInsertId(); err != nil {
+		return 0, false, err
+	}
+	for _, f := range v.FollowIDs {
+		if err := LinkVideo(tx, v.UserID, id, f, v.AddedAt); err != nil {
+			return 0, false, err
+		}
+	}
+	return id, true, nil
 }
 
 // VideosOf reads a person's videos, newest added first, leaving out removed
@@ -40,7 +48,7 @@ func VideosOf(ctx context.Context, q database.Lister, userID int64, f VideoFilte
 	where := "user_id = ? AND state NOT IN ('removed', 'skipped')"
 	args := []any{userID}
 	if f.FollowID != 0 {
-		where += " AND follow_id = ?"
+		where += " AND id IN (SELECT video_row_id FROM youtube_video_follows WHERE follow_id = ? AND let_go = 0)"
 		args = append(args, f.FollowID)
 	}
 	if f.ChannelID != "" {
@@ -80,40 +88,28 @@ func videoWhere(ctx context.Context, q database.Querier, where string, args ...a
 	return v, err
 }
 
-// KnownVideoIDs is every YouTube video id a person has a row for, whatever
-// its state, so a check never adds the same video twice.
-func KnownVideoIDs(ctx context.Context, q database.Lister, userID int64) (map[string]bool, error) {
-	rows, err := q.QueryContext(ctx, "SELECT video_id FROM youtube_videos WHERE user_id = ?", userID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	out := map[string]bool{}
-	for rows.Next() {
-		var id string
-		if err := rows.Scan(&id); err != nil {
-			return nil, err
-		}
-		out[id] = true
-	}
-	return out, rows.Err()
+// Known is a person's row for one YouTube video.
+type Known struct {
+	ID    int64
+	State string
 }
 
-// VideoStates is the state of every video a person has a row for, by
-// YouTube video id.
-func VideoStates(ctx context.Context, q database.Lister, userID int64) (map[string]string, error) {
-	rows, err := q.QueryContext(ctx, "SELECT video_id, state FROM youtube_videos WHERE user_id = ?", userID)
+// KnownVideos is every video a person has a row for, whatever its state,
+// by YouTube video id, so a check never adds the same video twice.
+func KnownVideos(ctx context.Context, q database.Lister, userID int64) (map[string]Known, error) {
+	rows, err := q.QueryContext(ctx, "SELECT video_id, id, state FROM youtube_videos WHERE user_id = ?", userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	out := map[string]string{}
+	out := map[string]Known{}
 	for rows.Next() {
-		var id, state string
-		if err := rows.Scan(&id, &state); err != nil {
+		var vid string
+		var k Known
+		if err := rows.Scan(&vid, &k.ID, &k.State); err != nil {
 			return nil, err
 		}
-		out[id] = state
+		out[vid] = k
 	}
 	return out, rows.Err()
 }
@@ -166,27 +162,6 @@ func QueuedVideos(ctx context.Context, q database.Lister) ([]Video, error) {
 	return database.Select[Video](ctx, q, "youtube_videos", "state = 'queued' ORDER BY id")
 }
 
-// KeepLastExcess reads the downloaded videos of one of a person's follows
-// beyond its n newest by upload date, newest of them first. Videos with no
-// upload date count as oldest.
-func KeepLastExcess(ctx context.Context, q database.Lister, userID, followID int64, n int) ([]Video, error) {
-	return database.Select[Video](ctx, q, "youtube_videos",
-		"user_id = ? AND follow_id = ? AND state = 'done' ORDER BY uploaded_at IS NULL, uploaded_at DESC, id DESC LIMIT -1 OFFSET ?", userID, followID, max(n, 0))
-}
-
-// VideosOfFollow reads every video row of one of a person's follows,
-// whatever its state.
-func VideosOfFollow(ctx context.Context, q database.Lister, userID, followID int64) ([]Video, error) {
-	return database.Select[Video](ctx, q, "youtube_videos", "user_id = ? AND follow_id = ? ORDER BY id", userID, followID)
-}
-
-// DeleteVideosOfFollow removes every video row of one of a person's
-// follows, for an unfollow that also deletes the files.
-func DeleteVideosOfFollow(tx *sql.Tx, userID, followID int64) error {
-	_, err := tx.Exec("DELETE FROM youtube_videos WHERE user_id = ? AND follow_id = ?", userID, followID)
-	return err
-}
-
 // ReadTotals counts downloaded videos, their bytes and the people who have
 // any, across everyone. No titles leave this function.
 func ReadTotals(ctx context.Context, q database.Querier) (Totals, error) {
@@ -211,10 +186,10 @@ func RequeueVideo(tx *sql.Tx, userID, id int64, height int) error {
 	return oneRow(res, err)
 }
 
-// MarkRemoved records that one of a person's videos was removed and its
-// file deleted. The row stays so a check never downloads it again.
-// sql.ErrNoRows when it is not theirs.
+// MarkRemoved records that the person removed one of their videos and its
+// file was deleted. The row stays, no longer manual, so a check never
+// downloads it again. sql.ErrNoRows when it is not theirs.
 func MarkRemoved(tx *sql.Tx, userID, id int64) error {
-	res, err := tx.Exec("UPDATE youtube_videos SET state = 'removed', error = '', relative_path = '', size_bytes = 0 WHERE id = ? AND user_id = ?", id, userID)
+	res, err := tx.Exec("UPDATE youtube_videos SET state = 'removed', manual = 0, error = '', relative_path = '', size_bytes = 0 WHERE id = ? AND user_id = ?", id, userID)
 	return oneRow(res, err)
 }

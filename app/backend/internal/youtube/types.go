@@ -37,17 +37,20 @@ var ErrDuplicateFollow = errors.New("you already follow this")
 
 // Follow is one playlist or channel a person follows.
 type Follow struct {
-	ID            int64      `db:"id" json:"id"`
-	UserID        int64      `db:"user_id" json:"-"`
-	URL           string     `db:"url" json:"url"`
-	Kind          string     `db:"kind" json:"kind"`
-	YTID          string     `db:"yt_id" json:"yt_id"`
-	Title         string     `db:"title" json:"title"`
-	MaxHeight     int        `db:"quality_max_height" json:"quality_max_height"`
-	IncludeShorts bool       `db:"include_shorts" json:"include_shorts"`
-	KeepLast      *int       `db:"keep_last" json:"keep_last"` // nil keeps every video
-	Backfill      *int       `db:"backfill" json:"backfill"`   // nil takes every existing video
-	Enabled       bool       `db:"enabled" json:"enabled"`
+	ID            int64  `db:"id" json:"id"`
+	UserID        int64  `db:"user_id" json:"-"`
+	URL           string `db:"url" json:"url"`
+	Kind          string `db:"kind" json:"kind"`
+	YTID          string `db:"yt_id" json:"yt_id"`
+	Title         string `db:"title" json:"title"`
+	MaxHeight     int    `db:"quality_max_height" json:"quality_max_height"`
+	IncludeShorts bool   `db:"include_shorts" json:"include_shorts"`
+	KeepLast      *int   `db:"keep_last" json:"keep_last"` // nil keeps every video
+	Backfill      *int   `db:"backfill" json:"backfill"`   // nil takes every existing video
+	Enabled       bool   `db:"enabled" json:"enabled"`
+	// Mirror, for a playlist: videos that leave the playlist leave the
+	// library too, and every video in it is taken.
+	Mirror        bool       `db:"mirror" json:"mirror"`
 	AddedAt       time.Time  `db:"added_at" json:"added_at"`
 	LastCheckedAt *time.Time `db:"last_checked_at" json:"last_checked_at"`
 	LastError     string     `db:"last_error" json:"last_error"`
@@ -55,9 +58,14 @@ type Follow struct {
 
 // Video is one video kept for one person.
 type Video struct {
-	ID              int64      `db:"id" json:"id"`
-	UserID          int64      `db:"user_id" json:"-"`
-	FollowID        *int64     `db:"follow_id" json:"follow_id"` // nil for a one-off video
+	ID     int64 `db:"id" json:"id"`
+	UserID int64 `db:"user_id" json:"-"`
+	// FollowIDs are the follows that hold the video. Reads leave it empty
+	// unless they say they fill it; InsertVideo links a new row to each.
+	FollowIDs []int64 `json:"follow_ids"`
+	// Manual is set once the person added the video by its own link: no
+	// follow deletes it.
+	Manual          bool       `db:"manual" json:"manual"`
 	VideoID         string     `db:"video_id" json:"video_id"`
 	Title           string     `db:"title" json:"title"`
 	ChannelName     string     `db:"channel_name" json:"channel_name"`
@@ -81,6 +89,7 @@ type FollowChange struct {
 	IncludeShorts *bool
 	Enabled       *bool
 	KeepLast      **int
+	Mirror        *bool
 }
 
 // VideoFilter narrows a person's video list. Zero values do not filter;

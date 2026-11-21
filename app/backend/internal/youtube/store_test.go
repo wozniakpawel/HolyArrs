@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"slices"
 	"testing"
 	"time"
 
@@ -56,6 +57,16 @@ func addVideo(t *testing.T, s *database.Store, v Video) int64 {
 	return id
 }
 
+// followsOf reads the follows that hold a video.
+func followsOf(t *testing.T, s *database.Store, v Video) []int64 {
+	t.Helper()
+	one := []Video{v}
+	if err := WithFollows(context.Background(), s.Read(), v.UserID, one); err != nil {
+		t.Fatal(err)
+	}
+	return one[0].FollowIDs
+}
+
 func addFollow(t *testing.T, s *database.Store, f Follow) int64 {
 	t.Helper()
 	var id int64
@@ -81,8 +92,8 @@ func TestStoreKeepsPeopleApart(t *testing.T) {
 	if vs, err := VideosOf(ctx, s.Read(), 2, VideoFilter{}); err != nil || len(vs) != 0 {
 		t.Fatalf("VideosOf(B) = %v, %v; want none", vs, err)
 	}
-	if known, err := KnownVideoIDs(ctx, s.Read(), 2); err != nil || len(known) != 0 {
-		t.Fatalf("KnownVideoIDs(B) = %v, %v; want none", known, err)
+	if known, err := KnownVideos(ctx, s.Read(), 2); err != nil || len(known) != 0 {
+		t.Fatalf("KnownVideos(B) = %v, %v; want none", known, err)
 	}
 
 	var createdA, createdB, again bool
@@ -103,8 +114,8 @@ func TestStoreKeepsPeopleApart(t *testing.T) {
 	if again {
 		t.Fatal("the same person adding the same video twice made a second row")
 	}
-	if known, _ := KnownVideoIDs(ctx, s.Read(), 2); !known["same_video1"] || len(known) != 1 {
-		t.Fatalf("KnownVideoIDs(B) = %v", known)
+	if known, _ := KnownVideos(ctx, s.Read(), 2); known["same_video1"].ID == 0 || len(known) != 1 {
+		t.Fatalf("KnownVideos(B) = %v", known)
 	}
 
 	fid := addFollow(t, s, Follow{UserID: 1, URL: "https://www.youtube.com/playlist?list=PL1", Kind: KindPlaylist, YTID: "PL1", Enabled: true, AddedAt: time.Now()})
@@ -185,7 +196,7 @@ func TestVideoLifecycle(t *testing.T) {
 	s := openStore(t)
 	ctx := context.Background()
 	fid := addFollow(t, s, Follow{UserID: 1, URL: "u", Kind: KindPlaylist, YTID: "PL1", Enabled: true, AddedAt: time.Now()})
-	id := addVideo(t, s, Video{UserID: 1, FollowID: &fid, VideoID: "vid00000001", MaxHeight: 1080})
+	id := addVideo(t, s, Video{UserID: 1, FollowIDs: []int64{fid}, VideoID: "vid00000001", MaxHeight: 1080})
 	if q, _ := QueuedVideos(ctx, s.Read()); len(q) != 1 || q[0].ID != id {
 		t.Fatalf("QueuedVideos = %v", q)
 	}
@@ -199,7 +210,7 @@ func TestVideoLifecycle(t *testing.T) {
 	})
 	v, err := VideoByID(ctx, s.Read(), id)
 	if err != nil || v.State != StateDone || v.Error != "" || v.SizeBytes != 1234 || v.Title != "T" || v.ChannelID != "UCc" ||
-		v.UploadedAt == nil || !v.UploadedAt.Equal(up) || v.DurationSeconds != 600 || v.FollowID == nil || *v.FollowID != fid {
+		v.UploadedAt == nil || !v.UploadedAt.Equal(up) || v.DurationSeconds != 600 || !slices.Equal(followsOf(t, s, v), []int64{fid}) {
 		t.Fatalf("after FinishVideo = %+v, %v", v, err)
 	}
 
@@ -261,9 +272,9 @@ func TestKeepLastExcessByUploadDate(t *testing.T) {
 	ids := map[int]int64{}
 	// Added in a shuffled order so added_at and id do not match upload order.
 	for _, d := range []int{3, 1, 5, 2, 4} {
-		ids[d] = addVideo(t, s, Video{UserID: 1, FollowID: &fid, VideoID: string(rune('a'+d)) + "_done", State: StateDone, UploadedAt: day(d)})
+		ids[d] = addVideo(t, s, Video{UserID: 1, FollowIDs: []int64{fid}, VideoID: string(rune('a'+d)) + "_done", State: StateDone, UploadedAt: day(d)})
 	}
-	addVideo(t, s, Video{UserID: 1, FollowID: &fid, VideoID: "old_queued", State: StateQueued, UploadedAt: day(1)})
+	addVideo(t, s, Video{UserID: 1, FollowIDs: []int64{fid}, VideoID: "old_queued", State: StateQueued, UploadedAt: day(1)})
 	got, err := KeepLastExcess(ctx, s.Read(), 1, fid, 2)
 	if err != nil || len(got) != 3 {
 		t.Fatalf("KeepLastExcess = %v, %v", got, err)
@@ -286,20 +297,20 @@ func TestDeletePersonRows(t *testing.T) {
 	ctx := context.Background()
 	for _, u := range []int64{1, 2} {
 		fid := addFollow(t, s, Follow{UserID: u, URL: "u", Kind: KindPlaylist, YTID: "PL", Enabled: true, AddedAt: time.Now()})
-		addVideo(t, s, Video{UserID: u, FollowID: &fid, VideoID: "followed", State: StateDone})
+		addVideo(t, s, Video{UserID: u, FollowIDs: []int64{fid}, VideoID: "followed", State: StateDone})
 		addVideo(t, s, Video{UserID: u, VideoID: "one_off", State: StateDone})
 	}
 	write(t, s, func(tx *sql.Tx) error { return DeletePersonRows(tx, 1) })
 	if fs, _ := FollowsOf(ctx, s.Read(), 1); len(fs) != 0 {
 		t.Fatalf("A's follows left: %v", fs)
 	}
-	if known, _ := KnownVideoIDs(ctx, s.Read(), 1); len(known) != 0 {
+	if known, _ := KnownVideos(ctx, s.Read(), 1); len(known) != 0 {
 		t.Fatalf("A's videos left: %v", known)
 	}
 	if fs, _ := FollowsOf(ctx, s.Read(), 2); len(fs) != 1 {
 		t.Fatalf("B's follows = %v", fs)
 	}
-	if known, _ := KnownVideoIDs(ctx, s.Read(), 2); len(known) != 2 {
+	if known, _ := KnownVideos(ctx, s.Read(), 2); len(known) != 2 {
 		t.Fatalf("B's videos = %v", known)
 	}
 }
@@ -309,28 +320,28 @@ func TestDeleteFollowKeepsOrDropsVideos(t *testing.T) {
 	ctx := context.Background()
 	keep := addFollow(t, s, Follow{UserID: 1, URL: "u", Kind: KindPlaylist, YTID: "PLkeep", Enabled: true, AddedAt: time.Now()})
 	drop := addFollow(t, s, Follow{UserID: 1, URL: "u", Kind: KindPlaylist, YTID: "PLdrop", Enabled: true, AddedAt: time.Now()})
-	kept := addVideo(t, s, Video{UserID: 1, FollowID: &keep, VideoID: "kept", State: StateDone})
-	addVideo(t, s, Video{UserID: 1, FollowID: &drop, VideoID: "dropped", State: StateDone})
+	kept := addVideo(t, s, Video{UserID: 1, FollowIDs: []int64{keep}, VideoID: "kept", State: StateDone})
+	addVideo(t, s, Video{UserID: 1, FollowIDs: []int64{drop}, VideoID: "dropped", State: StateDone})
 
 	write(t, s, func(tx *sql.Tx) error { return DeleteFollow(tx, 1, keep) })
 	v, err := VideoOf(ctx, s.Read(), 1, kept)
-	if err != nil || v.FollowID != nil {
+	if err != nil || len(followsOf(t, s, v)) != 0 {
 		t.Fatalf("video of an unfollowed follow = %+v, %v; want kept with no follow", v, err)
 	}
 
-	if err := s.Write(ctx, func(tx *sql.Tx) error { return DeleteVideosOfFollow(tx, 2, drop) }); err != nil {
+	if err := s.Write(ctx, func(tx *sql.Tx) error { return DeleteOnlyOfFollow(tx, 2, drop) }); err != nil {
 		t.Fatal(err)
 	}
 	if vs, _ := VideosOfFollow(ctx, s.Read(), 1, drop); len(vs) != 1 {
 		t.Fatalf("another person deleted A's videos: %v", vs)
 	}
 	write(t, s, func(tx *sql.Tx) error {
-		if err := DeleteVideosOfFollow(tx, 1, drop); err != nil {
+		if err := DeleteOnlyOfFollow(tx, 1, drop); err != nil {
 			return err
 		}
 		return DeleteFollow(tx, 1, drop)
 	})
-	if known, _ := KnownVideoIDs(ctx, s.Read(), 1); len(known) != 1 || !known["kept"] {
+	if known, _ := KnownVideos(ctx, s.Read(), 1); len(known) != 1 || known["kept"].ID == 0 {
 		t.Fatalf("videos after delete = %v", known)
 	}
 }

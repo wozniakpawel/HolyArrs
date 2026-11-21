@@ -201,6 +201,7 @@ var tableOwner = map[string]string{
 	"compat_profiles":   "arrapi",
 
 	// youtube
-	"youtube_follows": "youtube",
-	"youtube_videos":  "youtube",
+	"youtube_follows":       "youtube",
+	"youtube_video_follows": "youtube",
+	"youtube_videos":        "youtube",
 }

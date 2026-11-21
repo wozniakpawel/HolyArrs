@@ -125,12 +125,15 @@ func (s *Service) mayUse() func(ctx context.Context, userID int64) (bool, error)
 	}
 }
 
-// checkFollow lists one follow and records every entry it has not seen as
-// queued or skipped, returning how many were queued. A listing that fails
-// is kept on the follow with yt-dlp's error line.
+// checkFollow lists one follow and records every entry: a video the person
+// does not have yet is queued or skipped, and one they already have is
+// linked to the follow instead of downloaded again. It returns how many
+// were queued. A listing that fails is kept on the follow with yt-dlp's
+// error line and changes nothing else. A mirrored playlist whose listing
+// is complete then lets go of the videos that left it.
 func (s *Service) checkFollow(ctx context.Context, run Runner, f Follow) (int, error) {
 	now := s.now()
-	entries, err := run.Entries(ctx, Link{Kind: f.Kind, ID: f.YTID}, f.Kind == KindChannel && f.IncludeShorts)
+	listing, err := run.Listing(ctx, Link{Kind: f.Kind, ID: f.YTID}, f.Kind == KindChannel && f.IncludeShorts)
 	if err != nil {
 		if ctx.Err() == nil {
 			// Only the error: the 7-day window and the first-check backfill
@@ -141,22 +144,50 @@ func (s *Service) checkFollow(ctx context.Context, run Runner, f Follow) (int, e
 		}
 		return 0, listingError{err}
 	}
-	entries = slices.DeleteFunc(entries, func(e Entry) bool {
+	// Everything the listing names is still in the playlist, live or not.
+	listed := map[string]bool{}
+	for _, e := range listing.Entries {
+		listed[e.ID] = true
+	}
+	entries := slices.DeleteFunc(listing.Entries, func(e Entry) bool {
 		return e.LiveStatus == "is_live" || e.LiveStatus == "is_upcoming" || e.LiveStatus == "post_live"
 	})
-	known, err := KnownVideoIDs(ctx, s.Store.Read(), f.UserID)
+	known, err := KnownVideos(ctx, s.Store.Read(), f.UserID)
+	if err != nil {
+		return 0, err
+	}
+	links, err := FollowLinks(ctx, s.Store.Read(), f.UserID, f.ID)
 	if err != nil {
 		return 0, err
 	}
 	states := plan(f, entries)
 	queued := 0
 	err = s.Store.Write(ctx, func(tx *sql.Tx) error {
+		queued = 0
+		seen := map[string]bool{}
 		for i, e := range entries {
-			if known[e.ID] {
+			if seen[e.ID] {
 				continue
 			}
-			known[e.ID] = true
-			v := Video{UserID: f.UserID, FollowID: &f.ID, VideoID: e.ID, Title: e.Title, DurationSeconds: e.DurationSeconds,
+			seen[e.ID] = true
+			if k, ok := known[e.ID]; ok {
+				_, linked := links[k.ID]
+				if !linked {
+					if err := LinkVideo(tx, f.UserID, k.ID, f.ID, now); err != nil {
+						return err
+					}
+				}
+				// A video another follow passed over is taken when this
+				// one wants it: on first sight, or always for a mirror.
+				if k.State == StateSkipped && states[i] == StateQueued && (f.Mirror || !linked) {
+					if err := RequeueVideo(tx, f.UserID, k.ID, f.MaxHeight); err != nil {
+						return err
+					}
+					queued++
+				}
+				continue
+			}
+			v := Video{UserID: f.UserID, FollowIDs: []int64{f.ID}, VideoID: e.ID, Title: e.Title, DurationSeconds: e.DurationSeconds,
 				MaxHeight: f.MaxHeight, State: states[i], AddedAt: now}
 			if f.Kind == KindChannel {
 				v.ChannelName, v.ChannelID = f.Title, f.YTID
@@ -173,7 +204,88 @@ func (s *Service) checkFollow(ctx context.Context, run Runner, f Follow) (int, e
 		}
 		return MarkChecked(tx, f.ID, now, "")
 	})
-	return queued, err
+	if err != nil || !f.Mirror || f.Kind != KindPlaylist || !listing.Complete {
+		return queued, err
+	}
+	return queued, s.mirror(ctx, f, listed)
+}
+
+// mirror lets a mirrored playlist go of every video it holds that is no
+// longer in the playlist. Only a complete listing gets here.
+func (s *Service) mirror(ctx context.Context, f Follow, listed map[string]bool) error {
+	held, err := VideosOfFollow(ctx, s.Store.Read(), f.UserID, f.ID)
+	if err != nil {
+		return err
+	}
+	root := LoadSettings(ctx, s.Store.Read()).Folder
+	for _, v := range held {
+		if listed[v.VideoID] {
+			continue
+		}
+		if err := s.letGo(ctx, root, v, f.ID, true); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// letGo takes a video away from one of its follows. With unlink the follow
+// forgets it (a mirrored playlist it left); without, the follow marks it
+// let go (it keeps only its newest). The files go only when the video is
+// not manual and no other follow holds it: then the row goes too when
+// unlinked, and else stays as removed so no check downloads it again.
+func (s *Service) letGo(ctx context.Context, root string, v Video, followID int64, unlink bool) error {
+	held, err := Held(ctx, s.Store.Read(), v.UserID, v.ID, followID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	if !held {
+		if err := removeFiles(root, v.RelativePath); err != nil {
+			return err
+		}
+	}
+	var gone, again bool
+	err = s.Store.Write(ctx, func(tx *sql.Tx) error {
+		gone, again = false, false
+		var err error
+		if unlink {
+			err = UnlinkVideo(tx, v.UserID, v.ID, followID)
+		} else {
+			err = LetGoVideo(tx, v.UserID, v.ID, followID)
+		}
+		if err != nil || held {
+			return err
+		}
+		if unlink {
+			gone, err = DeleteVideoIfUnheld(tx, v.UserID, v.ID)
+		} else {
+			gone, err = RemoveVideoIfUnheld(tx, v.UserID, v.ID)
+		}
+		if err != nil || gone || v.State != StateDone {
+			return err
+		}
+		// Something took hold of the video after its files went: fetch
+		// them again.
+		again = true
+		err = RequeueVideo(tx, v.UserID, v.ID, v.MaxHeight)
+		if errors.Is(err, sql.ErrNoRows) {
+			again, err = false, nil
+		}
+		return err
+	})
+	if err != nil {
+		return err
+	}
+	if gone {
+		s.publish(v.UserID, LiveVideo{ID: v.ID, State: StateRemoved})
+	}
+	if again {
+		s.queueDownload(ctx, v.UserID, v.ID)
+	}
+	return nil
 }
 
 // listingError is a follow whose listing failed: kept on the follow, and
@@ -188,9 +300,15 @@ func (e listingError) Unwrap() error { return e.error }
 // follow's backfill (nil takes all) and skips the rest. Later checks queue
 // what is new, except channel videos dated more than lateGrace before the
 // previous listing that worked: the back catalogue, such as Shorts once they are turned
-// on. Entries with no date are queued.
+// on. Entries with no date are queued. A mirror takes every entry.
 func plan(f Follow, entries []Entry) []string {
 	states := make([]string, len(entries))
+	if f.Mirror {
+		for i := range states {
+			states[i] = StateQueued
+		}
+		return states
+	}
 	if f.LastCheckedAt == nil {
 		sort.SliceStable(entries, func(i, j int) bool { return entries[i].Timestamp > entries[j].Timestamp })
 		for i := range entries {

@@ -679,7 +679,7 @@ folder_pattern
 folder_set
 folders
 follow
-follow_id
+follow_ids
 followedBy
 followed_at
 followers
@@ -1012,6 +1012,7 @@ magnetUrl
 main
 mal
 manifest_sha256
+manual
 mapped
 match
 matched
@@ -1065,6 +1066,7 @@ min_upgrade_score
 mine
 minimumAvailability
 minutes
+mirror
 misc
 miss
 missing

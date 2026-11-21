@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -138,11 +139,13 @@ var (
 	ErrBackfill   = errors.New("the number of videos to take must be 0 or more")
 	ErrKeepLast   = errors.New("keep only the newest needs a number of 1 or more")
 	ErrQuality    = errors.New("the quality cap must be between 144 and 4320")
+	ErrMirrorKind = errors.New("only a playlist can be mirrored")
+	ErrMirrorKeep = errors.New("a mirrored playlist keeps every video in it; turn mirroring off to keep only the newest")
 )
 
 // IsRefusal reports whether err is a refused request rather than a fault.
 func IsRefusal(err error) bool {
-	for _, e := range []error{ErrNotYouTube, ErrNotAired, ErrNotAVideo, ErrNotAFollow, ErrBackfill, ErrKeepLast, ErrQuality} {
+	for _, e := range []error{ErrNotYouTube, ErrNotAired, ErrNotAVideo, ErrNotAFollow, ErrBackfill, ErrKeepLast, ErrQuality, ErrMirrorKind, ErrMirrorKeep} {
 		if errors.Is(err, e) {
 			return true
 		}
@@ -158,13 +161,15 @@ const (
 
 // AddFollow is a request to follow a playlist or channel. Backfill nil
 // takes the default: the newest 20 for a channel, every video for a
-// playlist. KeepLast nil keeps every video. MaxHeight 0 is 1080.
+// playlist. KeepLast nil keeps every video. MaxHeight 0 is 1080. Mirror,
+// for a playlist only, takes every video and removes what leaves it.
 type AddFollow struct {
 	URL           string `json:"url"`
 	Backfill      *int   `json:"backfill"`
 	KeepLast      *int   `json:"keep_last"`
 	IncludeShorts bool   `json:"include_shorts"`
 	MaxHeight     int    `json:"quality_max_height"`
+	Mirror        bool   `json:"mirror"`
 }
 
 func checkHeight(h int) error {
@@ -196,10 +201,10 @@ func (s *Service) Probe(ctx context.Context, raw string) (Probe, error) {
 	return s.probe(ctx, l)
 }
 
-// AddVideo adds one video for a person and queues its download. Adding a
-// video the person already has returns that row; a removed, failed or
-// skipped one goes back in the queue. Live streams and premieres that have
-// not aired are refused.
+// AddVideo adds one video for a person, marks it manual and queues its
+// download. Adding a video the person already has, from a follow or not,
+// returns that row; a removed, failed or skipped one goes back in the
+// queue. Live streams and premieres that have not aired are refused.
 func (s *Service) AddVideo(ctx context.Context, userID int64, raw string, height int) (Video, error) {
 	l, err := ParseLink(raw)
 	if err != nil {
@@ -224,17 +229,21 @@ func (s *Service) AddVideo(ctx context.Context, userID int64, raw string, height
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
 			_, _, err = InsertVideo(tx, Video{UserID: userID, VideoID: l.ID, Title: p.Title, ChannelName: p.ChannelName,
-				ChannelID: p.ChannelID, DurationSeconds: p.DurationSeconds, MaxHeight: height, State: StateQueued, AddedAt: s.now()})
+				ChannelID: p.ChannelID, DurationSeconds: p.DurationSeconds, MaxHeight: height, State: StateQueued, Manual: true, AddedAt: s.now()})
 		case err != nil:
 			return err
-		case old.State == StateRemoved || old.State == StateFailed || old.State == StateSkipped:
-			err = RequeueVideo(tx, userID, old.ID, height)
+		default:
+			if err = SetManual(tx, userID, old.ID); err == nil && (old.State == StateRemoved || old.State == StateFailed || old.State == StateSkipped) {
+				err = RequeueVideo(tx, userID, old.ID, height)
+			}
 		}
 		if err != nil {
 			return err
 		}
-		v, err = VideoOfYouTubeID(ctx, tx, userID, l.ID)
-		return err
+		if v, err = VideoOfYouTubeID(ctx, tx, userID, l.ID); err != nil {
+			return err
+		}
+		return s.fill(ctx, tx, &v)
 	})
 	if err != nil {
 		return Video{}, err
@@ -275,12 +284,21 @@ func (s *Service) AddFollow(ctx context.Context, userID int64, in AddFollow) (Fo
 	if err := checkHeight(in.MaxHeight); err != nil {
 		return Follow{}, err
 	}
+	if in.Mirror && l.Kind != KindPlaylist {
+		return Follow{}, ErrMirrorKind
+	}
+	if in.Mirror && in.KeepLast != nil {
+		return Follow{}, ErrMirrorKeep
+	}
 	p, err := s.probe(ctx, l)
 	if err != nil {
 		return Follow{}, err
 	}
+	if in.Mirror {
+		in.Backfill = nil // a mirror takes every video
+	}
 	f := Follow{UserID: userID, Kind: l.Kind, YTID: l.ID, URL: p.Link.URL, Title: p.Title, MaxHeight: maxHeight(in.MaxHeight),
-		KeepLast: in.KeepLast, Backfill: in.Backfill, Enabled: true, AddedAt: s.now()}
+		KeepLast: in.KeepLast, Backfill: in.Backfill, Enabled: true, Mirror: in.Mirror, AddedAt: s.now()}
 	if l.Kind == KindChannel {
 		f.YTID = p.ChannelID
 		if !reChannelID.MatchString(f.YTID) {
@@ -311,19 +329,36 @@ func (s *Service) AddFollow(ctx context.Context, userID int64, in AddFollow) (Fo
 	if err != nil {
 		return Follow{}, err
 	}
-	_, _, err = s.Queue.Enqueue(ctx, KindCheck, nil, map[string]any{"follow_id": f.ID},
-		fmt.Sprintf("youtube:%d:follow:%d", userID, f.ID), database.Actor{Kind: "user", ID: userID})
-	if err != nil {
-		// The scheduled check picks the follow up later.
-		log.Printf("youtube: follow %d: first check not queued: %v", f.ID, err)
-	}
+	s.queueCheck(ctx, userID, f.ID)
 	return FollowOf(ctx, s.Store.Read(), userID, f.ID)
+}
+
+// queueCheck queues a check of one follow. The scheduled check picks the
+// follow up later, so a failure here is only logged.
+func (s *Service) queueCheck(ctx context.Context, userID, followID int64) {
+	_, _, err := s.Queue.Enqueue(ctx, KindCheck, nil, map[string]any{"follow_id": followID},
+		fmt.Sprintf("youtube:%d:follow:%d", userID, followID), database.Actor{Kind: "user", ID: userID})
+	if err != nil {
+		log.Printf("youtube: follow %d: check not queued: %v", followID, err)
+	}
+}
+
+// fill sets the follows that hold one of a person's videos on it.
+func (s *Service) fill(ctx context.Context, q database.Lister, v *Video) error {
+	one := []Video{*v}
+	if err := WithFollows(ctx, q, v.UserID, one); err != nil {
+		return err
+	}
+	*v = one[0]
+	return nil
 }
 
 func intPtr(n int) *int { return &n }
 
 // UpdateFollow changes one of a person's follows; sql.ErrNoRows when it is
-// not theirs.
+// not theirs. Only a playlist can be mirrored, and a mirrored playlist
+// keeps every video: turning mirroring on turns keep-last off and queues
+// a check, so the change shows at once.
 func (s *Service) UpdateFollow(ctx context.Context, userID, id int64, c FollowChange) (Follow, error) {
 	if c.MaxHeight != nil {
 		if err := checkHeight(*c.MaxHeight); err != nil {
@@ -333,21 +368,49 @@ func (s *Service) UpdateFollow(ctx context.Context, userID, id int64, c FollowCh
 	if c.KeepLast != nil && *c.KeepLast != nil && **c.KeepLast < 1 {
 		return Follow{}, ErrKeepLast
 	}
-	if err := s.Store.Write(ctx, func(tx *sql.Tx) error { return UpdateFollow(tx, userID, id, c) }); err != nil {
+	mirrorOn := false
+	err := s.Store.Write(ctx, func(tx *sql.Tx) error {
+		ch := c
+		old, err := FollowOf(ctx, tx, userID, id)
+		if err != nil {
+			return err
+		}
+		mirror := old.Mirror
+		if ch.Mirror != nil {
+			mirror = *ch.Mirror
+		}
+		if mirror && old.Kind != KindPlaylist {
+			return ErrMirrorKind
+		}
+		if mirror && ch.KeepLast != nil && *ch.KeepLast != nil {
+			return ErrMirrorKeep
+		}
+		if mirrorOn = mirror && !old.Mirror; mirrorOn {
+			var none *int
+			ch.KeepLast = &none
+		}
+		return UpdateFollow(tx, userID, id, ch)
+	})
+	if err != nil {
 		return Follow{}, err
+	}
+	if mirrorOn {
+		s.queueCheck(ctx, userID, id)
 	}
 	return FollowOf(ctx, s.Store.Read(), userID, id)
 }
 
-// Unfollow stops following. With deleteFiles the follow's videos go too,
-// files and thumbnails first, then their rows; without it they stay as
-// videos of no follow. sql.ErrNoRows when the follow is not theirs.
+// Unfollow stops following. With deleteFiles the videos only this follow
+// keeps go too, files and thumbnails first, then their rows; a video that
+// is manual or that another follow holds stays. Without it every video the
+// follow holds stays and becomes manual, so no other follow deletes it
+// later. sql.ErrNoRows when the follow is not theirs.
 func (s *Service) Unfollow(ctx context.Context, userID, id int64, deleteFiles bool) error {
 	if _, err := FollowOf(ctx, s.Store.Read(), userID, id); err != nil {
 		return err
 	}
 	if deleteFiles {
-		videos, err := VideosOfFollow(ctx, s.Store.Read(), userID, id)
+		videos, err := OnlyOfFollow(ctx, s.Store.Read(), userID, id)
 		if err != nil {
 			return err
 		}
@@ -359,10 +422,14 @@ func (s *Service) Unfollow(ctx context.Context, userID, id int64, deleteFiles bo
 		}
 	}
 	return s.Store.Write(ctx, func(tx *sql.Tx) error {
+		var err error
 		if deleteFiles {
-			if err := DeleteVideosOfFollow(tx, userID, id); err != nil {
-				return err
-			}
+			err = DeleteOnlyOfFollow(tx, userID, id)
+		} else {
+			err = KeepVideosOfFollow(tx, userID, id)
+		}
+		if err != nil {
+			return err
 		}
 		return DeleteFollow(tx, userID, id)
 	})
@@ -401,8 +468,10 @@ func (s *Service) RetryVideo(ctx context.Context, userID, id int64) (Video, erro
 		if err := RequeueVideo(tx, userID, id, old.MaxHeight); err != nil {
 			return err
 		}
-		v, err = VideoOf(ctx, tx, userID, id)
-		return err
+		if v, err = VideoOf(ctx, tx, userID, id); err != nil {
+			return err
+		}
+		return s.fill(ctx, tx, &v)
 	})
 	if err != nil {
 		return Video{}, err
@@ -434,7 +503,8 @@ func watched(seconds, duration int) bool {
 }
 
 // removeFiles deletes a video file, its thumbnail and its subtitles under
-// root. A file already gone is fine; a path leaving root is refused.
+// root, then the folder they were in when that leaves it empty. A file
+// already gone is fine; a path leaving root is refused.
 func removeFiles(root, rel string) error {
 	if rel == "" || root == "" {
 		return nil
@@ -465,6 +535,7 @@ func removeFiles(root, rel string) error {
 			return fmt.Errorf("a video file could not be deleted: %w", err)
 		}
 	}
+	pruneEmpty(dir, path.Dir(filepath.ToSlash(rel)))
 	return nil
 }
 

@@ -13,9 +13,9 @@ import (
 // person already follows the same playlist or channel.
 func InsertFollow(tx *sql.Tx, f Follow) (int64, error) {
 	res, err := tx.Exec(`INSERT INTO youtube_follows
-		(user_id, url, kind, yt_id, title, quality_max_height, include_shorts, keep_last, backfill, enabled, added_at, last_error)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '')`,
-		f.UserID, f.URL, f.Kind, f.YTID, f.Title, maxHeight(f.MaxHeight), f.IncludeShorts, f.KeepLast, f.Backfill, f.Enabled, database.FormatTime(f.AddedAt))
+		(user_id, url, kind, yt_id, title, quality_max_height, include_shorts, keep_last, backfill, enabled, mirror, added_at, last_error)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '')`,
+		f.UserID, f.URL, f.Kind, f.YTID, f.Title, maxHeight(f.MaxHeight), f.IncludeShorts, f.KeepLast, f.Backfill, f.Enabled, f.Mirror, database.FormatTime(f.AddedAt))
 	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed: youtube_follows.") {
 			return 0, ErrDuplicateFollow
@@ -64,6 +64,9 @@ func UpdateFollow(tx *sql.Tx, userID, id int64, c FollowChange) error {
 	if c.KeepLast != nil {
 		sets, args = append(sets, "keep_last = ?"), append(args, *c.KeepLast)
 	}
+	if c.Mirror != nil {
+		sets, args = append(sets, "mirror = ?"), append(args, *c.Mirror)
+	}
 	if len(sets) == 0 {
 		sets = []string{"id = id"}
 	}
@@ -86,9 +89,12 @@ func MarkCheckFailed(tx *sql.Tx, id int64, errText string) error {
 	return err
 }
 
-// DeleteFollow removes one of a person's follows; its videos stay, with no
-// follow. sql.ErrNoRows when it is not theirs.
+// DeleteFollow removes one of a person's follows and what it held; the
+// videos themselves stay. sql.ErrNoRows when it is not theirs.
 func DeleteFollow(tx *sql.Tx, userID, id int64) error {
+	if _, err := tx.Exec("DELETE FROM youtube_video_follows WHERE follow_id IN (SELECT id FROM youtube_follows WHERE id = ? AND user_id = ?)", id, userID); err != nil {
+		return err
+	}
 	res, err := tx.Exec("DELETE FROM youtube_follows WHERE id = ? AND user_id = ?", id, userID)
 	return oneRow(res, err)
 }
@@ -101,6 +107,9 @@ func EnabledFollows(ctx context.Context, q database.Lister) ([]Follow, error) {
 
 // DeletePersonRows removes every follow and video row of a person.
 func DeletePersonRows(tx *sql.Tx, userID int64) error {
+	if _, err := tx.Exec("DELETE FROM youtube_video_follows WHERE video_row_id IN (SELECT id FROM youtube_videos WHERE user_id = ?)", userID); err != nil {
+		return err
+	}
 	if _, err := tx.Exec("DELETE FROM youtube_videos WHERE user_id = ?", userID); err != nil {
 		return err
 	}

@@ -134,13 +134,29 @@ func (r Runner) Probe(ctx context.Context, l Link) (Probe, error) {
 	return p, nil
 }
 
+// Listing is what a playlist or channel holds now. Complete is set only for
+// a playlist whose listing has at least as many entries as YouTube says the
+// playlist has, and at least one: yt-dlp ends well on a listing cut short,
+// so only a complete one may say that a video left the playlist.
+type Listing struct {
+	Entries  []Entry
+	Complete bool
+}
+
 // Entries lists every video a playlist or channel holds. A channel covers
 // its Videos and Live tabs, plus Shorts when includeShorts is set, newest
 // first; a playlist keeps its own order and every entry.
 func (r Runner) Entries(ctx context.Context, l Link, includeShorts bool) ([]Entry, error) {
+	list, err := r.Listing(ctx, l, includeShorts)
+	return list.Entries, err
+}
+
+// Listing is Entries that also says whether a playlist's listing is
+// complete.
+func (r Runner) Listing(ctx context.Context, l Link, includeShorts bool) (Listing, error) {
 	base, err := canonicalURL(l)
 	if err != nil || l.Kind == KindVideo {
-		return nil, ErrNotYouTube
+		return Listing{}, ErrNotYouTube
 	}
 	ctx, cancel := context.WithTimeout(ctx, entriesTimeout)
 	defer cancel()
@@ -154,14 +170,14 @@ func (r Runner) Entries(ctx context.Context, l Link, includeShorts bool) ([]Entr
 	seen := map[string]bool{}
 	var all []Entry
 	for _, tab := range tabs {
-		es, err := r.listTab(ctx, base+"/"+tab, tab == "shorts")
+		list, err := r.listTab(ctx, base+"/"+tab, tab == "shorts")
 		if err != nil && strings.Contains(err.Error(), "does not have a") {
 			continue // channels without live streams or shorts have no such tab
 		}
 		if err != nil {
-			return nil, err
+			return Listing{}, err
 		}
-		for _, e := range es {
+		for _, e := range list.Entries {
 			if !seen[e.ID] {
 				seen[e.ID] = true
 				all = append(all, e)
@@ -169,16 +185,17 @@ func (r Runner) Entries(ctx context.Context, l Link, includeShorts bool) ([]Entr
 		}
 	}
 	sort.SliceStable(all, func(i, j int) bool { return all[i].Timestamp > all[j].Timestamp })
-	return all, nil
+	return Listing{Entries: all}, nil
 }
 
-func (r Runner) listTab(ctx context.Context, target string, shorts bool) ([]Entry, error) {
+func (r Runner) listTab(ctx context.Context, target string, shorts bool) (Listing, error) {
 	args := []string{"-J", "--flat-playlist", "--extractor-args", "youtubetab:approximate_date"}
 	var raw rawInfo
 	if err := r.runJSON(ctx, 0, args, target, &raw); err != nil {
-		return nil, err
+		return Listing{}, err
 	}
-	return toEntries(raw.Entries, shorts), nil
+	n := len(raw.Entries)
+	return Listing{Entries: toEntries(raw.Entries, shorts), Complete: raw.PlaylistCount != nil && n > 0 && n >= *raw.PlaylistCount}, nil
 }
 
 // Info looks one video up.

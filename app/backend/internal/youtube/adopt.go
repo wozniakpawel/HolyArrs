@@ -28,7 +28,8 @@ import (
 
 // AdoptRequest asks to adopt the videos under Path for a person. Playlists
 // maps a folder name under Path to a playlist link: that folder's videos
-// join a new follow of the playlist, which takes no older videos.
+// join a new follow of the playlist, which takes no older videos. A video
+// in two folders is copied once and joins the follow of each.
 type AdoptRequest struct {
 	UserID    int64             `json:"user_id"`
 	Path      string            `json:"path"`
@@ -39,6 +40,8 @@ type AdoptRequest struct {
 // AdoptItem is one video file found. From is relative to the source
 // folder, To to the YouTube folder, both with forward slashes. A non-empty
 // Reason means it is skipped. Gone is set when YouTube no longer has it.
+// A second copy of a video in a folder given a playlist is not skipped: it
+// has the first copy's To, and the one file joins that playlist too.
 type AdoptItem struct {
 	From    string `json:"from"`
 	To      string `json:"to"`
@@ -147,26 +150,33 @@ func (s *Service) planAdopt(ctx context.Context, in AdoptRequest) (adoptPlan, er
 		return a, pathFree(err)
 	}
 	sort.Slice(a.sources, func(i, j int) bool { return a.sources[i].item.From < a.sources[j].item.From })
-	states, err := VideoStates(ctx, s.Store.Read(), in.UserID)
+	known, err := KnownVideos(ctx, s.Store.Read(), in.UserID)
 	if err != nil {
 		a.close()
 		return a, err
 	}
-	seen := map[string]bool{}
+	first := map[string]int{}
 	for i := range a.sources {
 		it := &a.sources[i].item
-		switch {
-		case it.VideoID == "":
+		if it.VideoID == "" {
 			it.Reason = reasonNoID
-		case seen[it.VideoID]:
+			continue
+		}
+		src := a.sources[i]
+		it.To = a.userDir + "/" + src.target(src.meta, "")
+		at, twice := first[it.VideoID]
+		_, listed := in.Playlists[it.Folder]
+		switch {
+		case twice && listed && (a.sources[at].item.Reason == "" || a.sources[at].item.Reason == reasonKnown):
+			a.sources[i].again = true
+			it.To = a.sources[at].item.To
+		case twice:
 			it.Reason = reasonTwice
-		case states[it.VideoID] != "" && !adoptable(states[it.VideoID]):
+		case known[it.VideoID].State != "" && !adoptable(known[it.VideoID].State):
 			it.Reason = reasonKnown
 		}
-		seen[it.VideoID] = true
-		if it.VideoID != "" {
-			src := a.sources[i]
-			it.To = a.userDir + "/" + src.target(src.meta, "")
+		if !twice {
+			first[it.VideoID] = i
 		}
 	}
 	return a, nil
@@ -233,8 +243,11 @@ func adoptParams(params map[string]any) (AdoptRequest, bool) {
 // HandleAdopt runs a youtube_adopt job, params {"user_id", "path"} and
 // maybe {"playlists"}. Each video found is looked up on YouTube, copied
 // with its thumbnail and subtitles, and recorded as downloaded. A video
-// YouTube no longer has keeps what its files say and counts as gone.
-// Result: {"copied", "skipped", "gone", "failed"}, plus "follows" when
+// YouTube no longer has keeps what its files say and counts as gone. With
+// playlists, a video joins the follow of every folder it is in, though it
+// is copied once, and one already in the library joins it too.
+// Result: {"copied", "skipped", "gone", "failed"}, plus "follows" and
+// "linked" (videos that joined a follow without being copied) when
 // playlists were given.
 func (s *Service) HandleAdopt(ctx context.Context, r *jobs.Run) error {
 	in, ok := adoptParams(r.Job.Params)
@@ -265,10 +278,24 @@ func (s *Service) HandleAdopt(ctx context.Context, r *jobs.Run) error {
 		}
 		counts["follows"] = len(follows)
 	}
-	var copied, skipped, gone, failed int
+	var copied, skipped, gone, failed, linked int
 	for i, src := range a.sources {
 		if err := r.Progress(ctx, float64(i)/float64(len(a.sources)), fmt.Sprintf("%d of %d", i+1, len(a.sources))); err != nil {
 			return err
+		}
+		f := follows[src.item.Folder]
+		if src.again || src.item.Reason == reasonKnown {
+			// Nothing to copy: the one file joins this folder's follow.
+			ok, err := s.adoptLink(ctx, in.UserID, src.item.VideoID, f)
+			switch {
+			case err != nil:
+				return err
+			case ok:
+				linked++
+			default:
+				skipped++
+			}
+			continue
 		}
 		if src.item.Reason != "" {
 			skipped++
@@ -290,8 +317,34 @@ func (s *Service) HandleAdopt(ctx context.Context, r *jobs.Run) error {
 		}
 	}
 	counts["copied"], counts["skipped"], counts["gone"], counts["failed"] = copied, skipped, gone, failed
+	if len(in.Playlists) > 0 {
+		counts["linked"] = linked
+	}
 	r.SetResult(counts)
 	return nil
+}
+
+// adoptLink makes a follow hold a video the person already has a file for,
+// and reports whether it did. Nothing happens without a follow or a
+// downloaded row: the first copy may have failed.
+func (s *Service) adoptLink(ctx context.Context, userID int64, videoID string, f *Follow) (bool, error) {
+	if f == nil {
+		return false, nil
+	}
+	ok := false
+	err := s.Store.Write(ctx, func(tx *sql.Tx) error {
+		v, err := VideoOfYouTubeID(ctx, tx, userID, videoID)
+		if errors.Is(err, sql.ErrNoRows) || (err == nil && v.State != StateDone) {
+			ok = false
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		ok = true
+		return LinkVideo(tx, userID, v.ID, f.ID, s.now())
+	})
+	return ok, err
 }
 
 // adoptFollows follows each playlist given for a folder that has videos to
@@ -302,7 +355,7 @@ func (s *Service) HandleAdopt(ctx context.Context, r *jobs.Run) error {
 func (s *Service) adoptFollows(ctx context.Context, run Runner, in AdoptRequest, a adoptPlan) (map[string]*Follow, error) {
 	used := map[string]bool{}
 	for _, src := range a.sources {
-		if src.item.Reason == "" {
+		if src.item.Reason == "" || src.item.Reason == reasonKnown {
 			used[src.item.Folder] = true
 		}
 	}
@@ -350,8 +403,10 @@ const (
 // adoptOne copies one video, its thumbnail and subtitles into the person's
 // folder and records it as downloaded. Its files go in a folder named
 // after its playlist when one was given, else its channel, else the folder
-// it came from. Anything copied is deleted again when the row cannot be
-// written.
+// it came from. The follow, when there is one, holds the video; a video
+// with no follow, or one YouTube no longer has, is manual, so nothing
+// deletes it later. Anything copied is deleted again when the row cannot
+// be written.
 func (s *Service) adoptOne(ctx context.Context, run Runner, dir *os.Root, root, userDir string, userID int64, f *Follow, src adoptSource) (string, error) {
 	meta, out := src.meta, adoptCopied
 	if info, err := run.Info(ctx, src.item.VideoID); err == nil && info.Title != "" {
@@ -398,11 +453,7 @@ func (s *Service) adoptOne(ctx context.Context, run Runner, dir *os.Root, root, 
 		old, err := VideoOfYouTubeID(ctx, tx, userID, src.item.VideoID)
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			v := Video{UserID: userID, VideoID: src.item.VideoID, State: StateDone, AddedAt: s.now()}
-			if f != nil {
-				v.FollowID = &f.ID
-			}
-			if rowID, _, err = InsertVideo(tx, v); err != nil {
+			if rowID, _, err = InsertVideo(tx, Video{UserID: userID, VideoID: src.item.VideoID, State: StateDone, AddedAt: s.now()}); err != nil {
 				return err
 			}
 		case err != nil:
@@ -414,6 +465,16 @@ func (s *Service) adoptOne(ctx context.Context, run Runner, dir *os.Root, root, 
 			return errRowGone
 		default:
 			rowID = old.ID
+		}
+		if f != nil {
+			if err := LinkVideo(tx, userID, rowID, f.ID, s.now()); err != nil {
+				return err
+			}
+		}
+		if f == nil || out == adoptGone {
+			if err := SetManual(tx, userID, rowID); err != nil {
+				return err
+			}
 		}
 		return FinishVideo(tx, rowID, rel, src.size, meta)
 	})

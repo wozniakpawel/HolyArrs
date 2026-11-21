@@ -157,8 +157,9 @@ type ytVideo struct {
 	ID       int64  `json:"id"`
 	VideoID  string `json:"video_id"`
 	Title    string `json:"title"`
-	State    string `json:"state"`
-	FollowID *int64 `json:"follow_id"`
+	State     string  `json:"state"`
+	FollowIDs []int64 `json:"follow_ids"`
+	Manual    bool    `json:"manual"`
 }
 
 type ytFollow struct {
@@ -170,6 +171,7 @@ type ytFollow struct {
 	KeepLast  *int   `json:"keep_last"`
 	MaxHeight int    `json:"quality_max_height"`
 	Enabled   bool   `json:"enabled"`
+	Mirror    bool   `json:"mirror"`
 }
 
 // ytRig is an askRig with the fake yt-dlp, a YouTube folder and ana ticked
@@ -215,7 +217,7 @@ func TestYouTubeAddRoutes(t *testing.T) {
 
 	var v ytVideo
 	decodeJSON(t, r.ana.call("POST", "/api/v1/youtube/videos", `{"url":"https://youtu.be/dQw4w9WgXcQ"}`, 201), &v)
-	if v.VideoID != "dQw4w9WgXcQ" || v.State != "queued" || v.Title != "Never Gonna Give You Up" {
+	if v.VideoID != "dQw4w9WgXcQ" || v.State != "queued" || v.Title != "Never Gonna Give You Up" || !v.Manual || v.FollowIDs == nil || len(v.FollowIDs) != 0 {
 		t.Fatalf("video %+v", v)
 	}
 	r.ana.call("POST", "/api/v1/youtube/videos", `{"url":"https://www.youtube.com/@veritasium"}`, 400)
@@ -244,6 +246,22 @@ func TestYouTubeAddRoutes(t *testing.T) {
 		t.Fatalf("updated %+v", f)
 	}
 	r.ana.call("PUT", "/api/v1/youtube/follows/"+itoa(f.ID), `{"keep_last":0}`, 400)
+	// Only a playlist can be mirrored, and a mirror keeps every video.
+	body = r.ana.call("PUT", "/api/v1/youtube/follows/"+itoa(f.ID), `{"mirror":true}`, 400)
+	if !strings.Contains(string(body), "only a playlist can be mirrored") {
+		t.Fatalf("mirrored channel: %s", body)
+	}
+	r.ana.call("POST", "/api/v1/youtube/follows", `{"url":"https://www.youtube.com/playlist?list=PLtestlist01","mirror":true,"keep_last":3}`, 400)
+	var pl ytFollow
+	decodeJSON(t, r.ana.call("POST", "/api/v1/youtube/follows", `{"url":"https://www.youtube.com/playlist?list=PLtestlist01","mirror":true}`, 201), &pl)
+	if pl.Kind != "playlist" || !pl.Mirror || pl.Backfill != nil {
+		t.Fatalf("mirrored playlist %+v", pl)
+	}
+	decodeJSON(t, r.ana.call("PUT", "/api/v1/youtube/follows/"+itoa(pl.ID), `{"mirror":false}`, 200), &pl)
+	if pl.Mirror {
+		t.Fatalf("mirror off %+v", pl)
+	}
+	r.ana.call("DELETE", "/api/v1/youtube/follows/"+itoa(pl.ID)+"?files=delete", "", 204)
 
 	var list []ytVideo
 	decodeJSON(t, r.ana.call("GET", "/api/v1/youtube/videos?unwatched=1&limit=10&offset=0", "", 200), &list)
@@ -256,6 +274,9 @@ func TestYouTubeAddRoutes(t *testing.T) {
 	}
 	r.ana.call("GET", "/api/v1/youtube/videos?limit=x", "", 400)
 	decodeJSON(t, r.ana.call("GET", "/api/v1/youtube/videos/"+itoa(v.ID), "", 200), &v)
+	if !v.Manual || v.FollowIDs == nil {
+		t.Fatalf("one video %+v", v)
+	}
 
 	r.ana.call("DELETE", "/api/v1/youtube/follows/"+itoa(f.ID), "", 400)
 	r.ana.call("DELETE", "/api/v1/youtube/follows/"+itoa(f.ID)+"?files=keep", "", 204)

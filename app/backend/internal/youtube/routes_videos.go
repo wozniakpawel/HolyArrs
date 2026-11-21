@@ -135,6 +135,10 @@ func (h *Handlers) listVideos(w http.ResponseWriter, r *http.Request) {
 	if list == nil {
 		list = []Video{}
 	}
+	if err := WithFollows(r.Context(), h.Svc.Store.Read(), c.UserID, list); err != nil {
+		h.fail(w, err)
+		return
+	}
 	webserver.WriteJSON(w, http.StatusOK, list)
 }
 
@@ -168,6 +172,9 @@ func (h *Handlers) getVideo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	v, err := VideoOf(r.Context(), h.Svc.Store.Read(), c.UserID, id)
+	if err == nil {
+		err = h.Svc.fill(r.Context(), h.Svc.Store.Read(), &v)
+	}
 	if err != nil {
 		h.fail(w, err)
 		return
@@ -213,7 +220,7 @@ func (h *Handlers) addFollow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var in AddFollow
-	if !webserver.Decode(w, r, &in, `send {"url": "https://www.youtube.com/@name", "backfill": 20, "keep_last": null, "include_shorts": false, "quality_max_height": 1080}`) {
+	if !webserver.Decode(w, r, &in, `send {"url": "https://www.youtube.com/@name", "backfill": 20, "keep_last": null, "include_shorts": false, "quality_max_height": 1080, "mirror": false}`) {
 		return
 	}
 	f, err := h.Svc.AddFollow(r.Context(), c.UserID, in)
@@ -242,12 +249,13 @@ func (h *Handlers) updateFollow(w http.ResponseWriter, r *http.Request) {
 		IncludeShorts *bool `json:"include_shorts"`
 		Enabled       *bool `json:"enabled"`
 		KeepLast      *int  `json:"keep_last"`
+		Mirror        *bool `json:"mirror"`
 	}
-	keys, ok := webserver.DecodeKeys(w, r, &in, `send any of {"quality_max_height": 720, "include_shorts": true, "enabled": false, "keep_last": 10}; "keep_last": null keeps every video`)
+	keys, ok := webserver.DecodeKeys(w, r, &in, `send any of {"quality_max_height": 720, "include_shorts": true, "enabled": false, "keep_last": 10, "mirror": true}; "keep_last": null keeps every video`)
 	if !ok {
 		return
 	}
-	ch := FollowChange{MaxHeight: in.MaxHeight, IncludeShorts: in.IncludeShorts, Enabled: in.Enabled}
+	ch := FollowChange{MaxHeight: in.MaxHeight, IncludeShorts: in.IncludeShorts, Enabled: in.Enabled, Mirror: in.Mirror}
 	if _, set := keys["keep_last"]; set {
 		ch.KeepLast = &in.KeepLast
 	}
