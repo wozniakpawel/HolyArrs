@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 const owner: NavInput = { allowed: () => true, off: () => false, kinds: ['movie', 'show', 'artist'], waitingAsks: 3, decisions: 1, unread: 0 };
 const memberPerms = new Set(['wishlist']);
 const member: NavInput = { ...owner, allowed: (n) => memberPerms.has(n) };
+const yours = (i: NavInput) => buildNav(i).find((s) => s.id === 'yours')?.items.map((x) => x.href) ?? [];
 
 const labels = (input: NavInput) => buildNav(input).map((s) => [s.label, s.items.map((i) => i.label)]);
 
@@ -20,10 +21,23 @@ describe('buildNav', () => {
 		expect(labels(owner)).toEqual([
 			[null, ['Home', 'Explore', 'New & Popular']],
 			['Library', ['Movies', 'TV shows', 'Music', 'Stats']],
-			['Your stuff', ['Calendar', 'Requests']],
+			['Your stuff', ['Calendar', 'YouTube', 'Requests']],
 			['Activity', ['Downloads', 'History']],
 			['System', ['Status', 'Plugins', 'Settings']]
 		]);
+	});
+	it('shows YouTube in Yours for people with the permission', () => {
+		const perms = new Set(['wishlist', 'youtube']);
+		const nav = buildNav({ ...member, allowed: (n) => perms.has(n), held: (f) => f !== 'youtube' });
+		const item = nav.find((s) => s.id === 'yours')?.items.find((i) => i.href === '/youtube');
+		expect(item).toMatchObject({ href: '/youtube', label: 'YouTube', icon: 'play', need: 'youtube' });
+	});
+	it('hides YouTube while held, for kids and without the permission', () => {
+		expect(yours({ ...owner, held: (f) => f === 'youtube' })).not.toContain('/youtube');
+		expect(yours({ ...owner, kid: true })).not.toContain('/youtube');
+		expect(yours({ ...owner, allowed: (n) => n !== 'youtube' })).not.toContain('/youtube');
+		expect(yours({ ...owner, off: (h) => h === '/youtube' })).not.toContain('/youtube');
+		expect(yours(member)).not.toContain('/youtube');
 	});
 	it('lists Library stats only for people who manage the Library', () => {
 		const lib = (i: NavInput) => buildNav(i).find((s) => s.id === 'library')?.items.map((x) => x.href);

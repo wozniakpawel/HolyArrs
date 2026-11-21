@@ -3,7 +3,7 @@
 import type { IconName } from '#lib/ui/Icon.svelte';
 import { t } from '#lib/core/i18n/i18n.svelte.ts';
 
-export type Need = 'manage_library' | 'settings' | 'wishlist' | 'approve' | 'staff' | 'manage' | 'owner' | null;
+export type Need = 'manage_library' | 'settings' | 'wishlist' | 'approve' | 'staff' | 'manage' | 'owner' | 'youtube' | null;
 
 export interface NavItem {
 	href: string;
@@ -30,6 +30,8 @@ export interface NavInput {
 	allowed: (need: Exclude<Need, null>) => boolean;
 	/** True when the part that owns this path is turned off. */
 	off: (href: string) => boolean;
+	/** True for a held-back feature that is switched off on this install (youtube). */
+	held?: (feature: string) => boolean;
 	/** Library kinds whose part is on: movie, show, artist. */
 	kinds: ('movie' | 'show' | 'artist')[];
 	waitingAsks: number;
@@ -91,6 +93,8 @@ export function buildNav(input: NavInput): NavSection[] {
 				// Everyone else watches the downloads for what they asked for.
 				...(!input.allowed('manage_library') ? [{ href: '/downloads', label: t('frame.nav.downloads'), icon: 'download', need: null } as NavItem] : []),
 				{ href: '/calendar', label: t('frame.nav.calendar'), icon: 'calendar', need: null },
+				// A person's own YouTube videos; never for a Kid, and gone while the feature is held back.
+				...(!input.kid && !input.held?.('youtube') ? [{ href: '/youtube', label: t('frame.nav.youtube'), icon: 'play', need: 'youtube' } as NavItem] : []),
 				// Everyone finds Requests here; people who approve see how many are waiting.
 				{ href: '/requests', label: t('frame.nav.requests'), icon: 'requests', need: 'wishlist', ...(approver ? { badge: input.waitingAsks, badgeLabel: t('frame.nav.waiting', { n: input.waitingAsks }) } : { badge: input.unread, badgeLabel: t('frame.nav.new', { n: input.unread }) }) }
 			]
