@@ -4,7 +4,8 @@
 # out through NordVPN and qBittorrent / FlareSolverr are on localhost.
 # The vpn service also publishes - 6262:6262.
   holyarrs:
-    image: alpine:3.22
+    image: holyarrs-runtime:3.22
+    build: ./holyarrs/runtime   # alpine:3.22 + ffmpeg (yt-dlp is mounted from config/bin)
     container_name: holyarrs
     entrypoint: ["/holyarrs"]
     command: ["-config", "/config"]
@@ -13,8 +14,10 @@
       - PGID=100
       - UMASK=002
       - TZ=Europe/London
-      - HOLYARRS_ALLOWED_HOSTS=primary,primary.bee-eagle.ts.net,100.111.0.1
-      - HOLYARRS_TRUSTED_PROXIES=172.22.2.1
+      - HOLYARRS_ALLOWED_HOSTS=primary,primary.bee-eagle.ts.net,100.111.0.1,media.bee-eagle.ts.net
+      - HOLYARRS_TRUSTED_PROXIES=172.22.2.1,172.22.10.0/24
+      - HOLYARRS_FLAGS=youtube
+      - HOLYARRS_YTDLP=/config/bin/yt-dlp
     volumes:
       - ./holyarrs/config:/config
       - ./holyarrs/bin/holyarrs:/holyarrs:ro
