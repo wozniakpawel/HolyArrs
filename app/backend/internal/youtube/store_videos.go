@@ -124,6 +124,14 @@ func SetVideoState(tx *sql.Tx, id int64, state, errText string) error {
 	return err
 }
 
+// MoveJobVideo moves a video its download job holds to state with its error
+// text. sql.ErrNoRows when the row is gone or no longer queued or
+// downloading: a removed video stays removed.
+func MoveJobVideo(tx *sql.Tx, id int64, state, errText string) error {
+	res, err := tx.Exec("UPDATE youtube_videos SET state = ?, error = ? WHERE id = ? AND state IN ('queued', 'downloading')", state, errText, id)
+	return oneRow(res, err)
+}
+
 // FinishVideo records a finished download: its file, size and what yt-dlp
 // told us about it.
 func FinishVideo(tx *sql.Tx, id int64, rel string, size int64, m Meta) error {

@@ -7,7 +7,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
+	"time"
 )
 
 // info is a video lookup as yt-dlp prints it.
@@ -277,5 +279,150 @@ func TestJobsCarryNoTitles(t *testing.T) {
 	}
 	if !sawErr {
 		t.Fatal("no job error was checked")
+	}
+}
+
+// files lists every regular file under the YouTube folder.
+func (r *rig) files() []string {
+	r.t.Helper()
+	var out []string
+	err := filepath.WalkDir(r.root, func(p string, d os.DirEntry, err error) error {
+		if err == nil && d.Type().IsRegular() {
+			out = append(out, p)
+		}
+		return err
+	})
+	if err != nil {
+		r.t.Fatal(err)
+	}
+	return out
+}
+
+// runningJob is the id of the running job of a kind, for hooks that run
+// off the test goroutine.
+func (r *rig) runningJob(kind string) (int64, error) {
+	var id int64
+	err := r.s.Read().QueryRowContext(context.Background(), "SELECT id FROM jobs WHERE kind = ? AND state = 'running'", kind).Scan(&id)
+	return id, err
+}
+
+func TestDownloadRemovedWhileLookingUpStaysRemoved(t *testing.T) {
+	t.Parallel()
+	r := newRig(t, "ok")
+	r.putJSON("info-abcdefghijk.json", info("abcdefghijk", "Title", "Veritasium", 1709650800))
+	f := r.follow(anna, veritasium())
+	id := addVideo(t, r.s, Video{UserID: anna, FollowID: &f.ID, VideoID: "abcdefghijk"})
+	hold := filepath.Join(r.data, "hold-info")
+	r.put("hold-info", nil)
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		defer os.Remove(hold)
+		for deadline := time.Now().Add(20 * time.Second); time.Now().Before(deadline); time.Sleep(5 * time.Millisecond) {
+			if _, err := os.Stat(filepath.Join(r.data, "info-started")); err == nil {
+				if err := r.s.Write(context.Background(), func(tx *sql.Tx) error { return MarkRemoved(tx, anna, id) }); err != nil {
+					t.Error(err)
+				}
+				return
+			}
+		}
+		t.Error("the video was never looked up")
+	}()
+	r.download(anna, id)
+	<-done
+
+	if v := r.videos(anna)["abcdefghijk"]; v.State != StateRemoved || v.RelativePath != "" {
+		t.Fatalf("row %+v, want it to stay removed", v)
+	}
+	if files := r.files(); len(files) != 0 {
+		t.Fatalf("files kept for a removed video: %v", files)
+	}
+	if js := r.jobs(KindDownload); len(js) != 1 || js[0].State != "done" || js[0].Result["skipped"] != "gone" {
+		t.Fatalf("job %+v", js)
+	}
+	for _, c := range r.fake.Calls(t) {
+		if strings.Contains(strings.Join(c, " "), " -o ") {
+			t.Fatalf("yt-dlp downloaded a removed video: %q", c)
+		}
+	}
+	for _, ev := range r.live.all() {
+		if ev.Video.State != StateRemoved {
+			t.Fatalf("live event %+v for a removed video", ev)
+		}
+	}
+}
+
+func TestDownloadFailingAfterRemoveStaysRemoved(t *testing.T) {
+	t.Parallel()
+	r := newRig(t, "fail")
+	id := addVideo(t, r.s, Video{UserID: anna, VideoID: "abcdefghijk"})
+	r.live.onEvent = func(ev liveEvent) {
+		if ev.Video.ID == id && ev.Video.State == StateDownloading {
+			if err := r.s.Write(context.Background(), func(tx *sql.Tx) error { return MarkRemoved(tx, anna, id) }); err != nil {
+				t.Error(err)
+			}
+		}
+	}
+	r.download(anna, id)
+	if v := r.videos(anna)["abcdefghijk"]; v.State != StateRemoved {
+		t.Fatalf("row %q, want it to stay removed", v.State)
+	}
+	// One attempt only: the job does not try a removed video again.
+	if js := r.jobs(KindDownload); len(js) != 1 || js[0].State != "done" || js[0].Attempt != 1 || js[0].Result["skipped"] != "gone" {
+		t.Fatalf("job %+v", js)
+	}
+	if files := r.files(); len(files) != 0 {
+		t.Fatalf("files kept for a removed video: %v", files)
+	}
+}
+
+// cancelMidDownload cancels the download job once yt-dlp reports progress,
+// first removing the video when remove is set.
+func cancelMidDownload(t *testing.T, remove bool) (*rig, int64) {
+	r := newRig(t, "hang")
+	id := addVideo(t, r.s, Video{UserID: anna, VideoID: "abcdefghijk"})
+	var once sync.Once
+	r.live.onEvent = func(ev liveEvent) {
+		if ev.Video.ID != id || ev.Video.State != StateDownloading || ev.Video.Percent == 0 {
+			return
+		}
+		once.Do(func() {
+			if remove {
+				if err := r.s.Write(context.Background(), func(tx *sql.Tx) error { return MarkRemoved(tx, anna, id) }); err != nil {
+					t.Error(err)
+				}
+			}
+			job, err := r.runningJob(KindDownload)
+			if err == nil {
+				err = r.q.Cancel(context.Background(), job)
+			}
+			if err != nil {
+				t.Error(err)
+			}
+		})
+	}
+	r.download(anna, id)
+	if js := r.jobs(KindDownload); len(js) != 1 || js[0].State != "cancelled" {
+		t.Fatalf("job %+v", js)
+	}
+	if files := r.files(); len(files) != 0 {
+		t.Fatalf("files kept after a cancel: %v", files)
+	}
+	return r, id
+}
+
+func TestDownloadCancelledGoesBackInTheQueue(t *testing.T) {
+	t.Parallel()
+	r, _ := cancelMidDownload(t, false)
+	if v := r.videos(anna)["abcdefghijk"]; v.State != StateQueued {
+		t.Fatalf("row %q, want queued for the next run", v.State)
+	}
+}
+
+func TestDownloadCancelledAfterRemoveStaysRemoved(t *testing.T) {
+	t.Parallel()
+	r, _ := cancelMidDownload(t, true)
+	if v := r.videos(anna)["abcdefghijk"]; v.State != StateRemoved {
+		t.Fatalf("row %q, want it to stay removed", v.State)
 	}
 }
