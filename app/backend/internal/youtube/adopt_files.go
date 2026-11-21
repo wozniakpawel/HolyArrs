@@ -197,7 +197,7 @@ func readSmall(file string) ([]byte, error) {
 	return io.ReadAll(io.LimitReader(f, 32<<20))
 }
 
-// parseDay reads the date at the start of s: "2016-08-01 00:00:00Z".
+// parseDay reads the YYYY-MM-DD date at the start of s, as an .nfo writes it.
 func parseDay(s string) *time.Time {
 	s = strings.TrimSpace(s)
 	if len(s) < 10 {
@@ -211,7 +211,7 @@ func parseDay(s string) *time.Time {
 }
 
 // parseName reads a title, an upload date and a video id from a file name
-// without its extension: "2023-01-02 Title [id]", "NN - Title" or "Title".
+// without its extension: "YYYY-MM-DD Title [id]", "NN - Title" or "Title".
 func parseName(stem string) (title string, day *time.Time, id string) {
 	title = stem
 	if all := reNameID.FindAllStringSubmatchIndex(title, -1); len(all) > 0 {
