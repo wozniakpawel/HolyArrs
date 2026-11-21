@@ -77,8 +77,16 @@ func IsAdoptRefusal(err error) bool {
 type adoptPlan struct {
 	root, src string
 	person    accounts.PersonAccess
-	userDir   string // the person's folder name under root
+	userDir   string   // the person's folder name under root
+	dir       *os.Root // the source folder, open; close it when done
 	sources   []adoptSource
+}
+
+// close lets go of the source folder.
+func (a adoptPlan) close() {
+	if a.dir != nil {
+		a.dir.Close()
+	}
 }
 
 // checkAdopt checks a request: a YouTube folder is set, the source is an
@@ -121,8 +129,8 @@ func (s *Service) checkAdopt(ctx context.Context, in AdoptRequest) (adoptPlan, e
 	return adoptPlan{root: root, src: src, person: p}, nil
 }
 
-// planAdopt checks a request and reads the source folder. It looks nothing
-// up and writes nothing.
+// planAdopt checks a request and reads the source folder, which it leaves
+// open for the caller to close. It looks nothing up and writes nothing.
 func (s *Service) planAdopt(ctx context.Context, in AdoptRequest) (adoptPlan, error) {
 	a, err := s.checkAdopt(ctx, in)
 	if err != nil {
@@ -131,12 +139,17 @@ func (s *Service) planAdopt(ctx context.Context, in AdoptRequest) (adoptPlan, er
 	if a.userDir, err = userDirName(a.root, in.UserID, a.person.Name); err != nil {
 		return a, pathFree(err)
 	}
-	if err := scanAdopt(a.src, "", &a.sources); err != nil {
+	if a.dir, err = os.OpenRoot(a.src); err != nil {
+		return a, pathFree(err)
+	}
+	if err := scanAdopt(a.dir, filepath.Base(a.src), &a.sources); err != nil {
+		a.close()
 		return a, pathFree(err)
 	}
 	sort.Slice(a.sources, func(i, j int) bool { return a.sources[i].item.From < a.sources[j].item.From })
 	states, err := VideoStates(ctx, s.Store.Read(), in.UserID)
 	if err != nil {
+		a.close()
 		return a, err
 	}
 	seen := map[string]bool{}
@@ -174,6 +187,7 @@ func (s *Service) PlanAdopt(ctx context.Context, in AdoptRequest) ([]AdoptItem, 
 	if err != nil {
 		return nil, err
 	}
+	a.close()
 	items := make([]AdoptItem, len(a.sources))
 	for i, src := range a.sources {
 		items[i] = src.item
@@ -238,6 +252,7 @@ func (s *Service) HandleAdopt(ctx context.Context, r *jobs.Run) error {
 	if err != nil {
 		return err
 	}
+	defer a.close()
 	userDir, err := UserDir(a.root, in.UserID, a.person.Name)
 	if err != nil {
 		return pathFree(err)
@@ -259,7 +274,7 @@ func (s *Service) HandleAdopt(ctx context.Context, r *jobs.Run) error {
 			skipped++
 			continue
 		}
-		out, err := s.adoptOne(ctx, run, a.root, userDir, in.UserID, follows[src.item.Folder], src)
+		out, err := s.adoptOne(ctx, run, a.dir, a.root, userDir, in.UserID, follows[src.item.Folder], src)
 		if ctx.Err() != nil {
 			return ctx.Err()
 		}
@@ -337,7 +352,7 @@ const (
 // after its playlist when one was given, else its channel, else the folder
 // it came from. Anything copied is deleted again when the row cannot be
 // written.
-func (s *Service) adoptOne(ctx context.Context, run Runner, root, userDir string, userID int64, f *Follow, src adoptSource) (string, error) {
+func (s *Service) adoptOne(ctx context.Context, run Runner, dir *os.Root, root, userDir string, userID int64, f *Follow, src adoptSource) (string, error) {
 	meta, out := src.meta, adoptCopied
 	if info, err := run.Info(ctx, src.item.VideoID); err == nil && info.Title != "" {
 		meta = mergeMeta(info.Meta, src.meta)
@@ -345,9 +360,6 @@ func (s *Service) adoptOne(ctx context.Context, run Runner, root, userDir string
 		return "", ctx.Err()
 	} else {
 		out = adoptGone
-	}
-	if meta.DurationSeconds == 0 {
-		meta.DurationSeconds = videoSeconds(ctx, run.Tools.FFmpeg, src.file)
 	}
 	folder := ""
 	if f != nil {
@@ -362,10 +374,14 @@ func (s *Service) adoptOne(ctx context.Context, run Runner, root, userDir string
 			return "", errors.New("not enough free space in the YouTube folder")
 		}
 	}
-	if err := copyFile(ctx, src.file, file); err != nil {
+	if err := copyFile(ctx, dir, src.name, file); err != nil {
 		return "", err
 	}
-	copies := append([]string{file}, adoptExtras(ctx, run.Tools.FFmpeg, src, file, meta.DurationSeconds)...)
+	// ffmpeg reads the copy, never the source by path.
+	if meta.DurationSeconds == 0 {
+		meta.DurationSeconds = videoSeconds(ctx, run.Tools.FFmpeg, file)
+	}
+	copies := append([]string{file}, adoptExtras(ctx, run.Tools.FFmpeg, dir, src, file, meta.DurationSeconds)...)
 	undo := func() {
 		for _, c := range copies {
 			os.Remove(c)

@@ -443,13 +443,20 @@ func removeFiles(root, rel string) error {
 	if !filepath.IsLocal(local) {
 		return errors.New("a video path leaves the YouTube folder")
 	}
-	file := filepath.Join(root, local)
-	files := []string{file, thumbOf(file)}
-	for _, sub := range subtitlesOf(file) {
+	dir, err := os.OpenRoot(root)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("the YouTube folder could not be opened: %w", pathFree(err))
+	}
+	defer dir.Close()
+	files := []string{rel, thumbOf(rel)}
+	for _, sub := range subtitlesOf(dir, rel) {
 		files = append(files, sub)
 	}
 	for _, f := range files {
-		if err := os.Remove(f); err != nil && !errors.Is(err, os.ErrNotExist) {
+		if err := dir.Remove(f); err != nil && !errors.Is(err, os.ErrNotExist) {
 			// The path holds the title: keep it out of errors and logs.
 			var pe *os.PathError
 			if errors.As(err, &pe) {

@@ -83,9 +83,10 @@ func fakeFFmpeg(t *testing.T) (bin, log string) {
 	dir := t.TempDir()
 	bin, log = filepath.Join(dir, "ffmpeg"), filepath.Join(dir, "ffmpeg.log")
 	script := fmt.Sprintf(`#!/bin/sh
-echo "$*" >> %q
-out=""; frame=0
-for a in "$@"; do out="$a"; [ "$a" = "-frames:v" ] && frame=1; done
+echo "$*" >> %[1]q
+out=""; frame=0; pipe=0
+for a in "$@"; do out="$a"; [ "$a" = "-frames:v" ] && frame=1; [ "$a" = pipe:0 ] && pipe=1; done
+if [ $pipe = 1 ]; then printf 'stdin: %%s\n' "$(cat)" >> %[1]q; fi
 if [ $frame = 1 ]; then printf 'jpeg from ffmpeg' > "$out"; exit 0; fi
 echo "  Duration: 00:01:40.00, start: 0.000000, bitrate: 23 kb/s" >&2
 exit 1
@@ -285,9 +286,10 @@ func TestAdoptCopiesNeverMoves(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// The frame is taken at 10 % of the 61 s yt-dlp gave.
-	if !strings.Contains(string(ff), "-ss 6.10 -i "+filepath.Join(src, "Options Spreads Tutorials", pf2Name+".mp4")) ||
-		!strings.Contains(string(ff), "-i "+filepath.Join(src, "Science", "2023-01-02 Title [abcdefghijk].webp")) {
+	// The frame is taken at 10 % of the 61 s yt-dlp gave, from the copy;
+	// the .webp reaches ffmpeg on stdin. ffmpeg never opens the source.
+	if !strings.Contains(string(ff), "-ss 6.10 -i "+filepath.Join(r.root, filepath.FromSlash(condor)+".mp4")) ||
+		!strings.Contains(string(ff), "-i pipe:0") || !strings.Contains(string(ff), "stdin: webp thumb") || strings.Contains(string(ff), src) {
 		t.Fatalf("ffmpeg runs:\n%s", ff)
 	}
 
@@ -418,9 +420,18 @@ func TestAdoptThumbsWithRealFFmpeg(t *testing.T) {
 	if n := videoSeconds(ctx, ff, video); n != 5 {
 		t.Fatalf("length %d", n)
 	}
-	for name, input := range map[string][]string{"frame.jpg": {"-ss", "0.50", "-i", video}, "png.jpg": {"-i", png}} {
+	in, err := os.Open(png)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer in.Close()
+	for name, input := range map[string][]string{"frame.jpg": {"-ss", "0.50", "-i", video}, "png.jpg": {"-i", "pipe:0"}} {
 		dst := filepath.Join(dir, name)
-		if err := ffmpegJPEG(ctx, ff, dst, input...); err != nil {
+		var stdin *os.File
+		if name == "png.jpg" {
+			stdin = in
+		}
+		if err := ffmpegJPEG(ctx, ff, dst, stdin, input...); err != nil {
 			t.Fatal(err)
 		}
 		b, err := os.ReadFile(dst)

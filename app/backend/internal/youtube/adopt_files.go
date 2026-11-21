@@ -6,6 +6,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"io"
+	"io/fs"
 	"math"
 	"os"
 	"os/exec"
@@ -39,7 +40,7 @@ const ffmpegTimeout = 2 * time.Minute
 // adoptSource is one video file found and what its files say about it.
 type adoptSource struct {
 	item AdoptItem
-	file string // full path
+	name string // slash path under the source folder
 	size int64
 	meta Meta
 }
@@ -53,57 +54,61 @@ func (a adoptSource) target(m Meta, folder string) string {
 	if folder == "" {
 		folder = a.item.Folder
 	}
-	return SafeName(folder, NameBytes) + "/" + VideoBase(m.UploadedAt, m.Title, a.item.VideoID) + filepath.Ext(a.file)
+	return SafeName(folder, NameBytes) + "/" + VideoBase(m.UploadedAt, m.Title, a.item.VideoID) + path.Ext(a.name)
 }
 
-// scanAdopt adds every video file under dir, rel being dir under the
-// source folder. Hidden entries and symlinks are left alone.
-func scanAdopt(dir, rel string, out *[]adoptSource) error {
-	entries, err := os.ReadDir(dir)
-	if err != nil {
-		return err
-	}
-	for _, e := range entries {
-		name := e.Name()
-		if strings.HasPrefix(name, ".") {
-			continue
+// scanAdopt adds every video file under the source folder, read through
+// dir, which resolves every name inside the folder: no symlink or swapped
+// folder leads outside it. top names the folder itself. Hidden entries and
+// symlinks are left alone.
+func scanAdopt(dir *os.Root, top string, out *[]adoptSource) error {
+	return fs.WalkDir(dir.FS(), ".", func(name string, e fs.DirEntry, err error) error {
+		if err != nil {
+			return err
 		}
-		full := filepath.Join(dir, name)
-		switch {
-		case e.IsDir():
-			if err := scanAdopt(full, path.Join(rel, name), out); err != nil {
-				return err
-			}
-		case e.Type().IsRegular() && videoExts[strings.ToLower(filepath.Ext(name))]:
-			src, err := readSource(full)
-			if errors.Is(err, errNotPlain) {
-				continue
-			}
-			if err != nil {
-				return err
-			}
-			src.item.From, src.item.Folder = path.Join(rel, name), filepath.Base(dir)
-			*out = append(*out, src)
+		if name == "." {
+			return nil
 		}
-	}
-	return nil
+		if strings.HasPrefix(e.Name(), ".") {
+			if e.IsDir() {
+				return fs.SkipDir
+			}
+			return nil
+		}
+		if !e.Type().IsRegular() || !videoExts[strings.ToLower(path.Ext(name))] {
+			return nil
+		}
+		src, err := readSource(dir, name)
+		if errors.Is(err, errNotPlain) {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		src.item.From, src.item.Folder = name, top
+		if d := path.Dir(name); d != "." {
+			src.item.Folder = path.Base(d)
+		}
+		*out = append(*out, src)
+		return nil
+	})
 }
 
 // readSource reads what a video's files say: its .nfo (Pinchflat, Kodi),
 // then its .info.json (yt-dlp), then its name; the file's time is the
 // upload date of last resort.
-func readSource(file string) (adoptSource, error) {
-	st, err := os.Lstat(file)
+func readSource(dir *os.Root, name string) (adoptSource, error) {
+	st, err := dir.Lstat(name)
 	if err != nil {
 		return adoptSource{}, err
 	}
 	if !st.Mode().IsRegular() {
 		return adoptSource{}, errNotPlain
 	}
-	stem := strings.TrimSuffix(file, filepath.Ext(file))
-	src := adoptSource{file: file, size: st.Size()}
+	stem := strings.TrimSuffix(name, path.Ext(name))
+	src := adoptSource{name: name, size: st.Size()}
 	m := &src.meta
-	if n, ok := readNFO(stem + ".nfo"); ok {
+	if n, ok := readNFO(dir, stem+".nfo"); ok {
 		src.item.VideoID = n.youtubeID()
 		m.Title, m.ChannelName = strings.TrimSpace(n.Title), strings.TrimSpace(n.ShowTitle)
 		m.UploadedAt = parseDay(n.Aired)
@@ -111,7 +116,7 @@ func readSource(file string) (adoptSource, error) {
 			m.UploadedAt = parseDay(n.Premiered)
 		}
 	}
-	if raw, ok := readInfoJSON(stem + ".info.json"); ok {
+	if raw, ok := readInfoJSON(dir, stem+".info.json"); ok {
 		if src.item.VideoID == "" && reVideoID.MatchString(raw.ID) {
 			src.item.VideoID = raw.ID
 		}
@@ -123,7 +128,7 @@ func readSource(file string) (adoptSource, error) {
 		}
 		m.DurationSeconds = seconds(raw.Duration)
 	}
-	title, day, id := parseName(filepath.Base(stem))
+	title, day, id := parseName(path.Base(stem))
 	if src.item.VideoID == "" {
 		src.item.VideoID = id
 	}
@@ -167,8 +172,8 @@ func (n nfoDoc) youtubeID() string {
 }
 
 // readNFO reads an .nfo; false when there is none or it is not XML.
-func readNFO(file string) (nfoDoc, bool) {
-	b, err := readSmall(file)
+func readNFO(dir *os.Root, name string) (nfoDoc, bool) {
+	b, err := readSmall(dir, name)
 	if err != nil {
 		return nfoDoc{}, false
 	}
@@ -178,8 +183,8 @@ func readNFO(file string) (nfoDoc, bool) {
 
 // readInfoJSON reads a yt-dlp .info.json; false when there is none or it
 // is not JSON.
-func readInfoJSON(file string) (rawInfo, bool) {
-	b, err := readSmall(file)
+func readInfoJSON(dir *os.Root, name string) (rawInfo, bool) {
+	b, err := readSmall(dir, name)
 	if err != nil {
 		return rawInfo{}, false
 	}
@@ -188,8 +193,8 @@ func readInfoJSON(file string) (rawInfo, bool) {
 }
 
 // readSmall reads a side file of up to 32 MiB.
-func readSmall(file string) ([]byte, error) {
-	f, _, err := openPlain(file)
+func readSmall(dir *os.Root, name string) ([]byte, error) {
+	f, _, err := openPlain(dir, name)
 	if err != nil {
 		return nil, err
 	}
@@ -230,10 +235,11 @@ func parseName(stem string) (title string, day *time.Time, id string) {
 	return title, day, id
 }
 
-// copyFile copies from to to through "<to>.partial", checking the size
-// before the rename. Errors carry no path: paths hold titles.
-func copyFile(ctx context.Context, from, to string) error {
-	in, st, err := openPlain(from)
+// copyFile copies from, in the source folder, to to through
+// "<to>.partial", checking the size before the rename. Errors carry no
+// path: paths hold titles.
+func copyFile(ctx context.Context, dir *os.Root, from, to string) error {
+	in, st, err := openPlain(dir, from)
 	if err != nil {
 		return pathFree(err)
 	}
@@ -279,63 +285,72 @@ func (c ctxReader) Read(p []byte) (int, error) {
 // adoptExtras gives an adopted video file its thumbnail and subtitles and
 // returns the files made. The thumbnail is the source's .jpg or -thumb.jpg,
 // else its .webp or .png turned into a .jpg, else a frame at 10 % of the
-// video. Subtitles "<name>.<lang>.srt" keep their language. Neither is
+// copy. Subtitles "<name>.<lang>.srt" keep their language. Neither is
 // needed: a failure leaves it out.
-func adoptExtras(ctx context.Context, ffmpeg string, src adoptSource, file string, duration int) []string {
+func adoptExtras(ctx context.Context, ffmpeg string, dir *os.Root, src adoptSource, file string, duration int) []string {
 	var made []string
-	if thumb := thumbOf(file); adoptThumb(ctx, ffmpeg, src, thumb, duration) == nil {
+	if thumb := thumbOf(file); adoptThumb(ctx, ffmpeg, dir, src, file, thumb, duration) == nil {
 		made = append(made, thumb)
 	}
 	stem := strings.TrimSuffix(file, filepath.Ext(file))
-	for lang, sub := range subtitlesOf(src.file) {
+	for lang, sub := range subtitlesOf(dir, src.name) {
 		to := stem + "." + lang + ".srt"
-		if copyFile(ctx, sub, to) == nil {
+		if copyFile(ctx, dir, sub, to) == nil {
 			made = append(made, to)
 		}
 	}
 	return made
 }
 
-func adoptThumb(ctx context.Context, ffmpeg string, src adoptSource, dst string, duration int) error {
-	stem := strings.TrimSuffix(src.file, filepath.Ext(src.file))
+// adoptThumb makes dst for the copy file of src. ffmpeg never opens a
+// source file by path: a still image reaches it on stdin and the frame
+// comes from the copy HolyArrs just wrote.
+func adoptThumb(ctx context.Context, ffmpeg string, dir *os.Root, src adoptSource, file, dst string, duration int) error {
+	stem := strings.TrimSuffix(src.name, path.Ext(src.name))
 	for _, c := range []string{".jpg", "-thumb.jpg", ".jpeg", "-thumb.jpeg"} {
-		if regular(stem + c) {
-			return copyFile(ctx, stem+c, dst)
+		if regular(dir, stem+c) {
+			return copyFile(ctx, dir, stem+c, dst)
 		}
 	}
 	if ffmpeg == "" {
 		return errors.New("no ffmpeg")
 	}
 	for _, c := range []string{".webp", "-thumb.webp", ".png", "-thumb.png"} {
-		if regular(stem + c) {
-			return ffmpegJPEG(ctx, ffmpeg, dst, "-i", stem+c)
+		if !regular(dir, stem+c) {
+			continue
 		}
+		f, _, err := openPlain(dir, stem+c)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		return ffmpegJPEG(ctx, ffmpeg, dst, f, "-i", "pipe:0")
 	}
 	at := strconv.FormatFloat(float64(duration)/10, 'f', 2, 64)
-	return ffmpegJPEG(ctx, ffmpeg, dst, "-ss", at, "-i", src.file)
+	return ffmpegJPEG(ctx, ffmpeg, dst, nil, "-ss", at, "-i", file)
 }
 
-// regular reports whether file is a plain file: a symlink is not, so
-// nothing outside the source folder is read through one.
-func regular(file string) bool {
-	st, err := os.Lstat(file)
+// regular reports whether name in the source folder is a plain file: a
+// symlink is not, so nothing outside the folder is read through one.
+func regular(dir *os.Root, name string) bool {
+	st, err := dir.Lstat(name)
 	return err == nil && st.Mode().IsRegular()
 }
 
 // errNotPlain refuses a source file that is a symlink or not a file.
 var errNotPlain = errors.New("not a plain file")
 
-// openPlain opens a source file only when it is a plain file and not a
-// symlink, and checks that what was opened is what was looked at.
-func openPlain(file string) (*os.File, os.FileInfo, error) {
-	before, err := os.Lstat(file)
+// openPlain opens a file in the source folder only when it is a plain file
+// and not a symlink, and checks that what was opened is what was looked at.
+func openPlain(dir *os.Root, name string) (*os.File, os.FileInfo, error) {
+	before, err := dir.Lstat(name)
 	if err != nil {
 		return nil, nil, err
 	}
 	if !before.Mode().IsRegular() {
 		return nil, nil, errNotPlain
 	}
-	f, err := os.Open(file)
+	f, err := dir.Open(name)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -350,18 +365,27 @@ func openPlain(file string) (*os.File, os.FileInfo, error) {
 	return f, st, nil
 }
 
-// ffmpegJPEG writes the first frame of the input as a .jpg at dst.
-func ffmpegJPEG(ctx context.Context, ffmpeg, dst string, input ...string) error {
+// ffmpegJPEG writes the first frame of the input as a .jpg at dst. stdin,
+// when set, is what ffmpeg reads for "-i pipe:0".
+func ffmpegJPEG(ctx context.Context, ffmpeg, dst string, stdin *os.File, input ...string) error {
 	ctx, cancel := context.WithTimeout(ctx, ffmpegTimeout)
 	defer cancel()
 	tmp := dst + ".partial"
-	args := append([]string{"-nostdin", "-hide_banner", "-loglevel", "error", "-y"}, input...)
-	args = append(args, "-frames:v", "1", "-c:v", "mjpeg", "-f", "image2", "-update", "1", tmp)
-	if err := exec.CommandContext(ctx, ffmpeg, args...).Run(); err != nil {
+	args := []string{"-hide_banner", "-loglevel", "error", "-y"}
+	if stdin == nil {
+		args = append([]string{"-nostdin"}, args...)
+	}
+	args = append(append(args, input...), "-frames:v", "1", "-c:v", "mjpeg", "-f", "image2", "-update", "1", tmp)
+	cmd := exec.CommandContext(ctx, ffmpeg, args...)
+	if stdin != nil {
+		cmd.Stdin = stdin
+	}
+	if err := cmd.Run(); err != nil {
 		os.Remove(tmp)
 		return err
 	}
-	if !regular(tmp) {
+	if st, err := os.Lstat(tmp); err != nil || !st.Mode().IsRegular() {
+		os.Remove(tmp)
 		return errors.New("ffmpeg made no thumbnail")
 	}
 	return os.Rename(tmp, dst)
@@ -386,12 +410,12 @@ func videoSeconds(ctx context.Context, ffmpeg, file string) int {
 	return int(math.Round(float64(h*3600+mins*60) + sec))
 }
 
-// subtitlesOf finds the subtitles next to a video file, "<name>.<lang>.srt",
-// by language.
-func subtitlesOf(file string) map[string]string {
-	dir, base := filepath.Split(file)
-	stem := strings.TrimSuffix(base, filepath.Ext(base)) + "."
-	entries, err := os.ReadDir(dir)
+// subtitlesOf finds the subtitles next to a video file in the source
+// folder, "<name>.<lang>.srt", by language.
+func subtitlesOf(dir *os.Root, name string) map[string]string {
+	folder, base := path.Split(name)
+	stem := strings.TrimSuffix(base, path.Ext(base)) + "."
+	entries, err := fs.ReadDir(dir.FS(), path.Clean(or(folder, ".")))
 	if err != nil {
 		return nil
 	}
@@ -402,7 +426,7 @@ func subtitlesOf(file string) map[string]string {
 			continue
 		}
 		if lang := strings.TrimSuffix(name[len(stem):], ".srt"); reSubLang.MatchString(lang) {
-			out[lang] = filepath.Join(dir, name)
+			out[lang] = path.Join(folder, name)
 		}
 	}
 	return out
