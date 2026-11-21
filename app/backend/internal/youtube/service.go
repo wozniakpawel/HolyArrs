@@ -141,11 +141,24 @@ var (
 	ErrQuality    = errors.New("the quality cap must be between 144 and 4320")
 	ErrMirrorKind = errors.New("only a playlist can be mirrored")
 	ErrMirrorKeep = errors.New("a mirrored playlist keeps every video in it; turn mirroring off to keep only the newest")
+	ErrMirrorList = errors.New("a mix or one of YouTube's own lists (Watch later, Liked videos, Uploads) cannot be mirrored; it changes on its own or cannot be listed in full")
 )
+
+// unmirrorable reports whether a playlist id names a list that must never
+// be mirrored: mixes (RD), uploads (UL), liked videos (LL) and watch later
+// (WL). They change by themselves or are not listed in full.
+func unmirrorable(playlistID string) bool {
+	for _, p := range []string{"RD", "UL", "LL", "WL"} {
+		if strings.HasPrefix(playlistID, p) {
+			return true
+		}
+	}
+	return false
+}
 
 // IsRefusal reports whether err is a refused request rather than a fault.
 func IsRefusal(err error) bool {
-	for _, e := range []error{ErrNotYouTube, ErrNotAired, ErrNotAVideo, ErrNotAFollow, ErrBackfill, ErrKeepLast, ErrQuality, ErrMirrorKind, ErrMirrorKeep} {
+	for _, e := range []error{ErrNotYouTube, ErrNotAired, ErrNotAVideo, ErrNotAFollow, ErrBackfill, ErrKeepLast, ErrQuality, ErrMirrorKind, ErrMirrorKeep, ErrMirrorList} {
 		if errors.Is(err, e) {
 			return true
 		}
@@ -249,18 +262,36 @@ func (s *Service) AddVideo(ctx context.Context, userID int64, raw string, height
 		return Video{}, err
 	}
 	if v.State == StateQueued {
-		s.queueDownload(ctx, userID, v.ID)
+		s.queueDownloadNow(ctx, userID, v.ID)
 	}
 	return v, nil
 }
 
-// queueDownload queues a video's download. A video left queued without a
-// job is picked up by the next check, so a failure here is only logged.
-func (s *Service) queueDownload(ctx context.Context, userID, rowID int64) {
-	_, _, err := s.Queue.Enqueue(ctx, KindDownload, nil, map[string]any{"row_id": rowID},
+// queueDownload queues a video's download and reports whether that made a
+// new job: false when one for the video was already waiting or running. A
+// video left queued without a job is picked up by the next check, so a
+// failure here is only logged.
+func (s *Service) queueDownload(ctx context.Context, userID, rowID int64) bool {
+	_, created, err := s.Queue.Enqueue(ctx, KindDownload, nil, map[string]any{"row_id": rowID},
 		fmt.Sprintf("youtube:%d:%d", userID, rowID), database.Actor{Kind: "user", ID: userID})
 	if err != nil {
 		log.Printf("youtube: video %d: download not queued: %v", rowID, err)
+	}
+	return created
+}
+
+// queueDownloadNow is queueDownload for a video the person just put in the
+// queue. When a job for the video is already live, that job may be about
+// to end without looking at the video again, so a second job is queued
+// behind it: it takes the video only if the first left it queued.
+func (s *Service) queueDownloadNow(ctx context.Context, userID, rowID int64) {
+	if s.queueDownload(ctx, userID, rowID) {
+		return
+	}
+	_, _, err := s.Queue.Enqueue(ctx, KindDownload, nil, map[string]any{"row_id": rowID, "after": true},
+		fmt.Sprintf("youtube:%d:%d:after", userID, rowID), database.Actor{Kind: "user", ID: userID})
+	if err != nil {
+		log.Printf("youtube: video %d: second download not queued: %v", rowID, err)
 	}
 }
 
@@ -289,6 +320,9 @@ func (s *Service) AddFollow(ctx context.Context, userID int64, in AddFollow) (Fo
 	}
 	if in.Mirror && in.KeepLast != nil {
 		return Follow{}, ErrMirrorKeep
+	}
+	if in.Mirror && unmirrorable(l.ID) {
+		return Follow{}, ErrMirrorList
 	}
 	p, err := s.probe(ctx, l)
 	if err != nil {
@@ -382,6 +416,15 @@ func (s *Service) UpdateFollow(ctx context.Context, userID, id int64, c FollowCh
 		if mirror && old.Kind != KindPlaylist {
 			return ErrMirrorKind
 		}
+		if mirror && unmirrorable(old.YTID) {
+			return ErrMirrorList
+		}
+		// Marks of videos seen missing never carry over a switch.
+		if mirror != old.Mirror {
+			if err := ClearMissing(tx, userID, id); err != nil {
+				return err
+			}
+		}
 		if mirror && ch.KeepLast != nil && *ch.KeepLast != nil {
 			return ErrMirrorKeep
 		}
@@ -401,52 +444,68 @@ func (s *Service) UpdateFollow(ctx context.Context, userID, id int64, c FollowCh
 }
 
 // Unfollow stops following. With deleteFiles the videos only this follow
-// keeps go too, files and thumbnails first, then their rows; a video that
-// is manual or that another follow holds stays. Without it every video the
-// follow holds stays and becomes manual, so no other follow deletes it
-// later. sql.ErrNoRows when the follow is not theirs.
+// keeps go too, rows first and then their files and thumbnails; a video
+// that is manual or that another follow holds stays. Without it every
+// video the follow holds stays and becomes manual, so no other follow
+// deletes it later. Which videos go, and where their files are, is read in
+// the same write that removes them. sql.ErrNoRows when the follow is not
+// theirs.
 func (s *Service) Unfollow(ctx context.Context, userID, id int64, deleteFiles bool) error {
-	if _, err := FollowOf(ctx, s.Store.Read(), userID, id); err != nil {
-		return err
-	}
-	if deleteFiles {
-		videos, err := OnlyOfFollow(ctx, s.Store.Read(), userID, id)
+	var files []string
+	err := s.Store.Write(ctx, func(tx *sql.Tx) error {
+		files = nil
+		if _, err := FollowOf(ctx, tx, userID, id); err != nil {
+			return err
+		}
+		if !deleteFiles {
+			if err := KeepVideosOfFollow(tx, userID, id); err != nil {
+				return err
+			}
+			return DeleteFollow(tx, userID, id)
+		}
+		videos, err := OnlyOfFollow(ctx, tx, userID, id)
 		if err != nil {
 			return err
 		}
-		root := LoadSettings(ctx, s.Store.Read()).Folder
 		for _, v := range videos {
-			if err := removeFiles(root, v.RelativePath); err != nil {
-				return err
-			}
+			files = append(files, v.RelativePath)
 		}
-	}
-	return s.Store.Write(ctx, func(tx *sql.Tx) error {
-		var err error
-		if deleteFiles {
-			err = DeleteOnlyOfFollow(tx, userID, id)
-		} else {
-			err = KeepVideosOfFollow(tx, userID, id)
-		}
-		if err != nil {
+		if err := DeleteOnlyOfFollow(tx, userID, id); err != nil {
 			return err
 		}
 		return DeleteFollow(tx, userID, id)
 	})
-}
-
-// RemoveVideo deletes one of a person's videos and its thumbnail; the row
-// stays as removed so a check never brings it back. sql.ErrNoRows when it
-// is not theirs.
-func (s *Service) RemoveVideo(ctx context.Context, userID, id int64) error {
-	v, err := VideoOf(ctx, s.Store.Read(), userID, id)
 	if err != nil {
 		return err
 	}
-	if err := removeFiles(LoadSettings(ctx, s.Store.Read()).Folder, v.RelativePath); err != nil {
+	root := LoadSettings(ctx, s.Store.Read()).Folder
+	var first error
+	for _, rel := range files {
+		if err := removeFiles(root, rel); err != nil && first == nil {
+			first = err
+		}
+	}
+	return first
+}
+
+// RemoveVideo deletes one of a person's videos and its thumbnail; the row
+// stays as removed so a check never brings it back. The row is marked
+// first, in the write that reads where its file is, so a download ending
+// just then leaves no file behind. sql.ErrNoRows when it is not theirs.
+func (s *Service) RemoveVideo(ctx context.Context, userID, id int64) error {
+	var rel string
+	err := s.Store.Write(ctx, func(tx *sql.Tx) error {
+		v, err := VideoOf(ctx, tx, userID, id)
+		if err != nil {
+			return err
+		}
+		rel = v.RelativePath
+		return MarkRemoved(tx, userID, id)
+	})
+	if err != nil {
 		return err
 	}
-	return s.Store.Write(ctx, func(tx *sql.Tx) error { return MarkRemoved(tx, userID, id) })
+	return removeFiles(LoadSettings(ctx, s.Store.Read()).Folder, rel)
 }
 
 // ErrNotFailed refuses a retry of a video that has not failed.
@@ -476,7 +535,7 @@ func (s *Service) RetryVideo(ctx context.Context, userID, id int64) (Video, erro
 	if err != nil {
 		return Video{}, err
 	}
-	s.queueDownload(ctx, userID, v.ID)
+	s.queueDownloadNow(ctx, userID, v.ID)
 	return v, nil
 }
 

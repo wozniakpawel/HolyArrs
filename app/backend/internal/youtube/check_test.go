@@ -107,8 +107,10 @@ func newRig(t *testing.T, mode string) *rig {
 	// The wrapper points the fake at this rig's JSON, answers a video lookup
 	// from info-<id>.json when there is one, fails anything about a video
 	// with a gone-<id> file, fails -U when update-fails exists and every
-	// listing when list-fails exists. While hold-info exists a video lookup
-	// writes info-started and waits.
+	// listing when list-fails exists; while list-warns exists a listing
+	// ends well but with a warning, as yt-dlp does when a page of it
+	// failed. While hold-info exists a video lookup writes info-started
+	// and waits.
 	wrap := filepath.Join(r.fake.Dir, "yt-dlp-wrap")
 	script := fmt.Sprintf(`#!/bin/sh
 DATA=%[1]q
@@ -123,6 +125,9 @@ case "$last" in
 	if [ -e "$DATA/list-fails" ]; then
 		printf '%%s\n' "$@" '=end=' >> %[3]q
 		echo "ERROR: [youtube:tab] listing broke" >&2; exit 1
+	fi
+	if [ -e "$DATA/list-warns" ]; then
+		echo "WARNING: [youtube:tab] Incomplete data received. Giving up after 3 retries" >&2
 	fi ;;
 *"watch?v="*)
 	id="${last##*watch?v=}"

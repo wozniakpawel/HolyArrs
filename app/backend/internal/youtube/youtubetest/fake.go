@@ -27,6 +27,7 @@ const endOfCall = "=end="
 //	gone       video lookups fail with "Video unavailable"
 //	live       video lookups say the video is an upcoming live stream
 //	nostreams  the channel has no streams tab
+//	warn       a playlist lists with a warning, as when a page of it failed
 //
 // The JSON comes from the testdata folder next to this package, or from the
 // folder in FAKE_YTDLP_DATA when that is set. A watch URL for dQw4w9WgXcQ
@@ -149,7 +150,9 @@ case "$url" in
 		sed -e "s/@ID@/$id/g" "$DATA/info.json"
 	fi
 	exit 0 ;;
-*"playlist?list="*) cat "$DATA/playlist.json" ;;
+*"playlist?list="*)
+	if [ "$MODE" = warn ]; then echo "WARNING: [youtube:tab] Incomplete data received. Giving up after 3 retries" >&2; fi
+	cat "$DATA/playlist.json" ;;
 */videos) cat "$DATA/channel_videos.json" ;;
 */streams)
 	if [ "$MODE" = nostreams ]; then

@@ -135,9 +135,11 @@ func (r Runner) Probe(ctx context.Context, l Link) (Probe, error) {
 }
 
 // Listing is what a playlist or channel holds now. Complete is set only for
-// a playlist whose listing has at least as many entries as YouTube says the
-// playlist has, and at least one: yt-dlp ends well on a listing cut short,
-// so only a complete one may say that a video left the playlist.
+// a playlist that yt-dlp listed without a single warning, with at least one
+// entry and at least as many as the count it gives. yt-dlp ends well on a
+// listing cut short, with only a warning, and the count it gives is then
+// just the entries it got; so Complete is a hint, and what it says left the
+// playlist must be seen gone twice before anything is deleted.
 type Listing struct {
 	Entries  []Entry
 	Complete bool
@@ -188,14 +190,30 @@ func (r Runner) Listing(ctx context.Context, l Link, includeShorts bool) (Listin
 	return Listing{Entries: all}, nil
 }
 
+// listTab lists one playlist or channel tab. It runs yt-dlp with warnings
+// on: a page of the listing that failed is only a warning. The warning
+// text is never kept, it may name videos.
 func (r Runner) listTab(ctx context.Context, target string, shorts bool) (Listing, error) {
-	args := []string{"-J", "--flat-playlist", "--extractor-args", "youtubetab:approximate_date"}
-	var raw rawInfo
-	if err := r.runJSON(ctx, 0, args, target, &raw); err != nil {
+	args := append(r.baseArgs(true), "-J", "--flat-playlist", "--extractor-args", "youtubetab:approximate_date", "--", target)
+	var out strings.Builder
+	warned := false
+	err := r.runArgs(ctx, 0, 0, args, func(line string, stderr bool) {
+		if !stderr {
+			out.WriteString(line)
+			out.WriteByte('\n')
+		} else if strings.HasPrefix(strings.TrimSpace(line), "WARNING:") {
+			warned = true
+		}
+	})
+	if err != nil {
 		return Listing{}, err
 	}
+	var raw rawInfo
+	if err := json.Unmarshal([]byte(out.String()), &raw); err != nil {
+		return Listing{}, fmt.Errorf("yt-dlp printed something unexpected: %w", err)
+	}
 	n := len(raw.Entries)
-	return Listing{Entries: toEntries(raw.Entries, shorts), Complete: raw.PlaylistCount != nil && n > 0 && n >= *raw.PlaylistCount}, nil
+	return Listing{Entries: toEntries(raw.Entries, shorts), Complete: !warned && raw.PlaylistCount != nil && n > 0 && n >= *raw.PlaylistCount}, nil
 }
 
 // Info looks one video up.
@@ -286,8 +304,13 @@ func (r Runner) runJSON(ctx context.Context, timeout time.Duration, args []strin
 	return nil
 }
 
-func (r Runner) baseArgs() []string {
+// baseArgs are the arguments every run starts with. Warnings are off but
+// for a listing, which has to hear them.
+func (r Runner) baseArgs(warnings bool) []string {
 	args := []string{"--ignore-config", "--no-warnings", "--newline"}
+	if warnings {
+		args = []string{"--ignore-config", "--newline"}
+	}
 	if r.Tools.FFmpeg != "" {
 		args = append(args, "--ffmpeg-location", r.Tools.FFmpeg)
 	}
@@ -304,6 +327,11 @@ type outLine struct {
 // zero stops it when no line arrives for that long. A failed run returns
 // yt-dlp's last ERROR line, or its last line on stderr.
 func (r Runner) run(ctx context.Context, timeout, stall time.Duration, args []string, onLine func(line string, stderr bool)) error {
+	return r.runArgs(ctx, timeout, stall, append(r.baseArgs(false), args...), onLine)
+}
+
+// runArgs is run with every argument given, the common ones included.
+func (r Runner) runArgs(ctx context.Context, timeout, stall time.Duration, args []string, onLine func(line string, stderr bool)) error {
 	if r.Tools.YTDLP == "" {
 		return ErrNoYTDLP
 	}
@@ -316,7 +344,7 @@ func (r Runner) run(ctx context.Context, timeout, stall time.Duration, args []st
 	runCtx, stop := context.WithCancel(ctx)
 	defer stop()
 
-	cmd := exec.CommandContext(runCtx, r.Tools.YTDLP, append(r.baseArgs(), args...)...)
+	cmd := exec.CommandContext(runCtx, r.Tools.YTDLP, args...)
 	startOwnGroup(cmd)
 	cmd.Cancel = func() error { return killGroup(cmd) }
 	cmd.WaitDelay = 5 * time.Second

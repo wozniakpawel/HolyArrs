@@ -63,16 +63,6 @@ func KeepVideosOfFollow(tx *sql.Tx, userID, followID int64) error {
 	return err
 }
 
-// Held reports whether one of a person's videos is manual or held by a
-// follow other than butFollow.
-func Held(ctx context.Context, q database.Querier, userID, rowID, butFollow int64) (bool, error) {
-	var held bool
-	err := q.QueryRowContext(ctx, `SELECT manual = 1 OR EXISTS (SELECT 1 FROM youtube_video_follows l
-		WHERE l.video_row_id = youtube_videos.id AND l.let_go = 0 AND l.follow_id != ?)
-		FROM youtube_videos WHERE id = ? AND user_id = ?`, butFollow, rowID, userID).Scan(&held)
-	return held, err
-}
-
 // DeleteVideoIfUnheld deletes one of a person's video rows when it is not
 // manual and no follow holds it, and reports whether it did.
 func DeleteVideoIfUnheld(tx *sql.Tx, userID, rowID int64) (bool, error) {
@@ -97,26 +87,57 @@ func touched(res sql.Result, err error) (bool, error) {
 	return n > 0, err
 }
 
+// FollowLink is what a follow has to do with a video: Holds until the follow let
+// it go, Missing once a complete listing of a mirrored playlist did not
+// have it.
+type FollowLink struct {
+	Holds, Missing bool
+}
+
 // FollowLinks is what one of a person's follows has to do with their
-// videos, by video row id: true while it holds the video, false once it
-// let it go.
-func FollowLinks(ctx context.Context, q database.Lister, userID, followID int64) (map[int64]bool, error) {
-	rows, err := q.QueryContext(ctx, `SELECT l.video_row_id, l.let_go FROM youtube_video_follows l
+// videos, by video row id.
+func FollowLinks(ctx context.Context, q database.Lister, userID, followID int64) (map[int64]FollowLink, error) {
+	rows, err := q.QueryContext(ctx, `SELECT l.video_row_id, l.let_go, l.missing FROM youtube_video_follows l
 		JOIN youtube_videos v ON v.id = l.video_row_id WHERE v.user_id = ? AND l.follow_id = ?`, userID, followID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	out := map[int64]bool{}
+	out := map[int64]FollowLink{}
 	for rows.Next() {
 		var id int64
-		var letGo bool
-		if err := rows.Scan(&id, &letGo); err != nil {
+		var letGo, missing bool
+		if err := rows.Scan(&id, &letGo, &missing); err != nil {
 			return nil, err
 		}
-		out[id] = !letGo
+		out[id] = FollowLink{Holds: !letGo, Missing: missing}
 	}
 	return out, rows.Err()
+}
+
+// MarkMissing records whether the last complete listing of one of a
+// person's mirrored playlists lacked one of their videos.
+func MarkMissing(tx *sql.Tx, userID, rowID, followID int64, missing bool) error {
+	_, err := tx.Exec(`UPDATE youtube_video_follows SET missing = ? WHERE video_row_id = ? AND follow_id = ?
+		AND video_row_id IN (SELECT id FROM youtube_videos WHERE user_id = ?)`, missing, rowID, followID, userID)
+	return err
+}
+
+// IsMissing reports whether one of a person's videos is still marked
+// missing from one of their follows.
+func IsMissing(ctx context.Context, q database.Querier, userID, rowID, followID int64) (bool, error) {
+	var missing bool
+	err := q.QueryRowContext(ctx, `SELECT l.missing FROM youtube_video_follows l JOIN youtube_videos v ON v.id = l.video_row_id
+		WHERE l.video_row_id = ? AND l.follow_id = ? AND v.user_id = ?`, rowID, followID, userID).Scan(&missing)
+	return missing, err
+}
+
+// ClearMissing forgets every missing mark of one of a person's follows, for
+// when mirroring is turned on or off: marks never carry over.
+func ClearMissing(tx *sql.Tx, userID, followID int64) error {
+	_, err := tx.Exec(`UPDATE youtube_video_follows SET missing = 0 WHERE missing = 1
+		AND follow_id IN (SELECT id FROM youtube_follows WHERE id = ? AND user_id = ?)`, followID, userID)
+	return err
 }
 
 // WithFollows fills FollowIDs on a person's videos: the follows that hold

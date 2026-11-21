@@ -60,6 +60,16 @@ func (s *Service) HandleDownload(ctx context.Context, r *jobs.Run) error {
 	if !ok {
 		return finalError{errors.New("the job has no video row id")}
 	}
+	// A job queued behind another job for the same video only takes a video
+	// that job left queued.
+	if after, _ := r.Job.Params["after"].(bool); after {
+		if v, err := VideoByID(ctx, s.Store.Read(), id); errors.Is(err, sql.ErrNoRows) || (err == nil && v.State != StateQueued) {
+			r.SetResult(map[string]any{"skipped": "settled"})
+			return nil
+		} else if err != nil {
+			return err
+		}
+	}
 	for round := 1; ; round++ {
 		if round > 1 {
 			r.SetResult(map[string]any{})
@@ -261,8 +271,12 @@ func (s *Service) keepLast(ctx context.Context, root string, rowID int64) error 
 			return err
 		}
 		for _, o := range old {
-			if err := s.letGo(ctx, root, o, f.ID, false); err != nil {
+			// The follow is read again each time: keep-last switched off
+			// meanwhile stops it.
+			if stopped, err := s.letGo(ctx, root, o, f.ID, false, false); err != nil {
 				return err
+			} else if stopped {
+				break
 			}
 		}
 	}

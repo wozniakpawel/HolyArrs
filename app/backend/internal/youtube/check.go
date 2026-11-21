@@ -164,6 +164,11 @@ func (s *Service) checkFollow(ctx context.Context, run Runner, f Follow) (int, e
 	queued := 0
 	err = s.Store.Write(ctx, func(tx *sql.Tx) error {
 		queued = 0
+		// Unfollowed while yt-dlp listed it: nothing is recorded, or the
+		// new rows would belong to no follow.
+		if _, err := FollowOf(ctx, tx, f.UserID, f.ID); err != nil {
+			return err
+		}
 		seen := map[string]bool{}
 		for i, e := range entries {
 			if seen[e.ID] {
@@ -171,12 +176,12 @@ func (s *Service) checkFollow(ctx context.Context, run Runner, f Follow) (int, e
 			}
 			seen[e.ID] = true
 			if k, ok := known[e.ID]; ok {
-				holds, linked := links[k.ID]
+				link, linked := links[k.ID]
 				if !linked {
 					if err := LinkVideo(tx, f.UserID, k.ID, f.ID, now); err != nil {
 						return err
 					}
-				} else if !holds && f.Mirror {
+				} else if !link.Holds && f.Mirror {
 					// A mirror takes back what keep-last let go, and
 					// fetches again what it deleted then.
 					if err := TakeBackVideo(tx, f.UserID, k.ID, f.ID); err != nil {
@@ -215,12 +220,23 @@ func (s *Service) checkFollow(ctx context.Context, run Runner, f Follow) (int, e
 				queued++
 			}
 		}
+		// Back in the listing, live or not: no longer missing.
+		for vid, k := range known {
+			if listed[vid] && links[k.ID].Missing {
+				if err := MarkMissing(tx, f.UserID, k.ID, f.ID, false); err != nil {
+					return err
+				}
+			}
+		}
 		return MarkChecked(tx, f.ID, now, "")
 	})
+	if errors.Is(err, sql.ErrNoRows) {
+		return 0, nil
+	}
 	if err != nil || !f.Mirror || f.Kind != KindPlaylist || !listing.Complete {
 		return queued, err
 	}
-	if err := s.mirror(ctx, f, listed); err != nil {
+	if err := s.mirror(ctx, f.UserID, f.ID, listed); err != nil {
 		if ctx.Err() != nil {
 			return queued, err
 		}
@@ -235,12 +251,19 @@ func (s *Service) checkFollow(ctx context.Context, run Runner, f Follow) (int, e
 	return queued, nil
 }
 
-// mirror lets a mirrored playlist go of every video it holds that is no
-// longer in the playlist. Only a complete listing gets here. A video that
-// cannot be removed does not stop the others; the first failure is
-// returned.
-func (s *Service) mirror(ctx context.Context, f Follow, listed map[string]bool) error {
-	held, err := VideosOfFollow(ctx, s.Store.Read(), f.UserID, f.ID)
+// mirror deals with the videos a mirrored playlist holds that its complete
+// listing no longer has. A listing can look complete and still be short,
+// so a video is only marked missing the first time, and let go when the
+// next complete listing lacks it too. The follow is read again before
+// every step: mirroring switched off, paused or unfollowed meanwhile stops
+// it. A video that cannot be removed does not stop the others; the first
+// failure is returned.
+func (s *Service) mirror(ctx context.Context, userID, followID int64, listed map[string]bool) error {
+	links, err := FollowLinks(ctx, s.Store.Read(), userID, followID)
+	if err != nil {
+		return err
+	}
+	held, err := VideosOfFollow(ctx, s.Store.Read(), userID, followID)
 	if err != nil {
 		return err
 	}
@@ -250,75 +273,80 @@ func (s *Service) mirror(ctx context.Context, f Follow, listed map[string]bool) 
 		if listed[v.VideoID] {
 			continue
 		}
-		if err := s.letGo(ctx, root, v, f.ID, true); err != nil {
-			if ctx.Err() != nil {
-				return err
-			}
-			if first == nil {
-				first = err
-			}
+		stopped, err := s.letGo(ctx, root, v, followID, true, !links[v.ID].Missing)
+		if stopped || ctx.Err() != nil {
+			return errors.Join(first, err)
+		}
+		if err != nil && first == nil {
+			first = err
 		}
 	}
 	return first
 }
 
-// letGo takes a video away from one of its follows. With unlink the follow
-// forgets it (a mirrored playlist it left); without, the follow marks it
-// let go (it keeps only its newest). The files go only when the video is
-// not manual and no other follow holds it: then the row goes too when
-// unlinked, and else stays as removed so no check downloads it again.
-func (s *Service) letGo(ctx context.Context, root string, v Video, followID int64, unlink bool) error {
-	held, err := Held(ctx, s.Store.Read(), v.UserID, v.ID, followID)
-	if errors.Is(err, sql.ErrNoRows) {
-		return nil
-	}
-	if err != nil {
-		return err
-	}
-	if !held {
-		if err := removeFiles(root, v.RelativePath); err != nil {
-			return err
-		}
-	}
-	var gone, again bool
+// letGo takes a video away from one of its follows, when the follow still
+// asks for that: stopped is true when it no longer does. With unlink the
+// follow is a mirrored playlist the video left; markOnly then only marks
+// it missing, and otherwise the follow forgets it. Without unlink the
+// follow keeps only its newest and marks the video let go. The files go
+// only when the video is not manual and no other follow holds it: then the
+// row goes too when unlinked, and else stays as removed so no check
+// downloads it again. The row is settled first, in one write that reads
+// the file's path as it is then; the files are deleted after.
+func (s *Service) letGo(ctx context.Context, root string, v Video, followID int64, unlink, markOnly bool) (stopped bool, err error) {
+	var gone bool
+	var rel string
 	err = s.Store.Write(ctx, func(tx *sql.Tx) error {
-		gone, again = false, false
-		var err error
-		if unlink {
-			err = UnlinkVideo(tx, v.UserID, v.ID, followID)
-		} else {
-			err = LetGoVideo(tx, v.UserID, v.ID, followID)
+		gone, rel, stopped = false, "", true
+		f, err := FollowOf(ctx, tx, v.UserID, followID)
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil
 		}
-		if err != nil || held {
+		if err != nil {
 			return err
 		}
-		if unlink {
+		if unlink && (!f.Mirror || !f.Enabled) || !unlink && (f.KeepLast == nil || f.Mirror) {
+			return nil
+		}
+		stopped = false
+		now, err := VideoOf(ctx, tx, v.UserID, v.ID)
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		switch {
+		case markOnly:
+			return MarkMissing(tx, v.UserID, v.ID, followID, true)
+		case unlink:
+			// Only a video still marked: a listing it was back in cleared it.
+			if missing, err := IsMissing(ctx, tx, v.UserID, v.ID, followID); err != nil || !missing {
+				if errors.Is(err, sql.ErrNoRows) {
+					err = nil
+				}
+				return err
+			}
+			if err := UnlinkVideo(tx, v.UserID, v.ID, followID); err != nil {
+				return err
+			}
 			gone, err = DeleteVideoIfUnheld(tx, v.UserID, v.ID)
-		} else {
+		default:
+			if err := LetGoVideo(tx, v.UserID, v.ID, followID); err != nil {
+				return err
+			}
 			gone, err = RemoveVideoIfUnheld(tx, v.UserID, v.ID)
 		}
-		if err != nil || gone || v.State != StateDone {
-			return err
-		}
-		// Something took hold of the video after its files went: fetch
-		// them again.
-		again = true
-		err = RequeueVideo(tx, v.UserID, v.ID, v.MaxHeight)
-		if errors.Is(err, sql.ErrNoRows) {
-			again, err = false, nil
+		if gone {
+			rel = now.RelativePath
 		}
 		return err
 	})
-	if err != nil {
-		return err
+	if err != nil || !gone {
+		return stopped, err
 	}
-	if gone {
-		s.publish(v.UserID, LiveVideo{ID: v.ID, State: StateRemoved})
-	}
-	if again {
-		s.queueDownload(ctx, v.UserID, v.ID)
-	}
-	return nil
+	s.publish(v.UserID, LiveVideo{ID: v.ID, State: StateRemoved})
+	return false, removeFiles(root, rel)
 }
 
 // listingError is a follow whose listing failed: kept on the follow, and

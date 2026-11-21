@@ -19,9 +19,14 @@ func playlistFollow(ytID string) Follow {
 	return Follow{Kind: KindPlaylist, YTID: ytID, URL: "https://www.youtube.com/playlist?list=" + ytID, Title: "Test playlist"}
 }
 
-// listPlaylist makes the fake's playlist hold ids, saying it has count.
+// listPlaylist makes the fake's playlist hold ids, saying it has count. A
+// count below zero is the number of ids, which is what yt-dlp says when
+// YouTube gave it no count: a listing cut short then looks whole.
 func (r *rig) listPlaylist(count int, ids ...string) {
 	r.t.Helper()
+	if count < 0 {
+		count = len(ids)
+	}
 	pl := tab{Type: "playlist", ID: "PLtestlist01", Title: "Test playlist", Count: &count, Entries: []tabEntry{}}
 	for _, id := range ids {
 		pl.Entries = append(pl.Entries, entry(id, "Video "+id, 0, ""))
@@ -171,8 +176,9 @@ func TestKeepLastSparesHeldVideos(t *testing.T) {
 }
 
 // A mirrored playlist takes every video, whatever its backfill, and deletes
-// what leaves the playlist, but only on a complete listing and only what
-// nothing else holds.
+// what leaves the playlist: only on a listing that looks complete, only
+// once two such listings in a row lack the video, and only what nothing
+// else holds.
 func TestMirrorRemovesWhatLeftThePlaylist(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, "ok")
@@ -180,7 +186,8 @@ func TestMirrorRemovesWhatLeftThePlaylist(t *testing.T) {
 	f := playlistFollow("PLtestlist01")
 	f.Mirror, f.Backfill = true, intp(1)
 	fl := r.follow(anna, f)
-	r.listPlaylist(3, "aaaaaaaaaa1", "aaaaaaaaaa2", "aaaaaaaaaa3")
+	all := []string{"aaaaaaaaaa1", "aaaaaaaaaa2", "aaaaaaaaaa3"}
+	r.listPlaylist(-1, all...)
 	r.check(fl.ID)
 	if c := countStates(r.videos(anna)); c[StateDone] != 3 || len(c) != 1 {
 		t.Fatalf("first check %v, want every video whatever the backfill", c)
@@ -191,22 +198,33 @@ func TestMirrorRemovesWhatLeftThePlaylist(t *testing.T) {
 			t.Fatalf("%s removed something: %v files %v", why, c, r.mp4s())
 		}
 	}
+	twice := func() {
+		t.Helper()
+		r.check(fl.ID)
+		r.check(fl.ID)
+	}
 
-	// YouTube says three, the listing has two: cut short, nothing goes.
-	r.listPlaylist(3, "aaaaaaaaaa1", "aaaaaaaaaa2")
+	// A page of the listing failed: yt-dlp ends well, warns, and counts
+	// only what it got. However often, nothing goes.
+	r.put("list-warns", nil)
+	r.listPlaylist(-1, all[:2]...)
+	twice()
 	r.check(fl.ID)
-	unchanged("a partial listing")
+	unchanged("a listing with a warning")
+	if err := os.Remove(filepath.Join(r.data, "list-warns")); err != nil {
+		t.Fatal(err)
+	}
+	// YouTube says three, the listing has two.
+	r.listPlaylist(3, all[:2]...)
+	twice()
+	unchanged("a listing shorter than its count")
 	// An empty listing never empties the library.
-	r.listPlaylist(0)
-	r.check(fl.ID)
+	r.listPlaylist(-1)
+	twice()
 	unchanged("an empty listing")
-	// A listing with no count says nothing about what left.
-	r.putJSON("playlist.json", tab{Type: "playlist", ID: "PLtestlist01", Title: "Test playlist", Entries: []tabEntry{entry("aaaaaaaaaa1", "First", 0, "")}})
-	r.check(fl.ID)
-	unchanged("a listing without a count")
 	// A playlist gone private or deleted fails to list.
 	r.put("list-fails", nil)
-	r.check(fl.ID)
+	twice()
 	unchanged("a failed listing")
 	if got, _ := FollowOf(ctx, r.s.Read(), anna, fl.ID); got.LastError == "" {
 		t.Fatal("the failed listing left no error on the follow")
@@ -218,15 +236,26 @@ func TestMirrorRemovesWhatLeftThePlaylist(t *testing.T) {
 	if _, err := r.svc.UpdateFollow(ctx, anna, fl.ID, FollowChange{Enabled: ptr(false)}); err != nil {
 		t.Fatal(err)
 	}
-	r.listPlaylist(1, "aaaaaaaaaa1")
-	r.check(fl.ID)
+	r.listPlaylist(-1, all[0])
+	twice()
 	unchanged("a paused follow")
 	if _, err := r.svc.UpdateFollow(ctx, anna, fl.ID, FollowChange{Enabled: ptr(true)}); err != nil {
 		t.Fatal(err)
 	}
 
-	// The third video left the playlist: file and row go.
-	r.listPlaylist(2, "aaaaaaaaaa1", "aaaaaaaaaa2")
+	// Cut short with no warning and a count to match: it looks complete.
+	// One such listing removes nothing, and the full listing after it
+	// forgets that the video was ever missing.
+	r.listPlaylist(-1, all[:2]...)
+	r.check(fl.ID)
+	unchanged("one short listing that looked complete")
+	r.listPlaylist(-1, all...)
+	r.check(fl.ID)
+	r.listPlaylist(-1, all[:2]...)
+	r.check(fl.ID)
+	unchanged("a short listing after the video was back")
+
+	// Gone from a second listing in a row: file and row go.
 	r.check(fl.ID)
 	got := r.videos(anna)
 	if _, still := got["aaaaaaaaaa3"]; still || len(got) != 2 {
@@ -248,8 +277,8 @@ func TestMirrorRemovesWhatLeftThePlaylist(t *testing.T) {
 	other := r.follow(anna, veritasium())
 	second := r.videos(anna)["aaaaaaaaaa2"]
 	write(t, r.s, func(tx *sql.Tx) error { return LinkVideo(tx, anna, second.ID, other.ID, r.now) })
-	r.listPlaylist(1, "aaaaaaaaaa4")
-	r.check(fl.ID)
+	r.listPlaylist(-1, "aaaaaaaaaa4")
+	twice()
 	got = r.videos(anna)
 	if v := got["aaaaaaaaaa1"]; v.State != StateDone || len(v.FollowIDs) != 0 || !v.Manual {
 		t.Fatalf("manual video %+v", v)
@@ -266,7 +295,8 @@ func TestMirrorRemovesWhatLeftThePlaylist(t *testing.T) {
 }
 
 // A playlist that is not mirrored never removes anything, and a mirror
-// turned on later takes the videos its backfill passed over.
+// turned on later takes the videos its backfill passed over. What was seen
+// missing before a switch does not count after it.
 func TestMirrorTurnedOnLater(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, "ok")
@@ -274,22 +304,36 @@ func TestMirrorTurnedOnLater(t *testing.T) {
 	f := playlistFollow("PLtestlist01")
 	f.Backfill = intp(1)
 	fl := r.follow(anna, f)
-	r.listPlaylist(3, "aaaaaaaaaa1", "aaaaaaaaaa2", "aaaaaaaaaa3")
+	r.listPlaylist(-1, "aaaaaaaaaa1", "aaaaaaaaaa2", "aaaaaaaaaa3")
 	r.check(fl.ID)
 	if c := countStates(r.videos(anna)); c[StateDone] != 1 || c[StateSkipped] != 2 {
 		t.Fatalf("first check %v", c)
 	}
-	r.listPlaylist(1, "aaaaaaaaaa2")
+	r.listPlaylist(-1, "aaaaaaaaaa2")
+	r.check(fl.ID)
 	r.check(fl.ID)
 	if c := countStates(r.videos(anna)); c[StateDone] != 1 || c[StateSkipped] != 2 || len(r.mp4s()) != 1 {
 		t.Fatalf("a playlist that is not mirrored removed something: %v", c)
 	}
-
-	got, err := r.svc.UpdateFollow(ctx, anna, fl.ID, FollowChange{Mirror: ptr(true)})
-	if err != nil || !got.Mirror {
-		t.Fatalf("mirror on: %+v %v", got, err)
+	mirror := func(on bool) {
+		t.Helper()
+		got, err := r.svc.UpdateFollow(ctx, anna, fl.ID, FollowChange{Mirror: ptr(on)})
+		if err != nil || got.Mirror != on {
+			t.Fatalf("mirror %v: %+v %v", on, got, err)
+		}
+		r.drain() // turning it on queues a check
 	}
-	r.drain() // turning it on queued a check
+	mirror(true)
+	if vs := r.videos(anna); len(vs) != 3 || vs["aaaaaaaaaa2"].State != StateDone {
+		t.Fatalf("after the first mirrored check: %v, want the video in the playlist downloaded and nothing gone yet", countStates(vs))
+	}
+	// Off and on again: the first check after it starts counting afresh.
+	mirror(false)
+	mirror(true)
+	if vs := r.videos(anna); len(vs) != 3 {
+		t.Fatalf("a mark from before the switch removed videos: %v", countStates(vs))
+	}
+	r.check(fl.ID)
 	vs := r.videos(anna)
 	if len(vs) != 1 || vs["aaaaaaaaaa2"].State != StateDone {
 		t.Fatalf("after mirroring: %v, want only the video still in the playlist, downloaded", vs)
@@ -327,8 +371,8 @@ func TestMirrorTakesBackWhatKeepLastLetGo(t *testing.T) {
 	}
 }
 
-// A video that cannot be deleted is kept on the follow as its error; the
-// check itself goes on and the video stays linked for the next try.
+// A video whose files cannot be deleted is kept on the follow as its
+// error; the check itself goes on.
 func TestMirrorRemovalFailureStaysOnTheFollow(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, "ok")
@@ -336,7 +380,7 @@ func TestMirrorRemovalFailureStaysOnTheFollow(t *testing.T) {
 	f := playlistFollow("PLtestlist01")
 	f.Mirror = true
 	fl := r.follow(anna, f)
-	r.listPlaylist(2, "aaaaaaaaaa1", "aaaaaaaaaa2")
+	r.listPlaylist(-1, "aaaaaaaaaa1", "aaaaaaaaaa2")
 	r.check(fl.ID)
 	gone := r.videos(anna)["aaaaaaaaaa2"]
 	// A row whose path leaves the YouTube folder is refused, not deleted.
@@ -344,7 +388,8 @@ func TestMirrorRemovalFailureStaysOnTheFollow(t *testing.T) {
 		_, err := tx.Exec("UPDATE youtube_videos SET relative_path = '../outside.mp4' WHERE id = ?", gone.ID)
 		return err
 	})
-	r.listPlaylist(1, "aaaaaaaaaa1")
+	r.listPlaylist(-1, "aaaaaaaaaa1")
+	r.check(fl.ID)
 	r.check(fl.ID)
 	if js := r.jobs(KindCheck); js[len(js)-1].State != "done" {
 		t.Fatalf("check job %s", js[len(js)-1].State)
@@ -352,9 +397,6 @@ func TestMirrorRemovalFailureStaysOnTheFollow(t *testing.T) {
 	got, err := FollowOf(ctx, r.s.Read(), anna, fl.ID)
 	if err != nil || !strings.Contains(got.LastError, "could not be removed") || strings.Contains(got.LastError, "outside") {
 		t.Fatalf("follow error %q, %v", got.LastError, err)
-	}
-	if v := r.videos(anna)["aaaaaaaaaa2"]; !slices.Equal(v.FollowIDs, []int64{fl.ID}) {
-		t.Fatalf("the video was unlinked though its files stayed: %+v", v)
 	}
 }
 
@@ -443,12 +485,16 @@ func TestReAddedWhileDownloadingIsPickedUp(t *testing.T) {
 				t.Error(err)
 			}
 			// The new job is the running one: nothing new is queued.
-			r.svc.queueDownload(context.Background(), anna, id)
+			r.svc.queueDownloadNow(context.Background(), anna, id)
 		})
 	}
 	r.download(anna, id)
-	if js := r.jobs(KindDownload); len(js) != 1 || js[0].State != "done" {
-		t.Fatalf("jobs %+v, want the one job done", js)
+	// The running job starts the video over. A second job waits behind it
+	// in case the first was already past its last look; here it finds the
+	// video settled and does nothing.
+	js := r.jobs(KindDownload)
+	if len(js) != 2 || js[0].State != "done" || js[1].State != "done" || js[1].Result["skipped"] != "settled" {
+		t.Fatalf("jobs %+v, want the first done and a second that had nothing to do", js)
 	}
 	v := r.videos(anna)["abcdefghijk"]
 	if v.State != StateDone || v.MaxHeight != 720 || v.RelativePath == "" {
