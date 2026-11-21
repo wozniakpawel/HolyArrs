@@ -325,7 +325,7 @@ func TestDownloadUsesEstimateWhenTotalUnknown(t *testing.T) {
 
 func TestDownloadStallIsKilled(t *testing.T) {
 	r, f := fakeRunner(t, "hang")
-	r.Stall = 200 * time.Millisecond
+	r.Stall = time.Second
 	dir := t.TempDir()
 	outBase := filepath.Join(dir, "0000-00-00 x [abcdefghijk]")
 	other := filepath.Join(dir, "other.part")

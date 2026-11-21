@@ -117,10 +117,12 @@ if [ "$op" = download ]; then
 		: > "$base.f137.mp4.part"
 		: > "$base.f137.mp4.ytdl"
 		: > "$base.temp.mp4"
-		echo "HAYT 10 1000 NA"
 		# A child keeps beating, like the ffmpeg yt-dlp starts, so a test
-		# can tell the whole group was stopped.
+		# can tell the whole group was stopped. It beats once before the
+		# progress line, so a stall kill always finds it running.
 		( while :; do date > "$DIR/heartbeat"; sleep 0.05; done ) &
+		until [ -s "$DIR/heartbeat" ]; do sleep 0.01; done
+		echo "HAYT 10 1000 NA"
 		wait ;;
 	esac
 	# yt-dlp prints progress on stderr when --print makes it quiet; the
