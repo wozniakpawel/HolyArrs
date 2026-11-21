@@ -94,17 +94,20 @@ Off by default: every video stays. A mirrored playlist keeps every video, so the
 A mirrored playlist is kept the same as the playlist on YouTube. Turn on **Mirror this playlist** when you follow a playlist, or later under **Following > Manage**. Turning it on later asks first. It is off by default, and only playlists have it.
 
 - Every video in the playlist downloads, whatever the first download took.
-- At each check, a video that is no longer in the playlist is deleted here: file, thumbnail and its place in your list.
+- A video that is no longer in the playlist is deleted here: file, thumbnail and its place in your list. That takes two checks in a row that both find it gone, so about 12 hours with the usual schedule. If it is back in the playlist at the second check, it stays.
 - A video you added by its own link, or that another playlist or channel you follow also has, stays. It only leaves this playlist.
 - A video you removed yourself stays removed while it is still in the playlist.
 
-Nothing is deleted unless YouTube's listing is complete:
+A check only counts towards deleting when YouTube's listing looks complete:
 
-- A check that fails removes nothing. That covers a playlist that went private or was deleted.
-- A listing that is empty, or shorter than the number of videos YouTube says the playlist has, removes nothing. YouTube leaves private and deleted videos out of a listing but still counts them, so a playlist holding such a video removes nothing until you take that video out of the playlist on YouTube.
+- A check that fails does not count. That covers a playlist that went private or was deleted.
+- A listing that yt-dlp warned about does not count. yt-dlp warns when part of a long playlist could not be read.
+- A listing that is empty, or shorter than the number of videos YouTube says the playlist has, does not count. YouTube leaves private and deleted videos out of a listing but still counts them, so a playlist holding such a video removes nothing until you take that video out of the playlist on YouTube.
 - A paused follow is not checked.
 
-Turning the mirror off deletes nothing.
+Mixes and YouTube's own lists (Watch later, Liked videos, Uploads) cannot be mirrored: they change by themselves or cannot be read in full.
+
+Turning the mirror off deletes nothing, and turning it on again starts the two checks afresh.
 
 ## What a follow deletes
 
@@ -221,8 +224,8 @@ curl -X POST http://holyarrs:6262/api/v1/youtube/adopt \
 **Fix:** open the link in a browser. If it is gone, unfollow it.
 
 **Symptom:** a video you took out of a mirrored playlist is still here.
-**Cause:** the follow has not been checked yet, the video is also in another follow or was added by its own link, or YouTube's listing was not complete.
-**Fix:** wait for the next check, or run **Check YouTube follows** in **Settings > Schedules**. If the playlist holds a private or deleted video, remove that one from the playlist on YouTube. See [Mirror a playlist](#mirror-a-playlist).
+**Cause:** it takes two checks in a row to delete a video. Or the video is also in another follow, was added by its own link, or YouTube's listing was not complete.
+**Fix:** wait for two checks, or run **Check YouTube follows** in **Settings > Schedules** twice. If the playlist holds a private or deleted video, remove that one from the playlist on YouTube. See [Mirror a playlist](#mirror-a-playlist).
 
 **Symptom:** **Skipped** videos on a channel.
 **Cause:** older than the first download you picked, or older Shorts when **Include Shorts** was turned on later.
